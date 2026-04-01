@@ -1,12 +1,14 @@
 import { Routes, Route } from "react-router-dom";
 import Layout from "../components/Layout";
-import Login from "../pages/Login";
 import Dashboard from "../pages/Dashboard";
 import DashboardUsuario from "../pages/DashboardUsuario";
 import Jac from "../pages/Jac";
 import Asocomunales from "../pages/Asocomunales";
 import Usuarios from "../pages/Usuarios";
 import Reportes from "../pages/Reportes";
+import Analiticas from "../pages/Analiticas";
+
+
 
 /**
  * Obtiene el rol del usuario actual desde ,POR AHORA , el almacenamiento local (OJO).
@@ -30,7 +32,7 @@ function RootDashboard() {
   return role === "usuario" ? <DashboardUsuario /> : <Dashboard />;
 }
 
-function ComingSoon({ title }) {
+function ComingSoon({ title }: { title: string }) {
   return (
     <div className="flex flex-col items-center justify-center h-64 text-gray-400 gap-2">
       <p className="text-4xl">🚧</p>
@@ -43,13 +45,12 @@ function ComingSoon({ title }) {
 function AppRouter() {
   return (
     <Routes>
-      <Route path="/login" element={<Login />} />
       <Route path="/" element={<Layout><RootDashboard /></Layout>} />
       <Route path="/jac" element={<Layout><Jac /></Layout>} />
       <Route path="/asocomunales" element={<Layout><Asocomunales /></Layout>} />
       <Route path="/usuarios" element={<Layout><Usuarios /></Layout>} />
       <Route path="/reportes" element={<Layout><Reportes /></Layout>} />
-      <Route path="/analiticas" element={<Layout><ComingSoon title="Analítica y Estadísticas" /></Layout>} />
+      <Route path="/analiticas" element={<Layout><Analiticas /></Layout>} />
       <Route path="/alertas" element={<Layout><ComingSoon title="Alertas y Riesgo Organizativo" /></Layout>} />
       <Route path="/solicitudes" element={<Layout><ComingSoon title="Solicitudes Pendientes" /></Layout>} />
       <Route path="/migracion" element={<Layout><ComingSoon title="Migración de Datos" /></Layout>} />
