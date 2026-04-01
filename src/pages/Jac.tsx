@@ -1,4 +1,5 @@
 import { Plus, Search, RotateCcw, UserRound, Trash2 } from "lucide-react";
+import { useNavigate } from "react-router-dom";
 import Badge from "../components/ui/Badge";
 import PageHeader from "../components/ui/PageHeader";
 import SearchBar from "../components/ui/SearchBar";
@@ -25,11 +26,16 @@ function Jac() {
     setFecha,
   } = useJac();
 
+  const navigate = useNavigate();
+  const userRole = "Administrador";
+  const canViewAfiliados =
+    userRole === "Administrador" || userRole === "Operador";
+
   return (
     <div>
       <PageHeader
         title="Juntas de Acción Comunal"
-        role="Administrador/Auditor"
+        role={userRole}
         subtitle="Gestión de Juntas de Acción Comunal"
         description="Administre y consulte la información de las JAC del departamento"
       >
@@ -140,30 +146,58 @@ function Jac() {
               {filtered.length === 0 ? (
                 <EmptyState message="No se encontraron JAC con los criterios seleccionados" />
               ) : (
-                filtered.map((jac, index) => (
+                filtered.map((jac) => (
                   <tr
-                    key={index}
+                    key={jac.id}
                     className="border-b border-gray-50 hover:bg-gray-50 transition-colors"
                   >
-                    <td className="px-4 py-3 font-medium text-gray-800">{jac.nombre}</td>
+                    <td className="px-4 py-3 font-medium text-gray-800">
+                      <button
+                        onClick={() => navigate(`/jac/${jac.id}`)}
+                        className="text-left hover:text-[#1B7F4B] transition-colors"
+                      >
+                        {jac.nombre}
+                      </button>
+                    </td>
                     <td className="px-4 py-3 text-gray-600">{jac.municipio}</td>
                     <td className="px-4 py-3 text-gray-600">{jac.barrio}</td>
-                    <td className="px-4 py-3 text-gray-700 tabular-nums font-medium">{jac.afiliados}</td>
-                    <td className="px-4 py-3">
-                      <Badge label={jac.documental} variant={docVariant[jac.documental]} />
+                    <td className="px-4 py-3 text-gray-700 tabular-nums font-medium">
+                      {jac.afiliados}
                     </td>
                     <td className="px-4 py-3">
-                      <Badge label={jac.organizativo} variant={orgVariant[jac.organizativo]} />
+                      <Badge
+                        label={jac.documental}
+                        variant={docVariant[jac.documental]}
+                      />
                     </td>
                     <td className="px-4 py-3">
-                      <Badge label={jac.aprobacion} variant={aprobVariant[jac.aprobacion]} />
+                      <Badge
+                        label={jac.organizativo}
+                        variant={orgVariant[jac.organizativo]}
+                      />
+                    </td>
+                    <td className="px-4 py-3">
+                      <Badge
+                        label={jac.aprobacion}
+                        variant={aprobVariant[jac.aprobacion]}
+                      />
                     </td>
                     <td className="px-4 py-3">
                       <div className="flex items-center gap-2">
-                        <button className="p-1.5 rounded-lg hover:bg-gray-100 text-gray-500 hover:text-gray-700 transition-colors">
-                          <UserRound size={15} />
-                        </button>
-                        <button className="p-1.5 rounded-lg hover:bg-red-50 text-gray-400 hover:text-red-500 transition-colors">
+                        {canViewAfiliados && (
+                          <button
+                            onClick={() => navigate(`/jac/${jac.id}`)}
+                            className="p-1.5 rounded-lg hover:bg-[#1B7F4B]/10 text-gray-500 hover:text-[#1B7F4B] transition-colors"
+                            title="Ver detalle"
+                          >
+                            <UserRound size={15} />
+                          </button>
+                        )}
+
+                        <button
+                          className="p-1.5 rounded-lg hover:bg-red-50 text-gray-400 hover:text-red-500 transition-colors"
+                          title="Eliminar"
+                        >
                           <Trash2 size={15} />
                         </button>
                       </div>

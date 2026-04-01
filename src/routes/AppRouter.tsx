@@ -6,6 +6,10 @@ import Asocomunales from "../pages/Asocomunales";
 import Usuarios from "../pages/Usuarios";
 import Reportes from "../pages/Reportes";
 import Analiticas from "../pages/Analiticas";
+import { AlignVerticalSpaceBetween } from "lucide-react";
+import Alertas from "../pages/Alertas";
+import Solicitudes from "../pages/Solicitudes";
+import JacDetalle from "../pages/JacDetalle";
 
 function ComingSoon({ title }: { title: string }) {
   return (
@@ -22,12 +26,13 @@ function AppRouter() {
     <Routes>
       <Route path="/" element={<Layout><Dashboard /></Layout>} />
       <Route path="/jac" element={<Layout><Jac /></Layout>} />
+      <Route path="/jac/:id" element={<Layout><JacDetalle /></Layout>} />
       <Route path="/asocomunales" element={<Layout><Asocomunales /></Layout>} />
       <Route path="/usuarios" element={<Layout><Usuarios /></Layout>} />
       <Route path="/reportes" element={<Layout><Reportes /></Layout>} />
       <Route path="/analiticas" element={<Layout><Analiticas /></Layout>} />
-      <Route path="/alertas" element={<Layout><ComingSoon title="Alertas y Riesgo Organizativo" /></Layout>} />
-      <Route path="/solicitudes" element={<Layout><ComingSoon title="Solicitudes Pendientes" /></Layout>} />
+      <Route path="/alertas" element={<Layout><Alertas /></Layout>} />
+      <Route path="/solicitudes" element={<Layout><Solicitudes /></Layout>} />
       <Route path="/migracion" element={<Layout><ComingSoon title="Migración de Datos" /></Layout>} />
       <Route path="/configuracion" element={<Layout><ComingSoon title="Configuración" /></Layout>} />
     </Routes>
