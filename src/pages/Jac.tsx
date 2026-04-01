@@ -1,169 +1,29 @@
-import { useState } from "react";
 import { Plus, Search, RotateCcw, UserRound, Trash2 } from "lucide-react";
 import Badge from "../components/ui/Badge";
 import PageHeader from "../components/ui/PageHeader";
 import SearchBar from "../components/ui/SearchBar";
 import EmptyState from "../components/ui/EmptyState";
-
-type EstadoDocumental = "Vigente" | "Vencida" | "Por vencer";
-type EstadoOrganizativo = "Activa" | "Inactiva";
-type EstadoAprobacion = "Activo" | "Pendiente" | "Rechazado";
-
-interface JacItem {
-  nombre: string;
-  municipio: string;
-  barrio: string;
-  afiliados: number;
-  documental: EstadoDocumental;
-  organizativo: EstadoOrganizativo;
-  aprobacion: EstadoAprobacion;
-}
-
-interface JacFilters {
-  busqueda: string;
-  municipio: string;
-  estado: string;
-  documental: string;
-  minAfiliados: string;
-  fecha: string;
-}
-
-const jacData: JacItem[] = [
-  {
-    nombre: "JAC Barrio El Recuerdo",
-    municipio: "Popayán",
-    barrio: "El Recuerdo",
-    afiliados: 125,
-    documental: "Vigente",
-    organizativo: "Activa",
-    aprobacion: "Activo",
-  },
-  {
-    nombre: "JAC Vereda La Meseta",
-    municipio: "Santander",
-    barrio: "La Meseta",
-    afiliados: 89,
-    documental: "Vencida",
-    organizativo: "Activa",
-    aprobacion: "Pendiente",
-  },
-  {
-    nombre: "JAC Comunidad Los Pinos",
-    municipio: "Patía",
-    barrio: "Los Pinos",
-    afiliados: 156,
-    documental: "Vigente",
-    organizativo: "Activa",
-    aprobacion: "Activo",
-  },
-  {
-    nombre: "JAC Barrio Centro",
-    municipio: "Timbío",
-    barrio: "Centro",
-    afiliados: 210,
-    documental: "Por vencer",
-    organizativo: "Activa",
-    aprobacion: "Activo",
-  },
-  {
-    nombre: "JAC Vereda El Porvenir",
-    municipio: "Piendamó",
-    barrio: "El Porvenir",
-    afiliados: 78,
-    documental: "Vencida",
-    organizativo: "Inactiva",
-    aprobacion: "Rechazado",
-  },
-  {
-    nombre: "JAC Barrio La Esmeralda",
-    municipio: "Popayán",
-    barrio: "La Esmeralda",
-    afiliados: 142,
-    documental: "Vigente",
-    organizativo: "Activa",
-    aprobacion: "Activo",
-  },
-];
-
-const initialFilters: JacFilters = {
-  busqueda: "",
-  municipio: "",
-  estado: "",
-  documental: "",
-  minAfiliados: "",
-  fecha: "",
-};
-
-const columns: string[] = [
-  "Nombre de la JAC",
-  "Municipio",
-  "Barrio/Vereda",
-  "Afiliados",
-  "Estado documental",
-  "Estado organizativo",
-  "Estado de aprobación",
-  "Acciones",
-];
-
-const docVariant: Record<EstadoDocumental, "green" | "red" | "amber"> = {
-  Vigente: "green",
-  Vencida: "red",
-  "Por vencer": "amber",
-};
-
-const orgVariant: Record<EstadoOrganizativo, "green" | "gray"> = {
-  Activa: "green",
-  Inactiva: "gray",
-};
-
-const aprobVariant: Record<EstadoAprobacion, "green" | "amber" | "red"> = {
-  Activo: "green",
-  Pendiente: "amber",
-  Rechazado: "red",
-};
+import {
+  useJac,
+  columns,
+  docVariant,
+  orgVariant,
+  aprobVariant,
+} from "../hooks/useJac";
 
 function Jac() {
-  const [filters, setFilters] = useState<JacFilters>(initialFilters);
-  const [appliedFilters, setAppliedFilters] =
-    useState<JacFilters>(initialFilters);
-
-  const handleSearch = () => {
-    setAppliedFilters(filters);
-  };
-
-  const handleClear = () => {
-    setFilters(initialFilters);
-    setAppliedFilters(initialFilters);
-  };
-
-  const filtered = jacData.filter((j) => {
-    const matchBusqueda =
-      !appliedFilters.busqueda ||
-      [j.nombre, j.municipio, j.barrio].some((value) =>
-        value.toLowerCase().includes(appliedFilters.busqueda.toLowerCase())
-      );
-
-    const matchMunicipio =
-      !appliedFilters.municipio || j.municipio === appliedFilters.municipio;
-
-    const matchEstado =
-      !appliedFilters.estado || j.organizativo === appliedFilters.estado;
-
-    const matchDocumental =
-      !appliedFilters.documental || j.documental === appliedFilters.documental;
-
-    const matchAfiliados =
-      !appliedFilters.minAfiliados ||
-      j.afiliados >= Number(appliedFilters.minAfiliados);
-
-    return (
-      matchBusqueda &&
-      matchMunicipio &&
-      matchEstado &&
-      matchDocumental &&
-      matchAfiliados
-    );
-  });
+  const {
+    filters,
+    filtered,
+    handleSearch,
+    handleClear,
+    setBusqueda,
+    setMunicipio,
+    setEstado,
+    setDocumental,
+    setMinAfiliados,
+    setFecha,
+  } = useJac();
 
   return (
     <div>
@@ -188,16 +48,12 @@ function Jac() {
           <SearchBar
             placeholder="Buscar por nombre o barrio/vereda..."
             value={filters.busqueda}
-            onChange={(e) =>
-              setFilters((prev) => ({ ...prev, busqueda: e.target.value }))
-            }
+            onChange={(e) => setBusqueda(e.target.value)}
           />
 
           <select
             value={filters.municipio}
-            onChange={(e) =>
-              setFilters((prev) => ({ ...prev, municipio: e.target.value }))
-            }
+            onChange={(e) => setMunicipio(e.target.value)}
             className="appearance-none w-full bg-white border border-gray-200 text-sm text-gray-600 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-[#1B7F4B]/30 focus:border-[#1B7F4B] transition-all cursor-pointer"
           >
             <option value="">Todos los municipios</option>
@@ -210,9 +66,7 @@ function Jac() {
 
           <select
             value={filters.estado}
-            onChange={(e) =>
-              setFilters((prev) => ({ ...prev, estado: e.target.value }))
-            }
+            onChange={(e) => setEstado(e.target.value)}
             className="appearance-none w-full bg-white border border-gray-200 text-sm text-gray-600 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-[#1B7F4B]/30 focus:border-[#1B7F4B] transition-all cursor-pointer"
           >
             <option value="">Todos los estados</option>
@@ -222,9 +76,7 @@ function Jac() {
 
           <select
             value={filters.documental}
-            onChange={(e) =>
-              setFilters((prev) => ({ ...prev, documental: e.target.value }))
-            }
+            onChange={(e) => setDocumental(e.target.value)}
             className="appearance-none w-full bg-white border border-gray-200 text-sm text-gray-600 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-[#1B7F4B]/30 focus:border-[#1B7F4B] transition-all cursor-pointer"
           >
             <option value="">Todos los estados documentales</option>
@@ -237,21 +89,14 @@ function Jac() {
             type="number"
             placeholder="Número mínimo de afiliados"
             value={filters.minAfiliados}
-            onChange={(e) =>
-              setFilters((prev) => ({
-                ...prev,
-                minAfiliados: e.target.value,
-              }))
-            }
+            onChange={(e) => setMinAfiliados(e.target.value)}
             className="w-full bg-white border border-gray-200 text-sm text-gray-600 placeholder:text-gray-400 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-[#1B7F4B]/30 focus:border-[#1B7F4B] transition-all"
           />
 
           <input
             type="date"
             value={filters.fecha}
-            onChange={(e) =>
-              setFilters((prev) => ({ ...prev, fecha: e.target.value }))
-            }
+            onChange={(e) => setFecha(e.target.value)}
             className="w-full bg-white border border-gray-200 text-sm text-gray-500 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-[#1B7F4B]/30 focus:border-[#1B7F4B] transition-all"
           />
         </div>
@@ -300,31 +145,18 @@ function Jac() {
                     key={index}
                     className="border-b border-gray-50 hover:bg-gray-50 transition-colors"
                   >
-                    <td className="px-4 py-3 font-medium text-gray-800">
-                      {jac.nombre}
-                    </td>
+                    <td className="px-4 py-3 font-medium text-gray-800">{jac.nombre}</td>
                     <td className="px-4 py-3 text-gray-600">{jac.municipio}</td>
                     <td className="px-4 py-3 text-gray-600">{jac.barrio}</td>
-                    <td className="px-4 py-3 text-gray-700 tabular-nums font-medium">
-                      {jac.afiliados}
+                    <td className="px-4 py-3 text-gray-700 tabular-nums font-medium">{jac.afiliados}</td>
+                    <td className="px-4 py-3">
+                      <Badge label={jac.documental} variant={docVariant[jac.documental]} />
                     </td>
                     <td className="px-4 py-3">
-                      <Badge
-                        label={jac.documental}
-                        variant={docVariant[jac.documental]}
-                      />
+                      <Badge label={jac.organizativo} variant={orgVariant[jac.organizativo]} />
                     </td>
                     <td className="px-4 py-3">
-                      <Badge
-                        label={jac.organizativo}
-                        variant={orgVariant[jac.organizativo]}
-                      />
-                    </td>
-                    <td className="px-4 py-3">
-                      <Badge
-                        label={jac.aprobacion}
-                        variant={aprobVariant[jac.aprobacion]}
-                      />
+                      <Badge label={jac.aprobacion} variant={aprobVariant[jac.aprobacion]} />
                     </td>
                     <td className="px-4 py-3">
                       <div className="flex items-center gap-2">

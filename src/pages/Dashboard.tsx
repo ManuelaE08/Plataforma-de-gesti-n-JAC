@@ -1,78 +1,205 @@
-import { Building2, Users, MapPin, UserCheck, FileCheck, FileX } from "lucide-react";
-import KpiCard from "../components/ui/KpiCard";
+import {
+  Building2,
+  Users,
+  ClipboardList,
+  AlertTriangle,
+  TrendingUp,
+  FileBarChart2,
+} from "lucide-react";
 import PageHeader from "../components/ui/PageHeader";
-
-const kpis = [
-  { label: "TOTAL DE JAC", value: "1,245", sub: "+12% desde el mes pasado", icon: Building2, iconBg: "bg-[#1B7F4B]/10", iconColor: "text-[#1B7F4B]" },
-  { label: "TOTAL DE ASOCOMUNALES", value: "42", sub: "+3 nuevas este mes", icon: Users, iconBg: "bg-[#2563EB]/10", iconColor: "text-[#2563EB]" },
-  { label: "MUNICIPIOS", value: "42", sub: "Cobertura completa", icon: MapPin, iconBg: "bg-purple-100", iconColor: "text-purple-600" },
-  { label: "TOTAL DE AFILIADOS", value: "85,420", sub: "+6% este trimestre", icon: UserCheck, iconBg: "bg-[#F59E0B]/10", iconColor: "text-[#F59E0B]" },
-  { label: "JAC CON DOCUMENTACIÓN VIGENTE", value: "1,089", sub: "87% del total", icon: FileCheck, iconBg: "bg-[#1B7F4B]/10", iconColor: "text-[#1B7F4B]" },
-  { label: "JAC CON DOCUMENTACIÓN VENCIDA", value: "156", sub: "13% requieren actualización", icon: FileX, iconBg: "bg-red-100", iconColor: "text-red-500" },
-];
-
-const municipios = [
-  { name: "Popayán", value: 210 }, { name: "Santander", value: 178 },
-  { name: "Patía", value: 85 }, { name: "Timbío", value: 70 },
-  { name: "Piendamó", value: 60 }, { name: "Bolívar", value: 55 },
-  { name: "Miranda", value: 45 }, { name: "Cajibío", value: 40 },
-];
+import Badge from "../components/ui/Badge";
+import { useDashboard } from "../hooks/useDashboard";
 
 function Dashboard() {
+  const { kpis, actividadReciente, alertas, distribucionMunicipios } =
+    useDashboard();
+
+  const icons = [Building2, Users, ClipboardList, AlertTriangle];
+
   return (
     <div>
-      <PageHeader title="Dashboard" role="Administrador/Auditor" />
+      <PageHeader
+        title="Dashboard"
+        role="Administrador/Auditor"
+        subtitle="Resumen general del sistema"
+        description="Monitoree indicadores clave, actividad reciente y alertas organizativas"
+      />
 
-      <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-3 gap-4 mb-6">
-        {kpis.map((k, i) => <KpiCard key={i} {...k} />)}
+      <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-4 gap-4 mb-6">
+        {kpis.map((item, index) => {
+          const Icon = icons[index];
+
+          return (
+            <div
+              key={item.label}
+              className="bg-white rounded-xl p-5 shadow-sm border border-gray-100 flex items-start justify-between"
+            >
+              <div>
+                <p className="text-[10px] font-semibold text-gray-400 tracking-wider uppercase mb-1">
+                  {item.label}
+                </p>
+                <p className="text-3xl font-bold tabular-nums text-gray-800">
+                  {item.value}
+                </p>
+                <p className="text-[11px] text-gray-400 mt-1">{item.sub}</p>
+              </div>
+
+              <div className={`${item.iconBg} p-2.5 rounded-lg shrink-0 ml-4`}>
+                <Icon size={22} className={item.iconColor} />
+              </div>
+            </div>
+          );
+        })}
       </div>
 
-      <div className="grid grid-cols-1 lg:grid-cols-3 gap-4 mb-4">
-        {/* Barras */}
-        <div className="lg:col-span-2 bg-white rounded-xl p-5 shadow-sm border border-gray-100">
-          <h3 className="text-sm font-semibold text-gray-700 mb-5">JAC por Municipio</h3>
-          <div className="flex items-end gap-3 h-40">
-            {municipios.map((m, i) => (
-              <div key={i} className="flex-1 flex flex-col items-center gap-1">
-                <span className="text-[10px] text-gray-500 tabular-nums">{m.value}</span>
-                <div className="w-full bg-[#1B7F4B] rounded-t-sm" style={{ height: `${(m.value / 210) * 100}%` }} />
-                <span className="text-[9px] text-gray-400 truncate w-full text-center">{m.name}</span>
+      <div className="grid grid-cols-1 xl:grid-cols-3 gap-4 mb-6">
+        <div className="xl:col-span-2 bg-white rounded-xl p-5 shadow-sm border border-gray-100">
+          <div className="flex items-center justify-between mb-5">
+            <div>
+              <h2 className="text-sm font-semibold text-gray-800">
+                Distribución por municipio
+              </h2>
+              <p className="text-xs text-gray-400 mt-1">
+                Organizaciones registradas con mayor presencia
+              </p>
+            </div>
+
+            <div className="flex items-center gap-2 text-xs text-[#2563EB] font-medium">
+              <TrendingUp size={14} />
+              Tendencia estable
+            </div>
+          </div>
+
+          <div className="space-y-4">
+            {distribucionMunicipios.map((item) => (
+              <div key={item.municipio}>
+                <div className="flex items-center justify-between mb-1.5">
+                  <span className="text-sm text-gray-600">{item.municipio}</span>
+                  <span className="text-sm font-semibold text-gray-800">
+                    {item.total}
+                  </span>
+                </div>
+
+                <div className="w-full h-2.5 bg-gray-100 rounded-full overflow-hidden">
+                  <div
+                    className="h-full bg-[#1B7F4B] rounded-full"
+                    style={{ width: `${(item.total / 34) * 100}%` }}
+                  />
+                </div>
               </div>
             ))}
           </div>
         </div>
 
-        {/* Donut */}
-        <div className="bg-white rounded-xl p-5 shadow-sm border border-gray-100 flex flex-col">
-          <h3 className="text-sm font-semibold text-gray-700 mb-4">Distribución Rural vs Urbano</h3>
-          <div className="flex-1 flex flex-col items-center justify-center gap-4">
-            <svg viewBox="0 0 120 120" width="140" height="140">
-              <circle cx="60" cy="60" r="45" fill="none" stroke="#e5e7eb" strokeWidth="18" />
-              <circle cx="60" cy="60" r="45" fill="none" stroke="#1B7F4B" strokeWidth="18" strokeDasharray="195.4 87.6" strokeDashoffset="70.7" transform="rotate(-90 60 60)" />
-              <circle cx="60" cy="60" r="45" fill="none" stroke="#2563EB" strokeWidth="18" strokeDasharray="87.6 195.4" strokeDashoffset="-124.7" transform="rotate(-90 60 60)" />
-              <text x="60" y="56" textAnchor="middle" fontSize="11" fontWeight="700" fill="#1B7F4B">Rural</text>
-              <text x="60" y="70" textAnchor="middle" fontSize="10" fill="#6b7280">69%</text>
-            </svg>
-            <div className="flex items-center gap-6">
-              <div className="flex items-center gap-2"><span className="w-3 h-3 rounded-full bg-[#1B7F4B]" /><span className="text-xs text-gray-600">Rural: 69%</span></div>
-              <div className="flex items-center gap-2"><span className="w-3 h-3 rounded-full bg-[#2563EB]" /><span className="text-xs text-gray-600">Urbano: 31%</span></div>
+        <div className="bg-white rounded-xl p-5 shadow-sm border border-gray-100">
+          <div className="flex items-center gap-2 mb-4">
+            <FileBarChart2 size={16} className="text-[#2563EB]" />
+            <h2 className="text-sm font-semibold text-gray-800">
+              Resumen documental
+            </h2>
+          </div>
+
+          <div className="flex items-center justify-center py-6">
+            <div className="relative w-40 h-40 rounded-full bg-gray-100 flex items-center justify-center">
+              <div
+                className="absolute inset-0 rounded-full"
+                style={{
+                  background:
+                    "conic-gradient(#1B7F4B 0deg 220deg, #F59E0B 220deg 300deg, #EF4444 300deg 360deg)",
+                }}
+              />
+              <div className="w-24 h-24 bg-white rounded-full z-10 flex flex-col items-center justify-center">
+                <p className="text-2xl font-bold text-gray-800">128</p>
+                <p className="text-[11px] text-gray-400">Registros</p>
+              </div>
+            </div>
+          </div>
+
+          <div className="space-y-2 mt-2">
+            <div className="flex items-center justify-between text-sm">
+              <span className="text-gray-500">Vigentes</span>
+              <span className="font-semibold text-[#1B7F4B]">61%</span>
+            </div>
+            <div className="flex items-center justify-between text-sm">
+              <span className="text-gray-500">Por vencer</span>
+              <span className="font-semibold text-[#F59E0B]">22%</span>
+            </div>
+            <div className="flex items-center justify-between text-sm">
+              <span className="text-gray-500">Vencidos</span>
+              <span className="font-semibold text-red-500">17%</span>
             </div>
           </div>
         </div>
       </div>
 
-      {/* Mapa */}
-      <div className="bg-white rounded-xl p-5 shadow-sm border border-gray-100">
-        <h3 className="text-sm font-semibold text-gray-700 mb-4">Distribución geográfica de organizaciones</h3>
-        <div className="bg-gray-50 rounded-lg border border-gray-100 flex flex-col items-center justify-center py-12 gap-3">
-          <MapPin size={36} className="text-[#1B7F4B]" />
-          <p className="text-sm font-medium text-gray-600">Mapa del Departamento del Cauca</p>
-          <p className="text-xs text-[#2563EB]">Visualización de la distribución de JAC y Asocomunales por municipio</p>
-          <div className="flex items-center gap-6 mt-3">
-            {[{ color: "bg-[#2563EB]", label: "JAC Urbanas", n: "380" }, { color: "bg-[#1B7F4B]", label: "JAC Rurales", n: "865" }, { color: "bg-purple-500", label: "Asocomunales", n: "42" }].map((s, i) => (
-              <div key={i} className="flex flex-col items-center gap-1">
-                <div className="flex items-center gap-1.5"><span className={`w-3 h-3 rounded-full ${s.color}`} /><span className="text-xs text-gray-500">{s.label}</span></div>
-                <span className="text-sm font-bold text-gray-700 tabular-nums">{s.n}</span>
+      <div className="grid grid-cols-1 xl:grid-cols-2 gap-4">
+        <div className="bg-white rounded-xl p-5 shadow-sm border border-gray-100">
+          <h2 className="text-sm font-semibold text-gray-800 mb-4">
+            Actividad reciente
+          </h2>
+
+          <div className="space-y-4">
+            {actividadReciente.map((item, index) => (
+              <div
+                key={index}
+                className="flex items-start gap-3 pb-4 border-b border-gray-100 last:border-b-0 last:pb-0"
+              >
+                <div
+                  className={`w-2.5 h-2.5 rounded-full mt-1.5 shrink-0 ${
+                    item.estado === "success"
+                      ? "bg-[#1B7F4B]"
+                      : item.estado === "warning"
+                      ? "bg-[#F59E0B]"
+                      : "bg-[#2563EB]"
+                  }`}
+                />
+                <div className="min-w-0">
+                  <p className="text-sm font-medium text-gray-800">
+                    {item.titulo}
+                  </p>
+                  <p className="text-sm text-gray-500">{item.descripcion}</p>
+                  <p className="text-xs text-gray-400 mt-1">{item.fecha}</p>
+                </div>
+              </div>
+            ))}
+          </div>
+        </div>
+
+        <div className="bg-white rounded-xl p-5 shadow-sm border border-gray-100">
+          <h2 className="text-sm font-semibold text-gray-800 mb-4">
+            Alertas prioritarias
+          </h2>
+
+          <div className="space-y-4">
+            {alertas.map((item, index) => (
+              <div
+                key={index}
+                className="border border-gray-100 rounded-lg p-4 hover:bg-gray-50 transition-colors"
+              >
+                <div className="flex items-start justify-between gap-3 mb-2">
+                  <div>
+                    <p className="text-sm font-medium text-gray-800">
+                      {item.nombre}
+                    </p>
+                    <p className="text-xs text-gray-400">{item.municipio}</p>
+                  </div>
+
+                  <Badge
+                    label={item.nivel}
+                    variant={
+                      item.nivel === "Alto"
+                        ? "red"
+                        : item.nivel === "Medio"
+                        ? "amber"
+                        : "green"
+                    }
+                  />
+                </div>
+
+                <p className="text-sm text-gray-500 flex items-start gap-2">
+                  <AlertTriangle size={14} className="mt-0.5 text-[#F59E0B]" />
+                  <span>{item.motivo}</span>
+                </p>
               </div>
             ))}
           </div>
