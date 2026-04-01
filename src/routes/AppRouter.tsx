@@ -1,13 +1,12 @@
 import { Routes, Route } from "react-router-dom";
 import Layout from "../components/Layout";
-import Login from "../pages/Login";
 import Dashboard from "../pages/Dashboard";
 import Jac from "../pages/Jac";
 import Asocomunales from "../pages/Asocomunales";
 import Usuarios from "../pages/Usuarios";
 import Reportes from "../pages/Reportes";
 
-function ComingSoon({ title }) {
+function ComingSoon({ title }: { title: string }) {
   return (
     <div className="flex flex-col items-center justify-center h-64 text-gray-400 gap-2">
       <p className="text-4xl">🚧</p>
@@ -20,7 +19,6 @@ function ComingSoon({ title }) {
 function AppRouter() {
   return (
     <Routes>
-      <Route path="/login" element={<Login />} />
       <Route path="/" element={<Layout><Dashboard /></Layout>} />
       <Route path="/jac" element={<Layout><Jac /></Layout>} />
       <Route path="/asocomunales" element={<Layout><Asocomunales /></Layout>} />

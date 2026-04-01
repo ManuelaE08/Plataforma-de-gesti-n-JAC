@@ -1,47 +1,77 @@
 import { useState } from "react";
 import { Eye, EyeOff } from "lucide-react";
 import { useNavigate } from "react-router-dom";
+import { useAuth } from "../context/AuthContext";
 
 function Login() {
-  const [showPassword, setShowPassword] = useState(false);
+  const [showPassword, setShowPassword] = useState<boolean>(false);
+  const [usuario, setUsuario] = useState<string>("");
+  const [password, setPassword] = useState<string>("");
+  const [error, setError] = useState<string>("");
+
+  const { login } = useAuth();
   const navigate = useNavigate();
 
-  const handleSubmit = (e) => {
+  const handleSubmit = (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
-    navigate("/");
+
+    const ok = login(usuario, password);
+
+    if (ok) {
+      navigate("/");
+    } else {
+      setError("Usuario o contraseña incorrectos");
+    }
   };
 
   return (
     <div className="min-h-screen bg-[#F5F7FA] flex items-center justify-center p-4">
       <div className="bg-white rounded-2xl shadow-sm border border-gray-100 w-full max-w-sm p-8">
-        
-        {/* Logo / Brand */}
         <div className="mb-7 text-center">
           <div className="w-12 h-12 rounded-xl bg-[#1B7F4B] flex items-center justify-center mx-auto mb-4">
             <span className="text-white font-bold text-lg">JAC</span>
           </div>
+
           <h1 className="text-xl font-bold text-gray-800">Iniciar Sesión</h1>
-          <p className="text-sm text-gray-400 mt-1">Plataforma de Gestión JAC · Gobernación del Cauca</p>
+          <p className="text-sm text-gray-400 mt-1">
+            Plataforma de Gestión JAC · Gobernación del Cauca
+          </p>
         </div>
 
         <form onSubmit={handleSubmit} className="flex flex-col gap-4">
           <div className="flex flex-col gap-1.5">
-            <label className="text-xs font-medium text-gray-600">Usuario</label>
+            <label className="text-xs font-medium text-gray-600">
+              Usuario
+            </label>
             <input
               type="text"
               placeholder="usuario@cauca.gov.co"
+              value={usuario}
+              onChange={(e) => {
+                setUsuario(e.target.value);
+                setError("");
+              }}
               className="border border-gray-200 px-3 py-2.5 rounded-lg text-sm bg-gray-50 focus:bg-white focus:outline-none focus:ring-2 focus:ring-[#1B7F4B]/30 focus:border-[#1B7F4B] transition-all"
             />
           </div>
 
           <div className="flex flex-col gap-1.5">
-            <label className="text-xs font-medium text-gray-600">Contraseña</label>
+            <label className="text-xs font-medium text-gray-600">
+              Contraseña
+            </label>
+
             <div className="relative">
               <input
                 type={showPassword ? "text" : "password"}
                 placeholder="••••••••"
+                value={password}
+                onChange={(e) => {
+                  setPassword(e.target.value);
+                  setError("");
+                }}
                 className="w-full border border-gray-200 px-3 py-2.5 pr-10 rounded-lg text-sm bg-gray-50 focus:bg-white focus:outline-none focus:ring-2 focus:ring-[#1B7F4B]/30 focus:border-[#1B7F4B] transition-all"
               />
+
               <button
                 type="button"
                 onClick={() => setShowPassword(!showPassword)}
@@ -51,6 +81,12 @@ function Login() {
               </button>
             </div>
           </div>
+
+          {error && (
+            <p className="text-xs text-red-500 bg-red-50 border border-red-100 rounded-lg px-3 py-2">
+              {error}
+            </p>
+          )}
 
           <button
             type="submit"

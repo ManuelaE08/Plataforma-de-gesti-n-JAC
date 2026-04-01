@@ -1,4 +1,20 @@
-function PageHeader({ title, subtitle, description, role, children }) {
+import type { ReactNode } from "react";
+
+interface PageHeaderProps {
+  title: string;
+  subtitle?: string;
+  description?: string;
+  role?: string;
+  children?: ReactNode;
+}
+
+function PageHeader({
+  title,
+  subtitle,
+  description,
+  role,
+  children,
+}: PageHeaderProps) {
   return (
     <div className="flex items-start justify-between mb-6 gap-4">
       <div>

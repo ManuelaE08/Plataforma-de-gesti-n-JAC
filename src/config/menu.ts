@@ -1,4 +1,6 @@
-export const menuByRole = {
+import type { MenuByRole } from "../types/menu";
+
+export const menuByRole: MenuByRole = {
   usuario: [
     { name: "Dashboard", path: "/" },
     { name: "Juntas de Acción Comunal", path: "/jac" },
