@@ -32,6 +32,24 @@ const pageNames = {
   "/configuracion": "Configuración",
 };
 
+const roleLabels = {
+  usuario: "Usuario",
+  operador: "Operador",
+  admin: "Administrador/Auditor",
+};
+
+const roleEmails = {
+  usuario: "usuario@cauca.gov.co",
+  operador: "operador@cauca.gov.co",
+  admin: "admin@cauca.gov.co",
+};
+
+const roleInitials = {
+  usuario: "US",
+  operador: "OP",
+  admin: "AA",
+};
+
 function NavItem({ path, name }) {
   const location = useLocation();
   const Icon = iconMap[path] || LayoutDashboard;
@@ -52,8 +70,13 @@ function NavItem({ path, name }) {
 function Layout({ children }) {
   const location = useLocation();
   const navigate = useNavigate();
-  const menu = menuByRole["admin"];
-  const currentPage = pageNames[location.pathname] || "Página";
+  const savedRole = typeof window !== "undefined" ? window.localStorage.getItem("role") : null;
+  const currentRole = savedRole && menuByRole[savedRole] ? savedRole : "admin";
+  const menu = menuByRole[currentRole] || menuByRole.admin;
+  const currentPage = menu.find((item) => item.path === location.pathname)?.name || pageNames[location.pathname] || "Página";
+  const currentRoleLabel = roleLabels[currentRole] || roleLabels.admin;
+  const currentRoleEmail = roleEmails[currentRole] || roleEmails.admin;
+  const currentRoleInitials = roleInitials[currentRole] || roleInitials.admin;
 
   return (
     <div className="flex h-screen bg-neutral overflow-hidden">
@@ -71,10 +94,10 @@ function Layout({ children }) {
 
         <div className="px-2 py-3 border-t border-white/10">
           <div className="flex items-center gap-2 px-3 py-2 mb-1">
-            <div className="w-8 h-8 rounded-full bg-white/20 flex items-center justify-center text-xs font-bold shrink-0">AA</div>
+            <div className="w-8 h-8 rounded-full bg-white/20 flex items-center justify-center text-xs font-bold shrink-0">{currentRoleInitials}</div>
             <div className="min-w-0">
-              <p className="text-[12px] font-medium text-white truncate">Administrador/Auditor</p>
-              <p className="text-[10px] text-white/50 truncate">admin@cauca.gov.co</p>
+              <p className="text-[12px] font-medium text-white truncate">{currentRoleLabel}</p>
+              <p className="text-[10px] text-white/50 truncate">{currentRoleEmail}</p>
             </div>
           </div>
           <button
@@ -108,10 +131,10 @@ function Layout({ children }) {
               <span className="absolute top-1 right-1 w-2 h-2 rounded-full bg-red-500 border border-white" />
             </button>
             <div className="flex items-center gap-2 border-l border-gray-100 pl-3">
-              <div className="w-8 h-8 rounded-full bg-[#1B7F4B]/10 flex items-center justify-center text-xs font-bold text-[#1B7F4B]">AA</div>
+              <div className="w-8 h-8 rounded-full bg-[#1B7F4B]/10 flex items-center justify-center text-xs font-bold text-[#1B7F4B]">{currentRoleInitials}</div>
               <div className="hidden sm:block">
-                <p className="text-xs font-medium text-gray-700 leading-tight">Administrador/Auditor</p>
-                <p className="text-[10px] text-gray-400 leading-tight">Administrador/Auditor</p>
+                <p className="text-xs font-medium text-gray-700 leading-tight">{currentRoleLabel}</p>
+                <p className="text-[10px] text-gray-400 leading-tight">{currentRoleLabel}</p>
               </div>
             </div>
           </div>
