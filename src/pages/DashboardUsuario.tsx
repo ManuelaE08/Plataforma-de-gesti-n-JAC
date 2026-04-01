@@ -1,10 +1,27 @@
 import { useState } from "react";
-import { Building2, CalendarDays, CircleCheck, MapPin } from "lucide-react";
+import { Building2, CalendarDays, CircleCheck, MapPin, type LucideIcon } from "lucide-react";
 import KpiCard from "../components/ui/KpiCard";
 import PageHeader from "../components/ui/PageHeader";
 
-const kpis = [
+interface DashboardKpi {
+  id: string;
+  label: string;
+  value: string;
+  sub: string;
+  icon: LucideIcon;
+  iconBg: string;
+  iconColor: string;
+}
+
+interface UpcomingActivity {
+  id: string;
+  title: string;
+  date: string;
+}
+
+const kpis: DashboardKpi[] = [
   {
+    id: "jac-asignadas",
     label: "MIS JAC ASIGNADAS",
     value: "12",
     sub: "2 pendientes de actualización",
@@ -13,6 +30,7 @@ const kpis = [
     iconColor: "text-[#1B7F4B]",
   },
   {
+    id: "tramites-curso",
     label: "TRÁMITES EN CURSO",
     value: "4",
     sub: "1 requiere tu revisión hoy",
@@ -21,6 +39,7 @@ const kpis = [
     iconColor: "text-[#2563EB]",
   },
   {
+    id: "municipios-activos",
     label: "MUNICIPIOS ACTIVOS",
     value: "3",
     sub: "Cobertura de tu zona",
@@ -30,14 +49,14 @@ const kpis = [
   },
 ];
 
-const upcoming = [
-  { title: "Renovación documental JAC El Progreso", date: "02 Abr 2026" },
-  { title: "Validación de acta Asocomunal Centro", date: "04 Abr 2026" },
-  { title: "Actualización de afiliados JAC La Esperanza", date: "07 Abr 2026" },
+const upcoming: UpcomingActivity[] = [
+  { id: "actividad-1", title: "Renovación documental JAC El Progreso", date: "02 Abr 2026" },
+  { id: "actividad-2", title: "Validación de acta Asocomunal Centro", date: "04 Abr 2026" },
+  { id: "actividad-3", title: "Actualización de afiliados JAC La Esperanza", date: "07 Abr 2026" },
 ];
 
 function DashboardUsuario() {
-  const [authMessage, setAuthMessage] = useState("");
+  const [authMessage, setAuthMessage] = useState<string>("");
 
   const handleGoogleLogin = () => {
     const hasClientId = Boolean(import.meta.env.VITE_GOOGLE_CLIENT_ID);
@@ -74,8 +93,8 @@ function DashboardUsuario() {
       )}
 
       <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 xl:grid-cols-3 mb-6">
-        {kpis.map((kpi, index) => (
-          <KpiCard key={index} {...kpi} />
+        {kpis.map(({ id, ...kpi }) => (
+          <KpiCard key={id} {...kpi} />
         ))}
       </div>
 
@@ -83,9 +102,9 @@ function DashboardUsuario() {
         <div className="lg:col-span-2 rounded-xl border border-gray-100 bg-white p-5 shadow-sm">
           <h3 className="mb-4 text-sm font-semibold text-gray-700">Próximas actividades</h3>
           <div className="space-y-3">
-            {upcoming.map((item, index) => (
+            {upcoming.map((item) => (
               <div
-                key={index}
+                key={item.id}
                 className="flex items-center justify-between rounded-lg border border-gray-100 bg-gray-50 px-3 py-2"
               >
                 <p className="text-sm text-gray-700">{item.title}</p>

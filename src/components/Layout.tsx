@@ -1,6 +1,7 @@
 import type { ReactNode } from "react";
 import { Link, useLocation } from "react-router-dom";
 import { menuByRole } from "../config/menu";
+import { currentUser, roleInitials, roleLabels } from "../config/currentUser";
 import {
   LayoutDashboard,
   Building2,
@@ -21,11 +22,6 @@ import {
 interface LayoutProps {
   children: ReactNode;
 }
-
-const currentUser = {
-  nombre: "Administrador/Auditor",
-  rol: "admin" as const,
-};
 
 const iconMap: Record<string, React.ElementType> = {
   "/": LayoutDashboard,
@@ -52,27 +48,6 @@ const pageNames: Record<string, string> = {
   "/usuarios": "Administración de Usuarios",
   "/configuracion": "Configuración",
 };
-
-
-
-const roleLabels = {
-  usuario: "Usuario",
-  operador: "Operador",
-  admin: "Administrador/Auditor",
-};
-
-const roleEmails = {
-  usuario: "usuario@cauca.gov.co",
-  operador: "operador@cauca.gov.co",
-  admin: "admin@cauca.gov.co",
-};
-
-const roleInitials = {
-  usuario: "US",
-  operador: "OP",
-  admin: "AA",
-};
-
 interface NavItemProps {
   path: string;
   name: string;
@@ -131,14 +106,14 @@ function Layout({ children }: LayoutProps) {
         <div className="px-2 py-3 border-t border-white/10">
           <div className="flex items-center gap-2 px-3 py-2 mb-1">
             <div className="w-8 h-8 rounded-full bg-white/20 flex items-center justify-center text-xs font-bold shrink-0">
-              AA
+              {roleInitials[currentUser.rol]}
             </div>
             <div className="min-w-0">
               <p className="text-[12px] font-medium text-white truncate">
                 {currentUser.nombre}
               </p>
               <p className="text-[10px] text-white/50 truncate capitalize">
-                {currentUser.rol}
+                {roleLabels[currentUser.rol]}
               </p>
             </div>
           </div>
@@ -180,14 +155,14 @@ function Layout({ children }: LayoutProps) {
 
             <div className="flex items-center gap-2 border-l border-gray-100 pl-3">
               <div className="w-8 h-8 rounded-full bg-[#1B7F4B]/10 flex items-center justify-center text-xs font-bold text-[#1B7F4B]">
-                AA
+                {roleInitials[currentUser.rol]}
               </div>
               <div className="hidden sm:block">
                 <p className="text-xs font-medium text-gray-700 leading-tight">
                   {currentUser.nombre}
                 </p>
                 <p className="text-[10px] text-gray-400 leading-tight capitalize">
-                  {currentUser.rol}
+                  {roleLabels[currentUser.rol]}
                 </p>
               </div>
             </div>
