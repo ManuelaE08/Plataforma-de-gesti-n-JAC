@@ -142,23 +142,10 @@ function Layout({ children }: LayoutProps) {
       <div className="flex-1 flex flex-col overflow-hidden">
         <header className="h-14 bg-white border-b border-gray-100 flex items-center justify-between px-6 shrink-0 gap-4">
           <div className="flex items-center gap-2 text-sm text-gray-500 min-w-0">
-            <span className="text-gray-400 shrink-0">Inicio</span>
-            <ChevronRight size={13} className="shrink-0" />
-            <span className="text-[#1B7F4B] font-medium truncate">
-              {currentPage}
-            </span>
+      
           </div>
 
           <div className="flex items-center gap-3 shrink-0">
-            <div className="flex items-center gap-2 bg-gray-50 border border-gray-200 rounded-lg px-3 py-1.5 w-64">
-              <Search size={14} className="text-gray-400 shrink-0" />
-              <input
-                type="text"
-                placeholder="Buscar organizaciones, municipios..."
-                className="bg-transparent text-xs text-gray-600 placeholder:text-gray-400 outline-none w-full"
-              />
-            </div>
-
             <button className="relative p-2 rounded-lg hover:bg-gray-100 transition-colors text-gray-500">
               <Bell size={17} />
               <span className="absolute top-1 right-1 w-2 h-2 rounded-full bg-red-500 border border-white" />

@@ -35,7 +35,6 @@ function Analiticas() {
     <div>
       <PageHeader
         title="Analíticas"
-        role="Administrador/Auditor"
         subtitle="Indicadores y comportamiento del sistema"
         description="Consulte métricas clave, distribución territorial y niveles de riesgo"
       />

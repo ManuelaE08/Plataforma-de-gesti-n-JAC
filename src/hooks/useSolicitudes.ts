@@ -1,16 +1,7 @@
 import { useMemo, useState } from "react";
 
-export type TipoSolicitud =
-  | "Registro JAC"
-  | "Registro Asocomunal"
-  | "Actualización documental"
-  | "Cambio de estado";
-
-export type EstadoSolicitud =
-  | "Pendiente"
-  | "En revisión"
-  | "Aprobada"
-  | "Rechazada";
+export type TipoSolicitud = | "Registro JAC" | "Registro Asocomunal" | "Actualización documental" | "Cambio de estado";
+export type EstadoSolicitud = | "Pendiente" | "En revisión" | "Aprobada" | "Rechazada";
 
 export interface SolicitudItem {
   id: number;

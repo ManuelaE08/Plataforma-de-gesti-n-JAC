@@ -33,7 +33,6 @@ function Solicitudes() {
     <div>
       <PageHeader
         title="Solicitudes"
-        role="Administrador/Auditor"
         subtitle="Gestión de solicitudes y revisiones"
         description="Consulte, filtre y gestione los trámites pendientes del sistema"
       />

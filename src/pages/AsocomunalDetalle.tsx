@@ -4,36 +4,36 @@ import { useNavigate, useParams } from "react-router-dom";
 import Badge from "../components/ui/Badge";
 import PageHeader from "../components/ui/PageHeader";
 import EmptyState from "../components/ui/EmptyState";
+import { useAuth } from "../context/AuthContext";
 import {
-  jacData,
+  asocomunalesData,
   docVariant,
   orgVariant,
   aprobVariant,
   rolVariant,
-} from "../hooks/useJac";
+} from "../hooks/useAsocomunales";
 
-function JacDetalle() {
+function AsocomunalDetalle() {
   const { id } = useParams();
   const navigate = useNavigate();
+  const { user } = useAuth();
 
-  const userRole = "Administrador";
-  const canViewAfiliados =
-    userRole === "Administrador" || userRole === "Operador";
+  const canViewAfiliados = user?.rol === "admin" || user?.rol === "operador";
 
-  const jac = useMemo(() => {
-    return jacData.find((item) => item.id === Number(id)) ?? null;
+  const asoc = useMemo(() => {
+    return asocomunalesData.find((item) => item.id === Number(id)) ?? null;
   }, [id]);
 
-  if (!jac) {
+  if (!asoc) {
     return (
       <div>
         <PageHeader
-          title="Detalle de JAC"
+          title="Detalle de Asocomunal"
           subtitle="Información detallada"
-          description="No se encontró la JAC solicitada"
+          description="No se encontró la asocomunal solicitada"
         >
           <button
-            onClick={() => navigate("/jac")}
+            onClick={() => navigate("/asocomunales")}
             className="flex items-center gap-2 bg-white hover:bg-gray-50 text-gray-700 text-sm font-semibold px-4 py-2.5 rounded-lg border border-gray-200 transition-colors"
           >
             <ArrowLeft size={16} />
@@ -42,7 +42,7 @@ function JacDetalle() {
         </PageHeader>
 
         <div className="bg-white rounded-xl shadow-sm border border-gray-100">
-          <EmptyState message="La JAC que intenta consultar no existe o no está disponible" />
+          <EmptyState message="La asocomunal que intenta consultar no existe o no está disponible" />
         </div>
       </div>
     );
@@ -51,13 +51,12 @@ function JacDetalle() {
   return (
     <div>
       <PageHeader
-        title={jac.nombre}
-        role={userRole}
-        subtitle="Detalle de Junta de Acción Comunal"
-        description="Consulte la información general, estados y afiliados registrados"
+        title={asoc.nombre}
+        subtitle="Detalle de Asociación Comunal"
+        description="Consulte la información general, estados y JAC afiliadas registradas"
       >
         <button
-          onClick={() => navigate("/jac")}
+          onClick={() => navigate("/asocomunales")}
           className="flex items-center gap-2 bg-white hover:bg-gray-50 text-gray-700 text-sm font-semibold px-4 py-2.5 rounded-lg border border-gray-200 transition-colors"
         >
           <ArrowLeft size={16} />
@@ -73,19 +72,19 @@ function JacDetalle() {
               Ubicación
             </span>
           </div>
-          <p className="text-sm font-semibold text-gray-800">{jac.municipio}</p>
-          <p className="text-sm text-gray-500">{jac.barrio}</p>
+          <p className="text-sm font-semibold text-gray-800">{asoc.municipio}</p>
+          <p className="text-sm text-gray-500">{asoc.cobertura}</p>
         </div>
 
         <div className="bg-white rounded-xl p-4 border border-gray-100 shadow-sm">
           <div className="flex items-center gap-2 mb-2 text-gray-500">
             <Users size={16} />
             <span className="text-xs font-semibold uppercase tracking-wider">
-              Afiliados
+              JAC Afiliadas
             </span>
           </div>
-          <p className="text-2xl font-bold text-gray-800">{jac.afiliados}</p>
-          <p className="text-xs text-gray-400">Registrados en la junta</p>
+          <p className="text-2xl font-bold text-gray-800">{asoc.afiliadas}</p>
+          <p className="text-xs text-gray-400">Registradas en la asocomunal</p>
         </div>
 
         <div className="bg-white rounded-xl p-4 border border-gray-100 shadow-sm">
@@ -95,7 +94,7 @@ function JacDetalle() {
               Estado documental
             </span>
           </div>
-          <Badge label={jac.documental} variant={docVariant[jac.documental]} />
+          <Badge label={asoc.documental} variant={docVariant[asoc.documental]} />
         </div>
 
         <div className="bg-white rounded-xl p-4 border border-gray-100 shadow-sm">
@@ -106,14 +105,8 @@ function JacDetalle() {
             </span>
           </div>
           <div className="flex flex-wrap gap-2">
-            <Badge
-              label={jac.organizativo}
-              variant={orgVariant[jac.organizativo]}
-            />
-            <Badge
-              label={jac.aprobacion}
-              variant={aprobVariant[jac.aprobacion]}
-            />
+            <Badge label={asoc.organizativo} variant={orgVariant[asoc.organizativo]} />
+            <Badge label={asoc.aprobacion} variant={aprobVariant[asoc.aprobacion]} />
           </div>
         </div>
       </div>
@@ -128,28 +121,28 @@ function JacDetalle() {
             <p className="text-xs font-semibold text-gray-500 uppercase tracking-wider mb-1">
               Nombre
             </p>
-            <p className="text-gray-800">{jac.nombre}</p>
+            <p className="text-gray-800">{asoc.nombre}</p>
           </div>
 
           <div>
             <p className="text-xs font-semibold text-gray-500 uppercase tracking-wider mb-1">
               Municipio
             </p>
-            <p className="text-gray-800">{jac.municipio}</p>
+            <p className="text-gray-800">{asoc.municipio}</p>
           </div>
 
           <div>
             <p className="text-xs font-semibold text-gray-500 uppercase tracking-wider mb-1">
-              Barrio / Vereda
+              Cobertura
             </p>
-            <p className="text-gray-800">{jac.barrio}</p>
+            <p className="text-gray-800">{asoc.cobertura}</p>
           </div>
 
           <div>
             <p className="text-xs font-semibold text-gray-500 uppercase tracking-wider mb-1">
-              Total afiliados
+              Total JAC afiliadas
             </p>
-            <p className="text-gray-800">{jac.afiliados}</p>
+            <p className="text-gray-800">{asoc.afiliadas}</p>
           </div>
         </div>
       </div>
@@ -158,10 +151,10 @@ function JacDetalle() {
         <div className="bg-white rounded-xl shadow-sm border border-gray-100 overflow-hidden">
           <div className="px-5 py-4 border-b border-gray-100">
             <h2 className="text-sm font-semibold text-gray-800">
-              Afiliados registrados
+              Miembros registrados
             </h2>
             <p className="text-xs text-gray-400 mt-1">
-              Listado de miembros de la junta y cargo dentro de la organización
+              Listado de miembros de la asocomunal y cargo dentro de la organización
             </p>
           </div>
 
@@ -185,7 +178,7 @@ function JacDetalle() {
               </thead>
 
               <tbody>
-                {jac.miembros.map((miembro) => (
+                {asoc.miembros.map((miembro) => (
                   <tr key={miembro.id} className="border-b border-gray-50">
                     <td className="px-4 py-3 font-medium text-gray-800">
                       {miembro.nombre}
@@ -213,10 +206,10 @@ function JacDetalle() {
       {!canViewAfiliados && (
         <div className="bg-white rounded-xl shadow-sm border border-gray-100 p-5">
           <h2 className="text-sm font-semibold text-gray-800 mb-2">
-            Afiliados registrados
+            Miembros registrados
           </h2>
           <p className="text-sm text-gray-500">
-            No tiene permisos para consultar el detalle de afiliados de esta JAC.
+            No tiene permisos para consultar el detalle de miembros de esta asocomunal.
           </p>
         </div>
       )}
@@ -224,4 +217,4 @@ function JacDetalle() {
   );
 }
 
-export default JacDetalle;
+export default AsocomunalDetalle;

@@ -1,13 +1,7 @@
 import { useState } from "react";
 
 type EstadoReporte = "Generado" | "Pendiente" | "Error";
-type TipoReporte =
-  | "Consolidado JAC"
-  | "Consolidado Asocomunales"
-  | "Estado documental"
-  | "Riesgo organizativo"
-  | "Usuarios"
-  | "Auditoría";
+type TipoReporte = | "Consolidado JAC" | "Consolidado Asocomunales" | "Estado documental" | "Riesgo organizativo" | "Usuarios" | "Auditoría";
 
 export interface ReporteItem {
   nombre: string;

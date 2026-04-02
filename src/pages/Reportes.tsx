@@ -33,7 +33,6 @@ function Reportes() {
     <div>
       <PageHeader
         title="Reportes"
-        role="Administrador/Auditor"
         subtitle="Generación y consulta de reportes"
         description="Consulte, filtre y descargue reportes consolidados del sistema"
       >

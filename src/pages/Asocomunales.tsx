@@ -1,8 +1,11 @@
 import { Plus, Search, RotateCcw, UserRound, Trash2 } from "lucide-react";
+import { useState } from "react";
+import { useNavigate } from "react-router-dom";
 import Badge from "../components/ui/Badge";
 import PageHeader from "../components/ui/PageHeader";
 import SearchBar from "../components/ui/SearchBar";
 import EmptyState from "../components/ui/EmptyState";
+import { ModalCrearAsocomunal } from "../components/ui/ModalCrearAsocomunal";
 import {
   useAsocomunales,
   columns,
@@ -10,6 +13,7 @@ import {
   orgVariant,
   aprobVariant,
 } from "../hooks/useAsocomunales";
+import { useAuth } from "../context/AuthContext";
 
 function Asocomunales() {
   const {
@@ -25,19 +29,45 @@ function Asocomunales() {
     setFecha,
   } = useAsocomunales();
 
+  const navigate = useNavigate();
+  const { user } = useAuth();
+  const [showModal, setShowModal] = useState(false);
+
+  const canViewActions = user?.rol === "admin" || user?.rol === "operador";
+  const canDelete = user?.rol === "admin";
+  const canCreate = user?.rol === "admin" || user?.rol === "operador";
+
+  const visibleColumns = canViewActions
+    ? columns
+    : columns.filter((column) => column !== "Acciones");
+
   return (
     <div>
       <PageHeader
         title="Asocomunales"
-        role="Administrador/Auditor"
         subtitle="Gestión de asociaciones comunales"
         description="Administre y consulte la información de las asocomunales registradas"
       >
-        <button className="flex items-center gap-2 bg-[#1B7F4B] hover:bg-[#166340] text-white text-sm font-semibold px-4 py-2.5 rounded-lg transition-colors shrink-0">
-          <Plus size={16} />
-          Crear nueva Asocomunal
-        </button>
+        {canCreate && (
+          <button
+            onClick={() => setShowModal(true)}
+            className="flex items-center gap-2 bg-[#1B7F4B] hover:bg-[#166340] text-white text-sm font-semibold px-4 py-2.5 rounded-lg transition-colors shrink-0"
+          >
+            <Plus size={16} />
+            Crear nueva Asocomunal
+          </button>
+        )}
       </PageHeader>
+
+      {showModal && (
+        <ModalCrearAsocomunal
+          onClose={() => setShowModal(false)}
+          onSave={(nueva) => {
+            console.log("Nueva Asocomunal:", nueva);
+            // TODO: conectar con el backend o agregar al estado global
+          }}
+        />
+      )}
 
       <div className="bg-white rounded-xl p-4 shadow-sm border border-gray-100 mb-4">
         <p className="text-xs font-semibold text-gray-500 uppercase tracking-wider mb-3">
@@ -126,7 +156,7 @@ function Asocomunales() {
           <table className="w-full text-sm">
             <thead>
               <tr className="border-b border-gray-100 bg-gray-50">
-                {columns.map((column) => (
+                {visibleColumns.map((column) => (
                   <th
                     key={column}
                     className="text-left text-xs font-semibold text-gray-500 uppercase tracking-wider px-4 py-3"
@@ -141,9 +171,9 @@ function Asocomunales() {
               {filtered.length === 0 ? (
                 <EmptyState message="No se encontraron asocomunales con los criterios seleccionados" />
               ) : (
-                filtered.map((item, index) => (
+                filtered.map((item) => (
                   <tr
-                    key={index}
+                    key={item.id}
                     className="border-b border-gray-50 hover:bg-gray-50 transition-colors"
                   >
                     <td className="px-4 py-3 font-medium text-gray-800">{item.nombre}</td>
@@ -159,16 +189,28 @@ function Asocomunales() {
                     <td className="px-4 py-3">
                       <Badge label={item.aprobacion} variant={aprobVariant[item.aprobacion]} />
                     </td>
-                    <td className="px-4 py-3">
-                      <div className="flex items-center gap-2">
-                        <button className="p-1.5 rounded-lg hover:bg-gray-100 text-gray-500 hover:text-gray-700 transition-colors">
-                          <UserRound size={15} />
-                        </button>
-                        <button className="p-1.5 rounded-lg hover:bg-red-50 text-gray-400 hover:text-red-500 transition-colors">
-                          <Trash2 size={15} />
-                        </button>
-                      </div>
-                    </td>
+
+                    {canViewActions && (
+                      <td className="px-4 py-3">
+                        <div className="flex items-center gap-2">
+                          <button
+                            onClick={() => navigate(`/asocomunales/${item.id}`)}
+                            className="p-1.5 rounded-lg hover:bg-[#1B7F4B]/10 text-gray-500 hover:text-[#1B7F4B] transition-colors"
+                            title="Ver detalle"
+                          >
+                            <UserRound size={15} />
+                          </button>
+                          {canDelete && (
+                            <button
+                              className="p-1.5 rounded-lg hover:bg-red-50 text-gray-400 hover:text-red-500 transition-colors"
+                              title="Eliminar"
+                            >
+                              <Trash2 size={15} />
+                            </button>
+                          )}
+                        </div>
+                      </td>
+                    )}
                   </tr>
                 ))
               )}
