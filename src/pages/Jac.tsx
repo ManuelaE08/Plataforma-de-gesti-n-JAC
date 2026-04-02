@@ -1,4 +1,4 @@
-import { Plus, Search, RotateCcw, UserRound, Trash2 } from "lucide-react";
+import { Plus, RotateCcw, UserRound, Trash2 } from "lucide-react";
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import Badge from "../components/ui/Badge";
@@ -7,26 +7,14 @@ import SearchBar from "../components/ui/SearchBar";
 import EmptyState from "../components/ui/EmptyState";
 import { ModalCrearJac } from "../components/ui/ModalCrearJac";
 import {
-  useJac,
-  columns,
-  docVariant,
-  orgVariant,
-  aprobVariant,
+  useJac, columns, docVariant, orgVariant, aprobVariant,
 } from "../hooks/useJac";
 import { useAuth } from "../context/AuthContext";
 
 function Jac() {
   const {
-    filters,
-    filtered,
-    handleSearch,
-    handleClear,
-    setBusqueda,
-    setMunicipio,
-    setEstado,
-    setDocumental,
-    setMinAfiliados,
-    setFecha,
+    filters, filtered, handleClear,
+    setBusqueda, setMunicipio, setEstado, setDocumental, setMinAfiliados,
   } = useJac();
 
   const navigate = useNavigate();
@@ -34,12 +22,12 @@ function Jac() {
   const [showModal, setShowModal] = useState(false);
 
   const canViewAfiliados = user?.rol === "admin" || user?.rol === "operador";
-  const canDelete = user?.rol === "admin";
-  const canCreate = user?.rol === "admin" || user?.rol === "operador";
+  const canDelete        = user?.rol === "admin";
+  const canCreate        = user?.rol === "admin" || user?.rol === "operador";
 
   const visibleColumns = canViewAfiliados
     ? columns
-    : columns.filter((column) => column !== "Acciones");
+    : columns.filter((col) => col !== "Acciones");
 
   return (
     <div>
@@ -71,7 +59,7 @@ function Jac() {
 
       <div className="bg-white rounded-xl p-4 shadow-sm border border-gray-100 mb-4">
         <p className="text-xs font-semibold text-gray-500 uppercase tracking-wider mb-3">
-          Filtros de búsqueda avanzados
+          Filtros de búsqueda
         </p>
 
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3">
@@ -122,24 +110,9 @@ function Jac() {
             onChange={(e) => setMinAfiliados(e.target.value)}
             className="w-full bg-white border border-gray-200 text-sm text-gray-600 placeholder:text-gray-400 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-[#1B7F4B]/30 focus:border-[#1B7F4B] transition-all"
           />
-
-          <input
-            type="date"
-            value={filters.fecha}
-            onChange={(e) => setFecha(e.target.value)}
-            className="w-full bg-white border border-gray-200 text-sm text-gray-500 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-[#1B7F4B]/30 focus:border-[#1B7F4B] transition-all"
-          />
         </div>
 
         <div className="flex items-center gap-3 mt-4">
-          <button
-            onClick={handleSearch}
-            className="inline-flex items-center gap-2 bg-[#1B7F4B] hover:bg-[#166340] text-white text-sm font-semibold px-4 py-2.5 rounded-lg transition-colors"
-          >
-            <Search size={16} />
-            Buscar
-          </button>
-
           <button
             onClick={handleClear}
             className="inline-flex items-center gap-2 bg-white hover:bg-gray-50 text-gray-600 text-sm font-medium px-4 py-2.5 rounded-lg border border-gray-200 transition-colors"
@@ -155,26 +128,19 @@ function Jac() {
           <table className="w-full text-sm">
             <thead>
               <tr className="border-b border-gray-100 bg-gray-50">
-                {visibleColumns.map((column) => (
-                  <th
-                    key={column}
-                    className="text-left text-xs font-semibold text-gray-500 uppercase tracking-wider px-4 py-3"
-                  >
-                    {column}
+                {visibleColumns.map((col) => (
+                  <th key={col} className="text-left text-xs font-semibold text-gray-500 uppercase tracking-wider px-4 py-3">
+                    {col}
                   </th>
                 ))}
               </tr>
             </thead>
-
             <tbody>
               {filtered.length === 0 ? (
                 <EmptyState message="No se encontraron JAC con los criterios seleccionados" />
               ) : (
                 filtered.map((jac) => (
-                  <tr
-                    key={jac.id}
-                    className="border-b border-gray-50 hover:bg-gray-50 transition-colors"
-                  >
+                  <tr key={jac.id} className="border-b border-gray-50 hover:bg-gray-50 transition-colors">
                     <td className="px-4 py-3 font-medium text-gray-800">
                       {canViewAfiliados ? (
                         <button
@@ -189,9 +155,7 @@ function Jac() {
                     </td>
                     <td className="px-4 py-3 text-gray-600">{jac.municipio}</td>
                     <td className="px-4 py-3 text-gray-600">{jac.barrio}</td>
-                    <td className="px-4 py-3 text-gray-700 tabular-nums font-medium">
-                      {jac.afiliados}
-                    </td>
+                    <td className="px-4 py-3 text-gray-700 tabular-nums font-medium">{jac.afiliados}</td>
                     <td className="px-4 py-3">
                       <Badge label={jac.documental} variant={docVariant[jac.documental]} />
                     </td>
@@ -201,7 +165,6 @@ function Jac() {
                     <td className="px-4 py-3">
                       <Badge label={jac.aprobacion} variant={aprobVariant[jac.aprobacion]} />
                     </td>
-
                     {canViewAfiliados && (
                       <td className="px-4 py-3">
                         <div className="flex items-center gap-2">

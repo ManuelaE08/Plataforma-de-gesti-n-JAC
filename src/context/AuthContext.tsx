@@ -5,9 +5,10 @@ import type { AuthContextType, User } from "../types/auth";
 const AuthContext = createContext<AuthContextType | null>(null);
 
 const usuarios: User[] = [
-  { usuario: "admin", password: "1234", rol: "admin", nombre: "Administrador/Auditor" },
-  { usuario: "operador", password: "1234", rol: "operador", nombre: "Operador" },
-  { usuario: "usuario", password: "1234", rol: "usuario", nombre: "Usuario" },
+  { id: 1, usuario: "admin", password: "1234", rol: "admin", nombre: "Administrador/Auditor" },
+  { id: 2, usuario: "operador", password: "1234", rol: "operador", nombre: "Carlos" },
+  { id: 3, usuario: "operador2", password: "1234", rol: "operador", nombre: "Maria" },
+  { id: 4, usuario: "usuario", password: "1234", rol: "usuario", nombre: "Usuario" },
 ];
 
 interface AuthProviderProps {
@@ -41,6 +42,7 @@ export function AuthProvider({ children }: AuthProviderProps) {
       
       // Estructura mockeada que el backend podría retornar
       const backendResponse = {
+        id: 99,
         usuario: "usuario_google",
         rol: "admin" as const,
         nombre: "Usuario de Google Auth",
@@ -48,6 +50,7 @@ export function AuthProvider({ children }: AuthProviderProps) {
       };
 
       setUser({
+        id: backendResponse.id,
         usuario: backendResponse.usuario,
         rol: backendResponse.rol,
         nombre: backendResponse.nombre,
@@ -62,6 +65,7 @@ export function AuthProvider({ children }: AuthProviderProps) {
   };
 
   const logout = () =>  setUser({
+        id: 0,
         usuario: "usuario_invitado",
         rol: "usuario",
         nombre: "Usuario invitado",

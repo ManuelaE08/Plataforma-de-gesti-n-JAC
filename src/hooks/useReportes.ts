@@ -1,7 +1,9 @@
-import { useState } from "react";
+import { useState, useEffect, useRef } from "react";
 
 type EstadoReporte = "Generado" | "Pendiente" | "Error";
-type TipoReporte = | "Consolidado JAC" | "Consolidado Asocomunales" | "Estado documental" | "Riesgo organizativo" | "Usuarios" | "Auditoría";
+type TipoReporte =
+  | "Consolidado JAC" | "Consolidado Asocomunales" | "Estado documental"
+  | "Riesgo organizativo" | "Usuarios" | "Auditoría";
 
 export interface ReporteItem {
   nombre: string;
@@ -20,137 +22,64 @@ interface ReportesFilters {
   fecha: string;
 }
 
-const reportesData: ReporteItem[] = [
-  {
-    nombre: "Reporte general de JAC - Marzo 2026",
-    tipo: "Consolidado JAC",
-    fecha: "2026-03-28",
-    formato: "PDF",
-    estado: "Generado",
-    generadoPor: "Administrador/Auditor",
-  },
-  {
-    nombre: "Asocomunales activas por municipio",
-    tipo: "Consolidado Asocomunales",
-    fecha: "2026-03-27",
-    formato: "Excel",
-    estado: "Generado",
-    generadoPor: "Administrador/Auditor",
-  },
-  {
-    nombre: "Documentación pendiente de actualización",
-    tipo: "Estado documental",
-    fecha: "2026-03-26",
-    formato: "CSV",
-    estado: "Pendiente",
-    generadoPor: "Administrador/Auditor",
-  },
-  {
-    nombre: "Organizaciones en riesgo alto",
-    tipo: "Riesgo organizativo",
-    fecha: "2026-03-24",
-    formato: "PDF",
-    estado: "Generado",
-    generadoPor: "Administrador/Auditor",
-  },
-  {
-    nombre: "Reporte de usuarios y roles",
-    tipo: "Usuarios",
-    fecha: "2026-03-22",
-    formato: "Excel",
-    estado: "Error",
-    generadoPor: "Administrador/Auditor",
-  },
-  {
-    nombre: "Historial de acciones del sistema",
-    tipo: "Auditoría",
-    fecha: "2026-03-20",
-    formato: "CSV",
-    estado: "Generado",
-    generadoPor: "Administrador/Auditor",
-  },
-];
-
 const initialFilters: ReportesFilters = {
-  busqueda: "",
-  tipo: "",
-  formato: "",
-  estado: "",
-  fecha: "",
+  busqueda: "", tipo: "", formato: "", estado: "", fecha: "",
 };
 
+const reportesData: ReporteItem[] = [
+  { nombre: "Reporte general de JAC - Marzo 2026",        tipo: "Consolidado JAC",            fecha: "2026-03-28", formato: "PDF",   estado: "Generado",  generadoPor: "Administrador/Auditor" },
+  { nombre: "Asocomunales activas por municipio",          tipo: "Consolidado Asocomunales",   fecha: "2026-03-27", formato: "Excel", estado: "Generado",  generadoPor: "Administrador/Auditor" },
+  { nombre: "Documentación pendiente de actualización",    tipo: "Estado documental",          fecha: "2026-03-26", formato: "CSV",   estado: "Pendiente", generadoPor: "Administrador/Auditor" },
+  { nombre: "Organizaciones en riesgo alto",               tipo: "Riesgo organizativo",        fecha: "2026-03-24", formato: "PDF",   estado: "Generado",  generadoPor: "Administrador/Auditor" },
+  { nombre: "Reporte de usuarios y roles",                 tipo: "Usuarios",                   fecha: "2026-03-22", formato: "Excel", estado: "Error",     generadoPor: "Administrador/Auditor" },
+  { nombre: "Historial de acciones del sistema",           tipo: "Auditoría",                  fecha: "2026-03-20", formato: "CSV",   estado: "Generado",  generadoPor: "Administrador/Auditor" },
+];
+
 export const columns: string[] = [
-  "Nombre del reporte",
-  "Tipo",
-  "Fecha",
-  "Formato",
-  "Estado",
-  "Generado por",
-  "Acciones",
+  "Nombre del reporte", "Tipo", "Fecha", "Formato", "Estado", "Generado por", "Acciones",
 ];
 
 export const estadoVariant: Record<EstadoReporte, "green" | "amber" | "red"> = {
-  Generado: "green",
-  Pendiente: "amber",
-  Error: "red",
+  Generado: "green", Pendiente: "amber", Error: "red",
 };
 
 export function useReportes() {
   const [filters, setFilters] = useState<ReportesFilters>(initialFilters);
-  const [appliedFilters, setAppliedFilters] =
-    useState<ReportesFilters>(initialFilters);
+  const [debouncedBusqueda, setDebouncedBusqueda] = useState("");
+  const debounceRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 
-  const handleSearch = () => {
-    setAppliedFilters(filters);
-  };
+  useEffect(() => {
+    if (debounceRef.current) clearTimeout(debounceRef.current);
+    debounceRef.current = setTimeout(() => setDebouncedBusqueda(filters.busqueda), 300);
+    return () => { if (debounceRef.current) clearTimeout(debounceRef.current); };
+  }, [filters.busqueda]);
 
   const handleClear = () => {
     setFilters(initialFilters);
-    setAppliedFilters(initialFilters);
+    setDebouncedBusqueda("");
   };
 
   const filtered = reportesData.filter((item) => {
     const matchBusqueda =
-      !appliedFilters.busqueda ||
-      [item.nombre, item.tipo, item.generadoPor].some((value) =>
-        value.toLowerCase().includes(appliedFilters.busqueda.toLowerCase())
+      !debouncedBusqueda ||
+      [item.nombre, item.tipo, item.generadoPor].some((v) =>
+        v.toLowerCase().includes(debouncedBusqueda.toLowerCase())
       );
-
-    const matchTipo =
-      !appliedFilters.tipo || item.tipo === appliedFilters.tipo;
-
-    const matchFormato =
-      !appliedFilters.formato || item.formato === appliedFilters.formato;
-
-    const matchEstado =
-      !appliedFilters.estado || item.estado === appliedFilters.estado;
-
-    const matchFecha =
-      !appliedFilters.fecha || item.fecha === appliedFilters.fecha;
-
-    return (
-      matchBusqueda &&
-      matchTipo &&
-      matchFormato &&
-      matchEstado &&
-      matchFecha
-    );
+    const matchTipo    = !filters.tipo    || item.tipo    === filters.tipo;
+    const matchFormato = !filters.formato || item.formato === filters.formato;
+    const matchEstado  = !filters.estado  || item.estado  === filters.estado;
+    const matchFecha   = !filters.fecha   || item.fecha   === filters.fecha;
+    return matchBusqueda && matchTipo && matchFormato && matchEstado && matchFecha;
   });
 
   return {
     filters,
     filtered,
-    handleSearch,
     handleClear,
-    setBusqueda: (value: string) =>
-      setFilters((prev) => ({ ...prev, busqueda: value })),
-    setTipo: (value: string) =>
-      setFilters((prev) => ({ ...prev, tipo: value })),
-    setFormato: (value: string) =>
-      setFilters((prev) => ({ ...prev, formato: value })),
-    setEstado: (value: string) =>
-      setFilters((prev) => ({ ...prev, estado: value })),
-    setFecha: (value: string) =>
-      setFilters((prev) => ({ ...prev, fecha: value })),
+    setBusqueda: (v: string) => setFilters((p) => ({ ...p, busqueda: v })),
+    setTipo:     (v: string) => setFilters((p) => ({ ...p, tipo: v })),
+    setFormato:  (v: string) => setFilters((p) => ({ ...p, formato: v })),
+    setEstado:   (v: string) => setFilters((p) => ({ ...p, estado: v })),
+    setFecha:    (v: string) => setFilters((p) => ({ ...p, fecha: v })),
   };
 }
