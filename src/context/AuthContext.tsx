@@ -42,7 +42,7 @@ export function AuthProvider({ children }: AuthProviderProps) {
       // Estructura mockeada que el backend podría retornar
       const backendResponse = {
         usuario: "usuario_google",
-        rol: "operador" as const,
+        rol: "admin" as const,
         nombre: "Usuario de Google Auth",
         email: "correo@gmail.com"
       };
@@ -61,7 +61,11 @@ export function AuthProvider({ children }: AuthProviderProps) {
     }
   };
 
-  const logout = () => setUser(null);
+  const logout = () =>  setUser({
+        usuario: "usuario_invitado",
+        rol: "usuario",
+        nombre: "Usuario invitado",
+      });;
 
   return (
     <AuthContext.Provider value={{ user, login, loginWithGoogle, logout }}>

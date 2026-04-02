@@ -1,4 +1,5 @@
-import { Routes, Route } from "react-router-dom";
+import type { ReactNode } from "react";
+import { Navigate, Route, Routes } from "react-router-dom";
 import Layout from "../components/Layout";
 import Dashboard from "../pages/Dashboard";
 import DashboardUsuario from "../pages/DashboardUsuario";
@@ -7,11 +8,28 @@ import Asocomunales from "../pages/Asocomunales";
 import Usuarios from "../pages/Usuarios";
 import Reportes from "../pages/Reportes";
 import Analiticas from "../pages/Analiticas";
-import { currentUser } from "../config/currentUser";
+import { useAuth } from "../context/AuthContext";
 import Login from "../pages/Login";
 
 function RootDashboard() {
-  return currentUser.rol === "usuario" ? <DashboardUsuario /> : <Dashboard />;
+  const { user } = useAuth();
+  return user?.rol === "usuario" || user === null ? <DashboardUsuario /> : <Dashboard />;
+}
+
+function ProtectedRoute({ children }: { children: ReactNode }) {
+  const { user } = useAuth();
+  if (!user) {
+    return <Navigate to="/login" replace />;
+  }
+  return <>{children}</>;
+}
+
+function ProtectedLayout({ children }: { children: ReactNode }) {
+  return (
+    <ProtectedRoute>
+      <Layout>{children}</Layout>
+    </ProtectedRoute>
+  );
 }
 
 function ComingSoon({ title }: { title: string }) {
@@ -27,19 +45,19 @@ function ComingSoon({ title }: { title: string }) {
 function AppRouter() {
   return (
     <Routes>
-      <Route path="/login" element={<Login/>} />
+      <Route path="/login" element={<Login />} />
       <Route path="/" element={<Layout><RootDashboard /></Layout>} />
       <Route path="/jac" element={<Layout><Jac /></Layout>} />
       <Route path="/asocomunales" element={<Layout><Asocomunales /></Layout>} />
-      <Route path="/usuarios" element={<Layout><Usuarios /></Layout>} />
-      <Route path="/reportes" element={<Layout><Reportes /></Layout>} />
-      <Route path="/analiticas" element={<Layout><Analiticas /></Layout>} />
-      <Route path="/alertas" element={<Layout><ComingSoon title="Alertas y Riesgo Organizativo" /></Layout>} />
-      <Route path="/solicitudes" element={<Layout><ComingSoon title="Solicitudes Pendientes" /></Layout>} />
-      <Route path="/migracion" element={<Layout><ComingSoon title="Migración de Datos" /></Layout>} />
-      <Route path="/configuracion" element={<Layout><ComingSoon title="Configuración" /></Layout>} />
+      <Route path="/usuarios" element={<ProtectedLayout><Usuarios /></ProtectedLayout>} />
+      <Route path="/reportes" element={<ProtectedLayout><Reportes /></ProtectedLayout>} />
+      <Route path="/analiticas" element={<ProtectedLayout><Analiticas /></ProtectedLayout>} />
+      <Route path="/alertas" element={<ProtectedLayout><ComingSoon title="Alertas y Riesgo Organizativo" /></ProtectedLayout>} />
+      <Route path="/solicitudes" element={<ProtectedLayout><ComingSoon title="Solicitudes Pendientes" /></ProtectedLayout>} />
+      <Route path="/migracion" element={<ProtectedLayout><ComingSoon title="Migración de Datos" /></ProtectedLayout>} />
+      <Route path="/configuracion" element={<ProtectedLayout><ComingSoon title="Configuración" /></ProtectedLayout>} />
+      <Route path="*" element={<Navigate to="/" replace />} />
     </Routes>
   );
 }
-
 export default AppRouter;

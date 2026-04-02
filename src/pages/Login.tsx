@@ -1,8 +1,9 @@
 import { useState } from "react";
 import { Eye, EyeOff } from "lucide-react";
-import { useNavigate } from "react-router-dom";
 import { GoogleLogin } from "@react-oauth/google";
 import { useAuth } from "../context/AuthContext";
+import { useNavigate } from "react-router-dom";
+import { useGoogleAuthHandlers } from "../hooks/useGoogleAuthHandlers";
 
 function Login() {
   const [showPassword, setShowPassword] = useState<boolean>(false);
@@ -10,23 +11,12 @@ function Login() {
   const [password, setPassword] = useState<string>("");
   const [error, setError] = useState<string>("");
 
-  const { login, loginWithGoogle } = useAuth();
+  const { login } = useAuth();
   const navigate = useNavigate();
-
-  const handleGoogleSuccess = async (credentialResponse: any) => {
-    if (credentialResponse.credential) {
-      const ok = await loginWithGoogle(credentialResponse.credential);
-      if (ok) {
-        navigate("/");
-      } else {
-        setError("Error validando el acceso con Google");
-      }
-    }
-  };
-
-  const handleGoogleError = () => {
-    setError("El inicio de sesión de Google falló");
-  };
+  const { handleGoogleSuccess, handleGoogleError } = useGoogleAuthHandlers({
+    onFailure: setError,
+    navigateTo: "/",
+  });
 
   const handleSubmit = (e: React.FormEvent<HTMLFormElement>) => {
 

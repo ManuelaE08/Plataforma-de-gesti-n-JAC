@@ -1,7 +1,9 @@
 import { useState } from "react";
 import { Building2, CalendarDays, CircleCheck, MapPin, type LucideIcon } from "lucide-react";
+import { GoogleLogin } from "@react-oauth/google";
 import KpiCard from "../components/ui/KpiCard";
 import PageHeader from "../components/ui/PageHeader";
+import { useGoogleAuthHandlers } from "../hooks/useGoogleAuthHandlers";
 
 interface DashboardKpi {
   id: string;
@@ -57,15 +59,10 @@ const upcoming: UpcomingActivity[] = [
 
 function DashboardUsuario() {
   const [authMessage, setAuthMessage] = useState<string>("");
-
-  const handleGoogleLogin = () => {
-    const hasClientId = Boolean(import.meta.env.VITE_GOOGLE_CLIENT_ID);
-    setAuthMessage(
-      hasClientId
-        ? "Client ID detectado. El siguiente paso es redirigir al flujo OAuth de tu backend."
-        : "Aún no hay VITE_GOOGLE_CLIENT_ID configurado en variables de entorno."
-    );
-  };
+  const { handleGoogleSuccess, handleGoogleError } = useGoogleAuthHandlers({
+    onFailure: setAuthMessage,
+    navigateTo: "/",
+  });
 
   return (
     <div>
@@ -74,16 +71,14 @@ function DashboardUsuario() {
         role="Usuario"
         subtitle="Resumen de tus juntas, trámites y próximos vencimientos"
       >
-        <button
-          type="button"
-          onClick={handleGoogleLogin}
-          className="inline-flex items-center gap-2 rounded-lg border border-gray-200 bg-white px-3 py-2 text-sm font-semibold text-gray-700 shadow-sm transition-colors hover:bg-gray-50"
-        >
-          <span className="inline-flex h-5 w-5 items-center justify-center rounded-full border border-gray-300 text-xs font-bold text-[#DB4437]">
-            G
-          </span>
-          Iniciar sesión con Google
-        </button>
+            <GoogleLogin
+              onSuccess={handleGoogleSuccess}
+              onError={handleGoogleError}
+              useOneTap
+              shape="rectangular"
+              theme="outline"
+              text="signin_with"
+            />
       </PageHeader>
 
       {authMessage && (
