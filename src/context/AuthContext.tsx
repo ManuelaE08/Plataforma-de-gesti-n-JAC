@@ -26,10 +26,45 @@ export function AuthProvider({ children }: AuthProviderProps) {
     return true;
   };
 
+  const loginWithGoogle = async (credential: string): Promise<boolean> => {
+    try {
+      // TODO: Reemplazar con la llamada URL real del microservicio cuando esté disponible
+      // const response = await fetch(import.meta.env.VITE_ENDPOINT + "/auth/google", {
+      //   method: "POST",
+      //   headers: { "Content-Type": "application/json" },
+      //   body: JSON.stringify({ credential }),
+      // });
+      // const data = await response.json();
+      
+      console.log("Credencial de Google recibida. Simulando envío al backend...");
+      await new Promise(resolve => setTimeout(resolve, 500));
+      
+      // Estructura mockeada que el backend podría retornar
+      const backendResponse = {
+        usuario: "usuario_google",
+        rol: "operador" as const,
+        nombre: "Usuario de Google Auth",
+        email: "correo@gmail.com"
+      };
+
+      setUser({
+        usuario: backendResponse.usuario,
+        rol: backendResponse.rol,
+        nombre: backendResponse.nombre,
+        email: backendResponse.email
+      });
+      
+      return true;
+    } catch (error) {
+      console.error("Error en login de Google:", error);
+      return false;
+    }
+  };
+
   const logout = () => setUser(null);
 
   return (
-    <AuthContext.Provider value={{ user, login, logout }}>
+    <AuthContext.Provider value={{ user, login, loginWithGoogle, logout }}>
       {children}
     </AuthContext.Provider>
   );

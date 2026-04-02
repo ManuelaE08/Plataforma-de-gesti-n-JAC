@@ -8,6 +8,7 @@ import Usuarios from "../pages/Usuarios";
 import Reportes from "../pages/Reportes";
 import Analiticas from "../pages/Analiticas";
 import { currentUser } from "../config/currentUser";
+import Login from "../pages/Login";
 
 function RootDashboard() {
   return currentUser.rol === "usuario" ? <DashboardUsuario /> : <Dashboard />;
@@ -26,6 +27,7 @@ function ComingSoon({ title }: { title: string }) {
 function AppRouter() {
   return (
     <Routes>
+      <Route path="/login" element={<Login/>} />
       <Route path="/" element={<Layout><RootDashboard /></Layout>} />
       <Route path="/jac" element={<Layout><Jac /></Layout>} />
       <Route path="/asocomunales" element={<Layout><Asocomunales /></Layout>} />
