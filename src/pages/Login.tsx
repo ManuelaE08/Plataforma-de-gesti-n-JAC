@@ -1,7 +1,9 @@
 import { useState } from "react";
 import { Eye, EyeOff } from "lucide-react";
-import { useNavigate } from "react-router-dom";
+import { GoogleLogin } from "@react-oauth/google";
 import { useAuth } from "../context/AuthContext";
+import { useNavigate } from "react-router-dom";
+import { useGoogleAuthHandlers } from "../hooks/useGoogleAuthHandlers";
 
 function Login() {
   const [showPassword, setShowPassword] = useState<boolean>(false);
@@ -11,8 +13,13 @@ function Login() {
 
   const { login } = useAuth();
   const navigate = useNavigate();
+  const { handleGoogleSuccess, handleGoogleError } = useGoogleAuthHandlers({
+    onFailure: setError,
+    navigateTo: "/",
+  });
 
   const handleSubmit = (e: React.FormEvent<HTMLFormElement>) => {
+
     e.preventDefault();
 
     const ok = login(usuario, password);
@@ -39,6 +46,23 @@ function Login() {
         </div>
 
         <form onSubmit={handleSubmit} className="flex flex-col gap-4">
+          <div className="flex justify-center mb-2">
+            <GoogleLogin
+              onSuccess={handleGoogleSuccess}
+              onError={handleGoogleError}
+              useOneTap
+              shape="rectangular"
+              theme="outline"
+              text="signin_with"
+            />
+          </div>
+
+          <div className="relative flex items-center mb-2">
+            <div className="flex-grow border-t border-gray-200"></div>
+            <span className="flex-shrink-0 mx-4 text-gray-400 text-xs uppercase tracking-wider">o ingresa con tu cuenta</span>
+            <div className="flex-grow border-t border-gray-200"></div>
+          </div>
+
           <div className="flex flex-col gap-1.5">
             <label className="text-xs font-medium text-gray-600">
               Usuario
