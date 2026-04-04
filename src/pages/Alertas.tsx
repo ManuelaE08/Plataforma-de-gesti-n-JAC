@@ -34,7 +34,6 @@ function Alertas() {
     <div>
       <PageHeader
         title="Alertas"
-        role="Administrador/Auditor"
         subtitle="Seguimiento de riesgos y novedades"
         description="Monitoree alertas activas, prioridades y casos en seguimiento"
       />

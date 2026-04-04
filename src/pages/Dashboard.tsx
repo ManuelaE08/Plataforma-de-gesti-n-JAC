@@ -20,7 +20,6 @@ function Dashboard() {
     <div>
       <PageHeader
         title="Dashboard"
-        role="Administrador/Auditor"
         subtitle="Resumen general del sistema"
         description="Monitoree indicadores clave, actividad reciente y alertas organizativas"
       />

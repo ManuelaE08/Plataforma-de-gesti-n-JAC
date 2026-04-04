@@ -58,7 +58,7 @@ const upcoming: UpcomingActivity[] = [
 ];
 
 function DashboardUsuario() {
-  const [authMessage, setAuthMessage] = useState<string>("");
+  const [ authMessage, setAuthMessage] = useState<string>("");
   const { handleGoogleSuccess, handleGoogleError } = useGoogleAuthHandlers({
     onFailure: setAuthMessage,
     navigateTo: "/",
@@ -68,7 +68,6 @@ function DashboardUsuario() {
     <div>
       <PageHeader
         title="Dashboard"
-        role="Usuario"
         subtitle="Resumen de tus juntas, trámites y próximos vencimientos"
       >
             <GoogleLogin
