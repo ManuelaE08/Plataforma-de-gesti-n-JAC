@@ -1,6 +1,7 @@
 export type UserRole = "admin" | "operador" | "usuario";
 
 export interface User {
+  id: number;
   usuario: string;
   password?: string;
   rol: UserRole;

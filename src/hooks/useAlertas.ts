@@ -2,11 +2,7 @@ import { useMemo, useState } from "react";
 
 export type NivelAlerta = "Alta" | "Media" | "Baja";
 export type EstadoAlerta = "Activa" | "En seguimiento" | "Resuelta";
-export type TipoAlerta =
-  | "Documental"
-  | "Organizativa"
-  | "Aprobación"
-  | "Inactividad";
+export type TipoAlerta = | "Documental" | "Organizativa" | "Aprobación" | "Inactividad";
 
 export interface AlertaItem {
   id: number;

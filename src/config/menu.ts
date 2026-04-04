@@ -13,6 +13,7 @@ export const menuByRole: MenuByRole = {
     { name: "Analítica y Estadísticas", path: "/analiticas" },
     { name: "Alertas y Riesgo Organizativo", path: "/alertas" },
     { name: "Reportes", path: "/reportes" },
+    { name: "Mis Solicitudes", path: "/mis-solicitudes" },
     { name: "Migración de Datos", path: "/migracion" },
     { name: "Configuración", path: "/configuracion" },
   ],
