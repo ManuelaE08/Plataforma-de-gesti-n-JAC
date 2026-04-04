@@ -28,30 +28,47 @@ export function AuthProvider({ children }: AuthProviderProps) {
 
   const loginWithGoogle = async (credential: string): Promise<boolean> => {
     try {
-      // TODO: Reemplazar con la llamada URL real del microservicio cuando esté disponible
-      // const response = await fetch(import.meta.env.VITE_ENDPOINT + "/auth/google", {
-      //   method: "POST",
-      //   headers: { "Content-Type": "application/json" },
-      //   body: JSON.stringify({ credential }),
-      // });
-      // const data = await response.json();
-      
-      console.log("Credencial de Google recibida. Simulando envío al backend...");
-      await new Promise(resolve => setTimeout(resolve, 500));
-      
-      // Estructura mockeada que el backend podría retornar
-      const backendResponse = {
-        usuario: "usuario_google",
-        rol: "admin" as const,
-        nombre: "Usuario de Google Auth",
-        email: "correo@gmail.com"
-      };
+      if (!credential) {
+        throw new Error("No se recibió la credencial de Google");
+      }
+
+      const baseEndpoint = import.meta.env.VITE_ENDPOINT?.replace(/\/$/, "");
+      if (!baseEndpoint) {
+        throw new Error("VITE_ENDPOINT no está configurado");
+      }
+
+      const response = await fetch(baseEndpoint + "/auth/google", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ credential }),
+      });
+
+      if (!response.ok) {
+        const errorBody = await response.text();
+        throw new Error(
+          "Error autenticando con Google (" +
+            response.status +
+            "): " +
+            (errorBody || response.statusText)
+        );
+      }
+
+      const data = (await response.json()) as Partial<User>;
+      const rol = data.rol;
+
+      if (!data.usuario || !rol || !data.nombre) {
+        throw new Error("La respuesta del backend no contiene los campos requeridos");
+      }
+
+      if (rol !== "admin" && rol !== "operador" && rol !== "usuario") {
+        throw new Error("El rol retornado por el backend no es válido");
+      }
 
       setUser({
-        usuario: backendResponse.usuario,
-        rol: backendResponse.rol,
-        nombre: backendResponse.nombre,
-        email: backendResponse.email
+        usuario: data.usuario,
+        rol,
+        nombre: data.nombre,
+        email: data.email,
       });
       
       return true;
