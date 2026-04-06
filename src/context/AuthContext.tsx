@@ -66,6 +66,7 @@ export function AuthProvider({ children }: AuthProviderProps) {
       }
 
       setUser({
+        id: 99,
         usuario: data.usuario,
         rol,
         nombre: data.nombre,
