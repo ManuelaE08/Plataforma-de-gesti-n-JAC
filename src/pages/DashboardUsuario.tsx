@@ -111,20 +111,6 @@ function DashboardUsuario() {
           </div>
         </div>
 
-        <div className="rounded-xl border border-gray-100 bg-white p-5 shadow-sm">
-          <h3 className="mb-3 text-sm font-semibold text-gray-700">Accesos rápidos</h3>
-          <div className="space-y-2 text-sm">
-            <button className="w-full rounded-lg border border-gray-200 bg-white px-3 py-2 text-left text-gray-700 hover:bg-gray-50 transition-colors">
-              Ver juntas asignadas
-            </button>
-            <button className="w-full rounded-lg border border-gray-200 bg-white px-3 py-2 text-left text-gray-700 hover:bg-gray-50 transition-colors">
-              Actualizar documentación
-            </button>
-            <button className="w-full rounded-lg border border-gray-200 bg-white px-3 py-2 text-left text-gray-700 hover:bg-gray-50 transition-colors">
-              Consultar asocomunales
-            </button>
-          </div>
-        </div>
       </div>
     </div>
   );

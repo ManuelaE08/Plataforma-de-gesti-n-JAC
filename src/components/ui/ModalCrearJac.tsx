@@ -101,9 +101,6 @@ export function ModalCrearJac({ onClose, onSave }: ModalCrearJacProps) {
           {field("Municipio", "municipio")}
           {field("Barrio / Vereda", "barrio")}
           {field("Número de afiliados", "afiliados", "number")}
-          {select("Estado documental", "documental", ["Vigente", "Por vencer", "Vencida"])}
-          {select("Estado organizativo", "organizativo", ["Activa", "Inactiva"])}
-          {select("Estado de aprobación", "aprobacion", ["Activo", "Pendiente", "Rechazado"])}
 
           <div className="flex items-center justify-end gap-3 pt-2 border-t border-gray-100 mt-1">
             <button
