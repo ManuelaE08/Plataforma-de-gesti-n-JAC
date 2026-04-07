@@ -21,8 +21,8 @@ export interface AfiliadoAsocItem {
   rol: RolAfiliadoAsoc;
 }
 
-// Entidad principal: Asocomunal
-export interface AsocomunalItem {
+// Entidad principal: Asocomunal (modelo de respuesta del backend)
+export interface Asocomunal {
   id: number;
   nombre: string;
   estado: boolean;
@@ -32,6 +32,9 @@ export interface AsocomunalItem {
   municipio: Municipio;
   jacs: JacItem[];
 }
+
+// Alias para compatibilidad (puedes migrar a Asocomunal gradualmente)
+export type AsocomunalItem = Asocomunal;
 
 // DTO para crear asocomunal
 export interface CreateAsocomunalDto {
@@ -48,6 +51,17 @@ export interface UpdateAsocomunalDto {
   nombre?: string;
   estado?: boolean;
   municipioId?: number;
+  presidente?: string | null;
+  telefono?: string | null;
+  correo?: string | null;
+}
+
+// Filtros para la lista de asocomunales
+export interface AsocomunalFilters {
+  busqueda: string;
+  municipio: number | null; // Cambiado a number | null
+  estado: boolean | null; // Cambiado a boolean | null
+}
   presidente?: string | null;
   telefono?: string | null;
   correo?: string | null;

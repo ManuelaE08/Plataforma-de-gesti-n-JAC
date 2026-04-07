@@ -1,6 +1,6 @@
 import { useState, useEffect, useRef } from "react";
 import type {
-  AsocomunalItem,
+  Asocomunal,
   AsocomunalFilters,
   CreateAsocomunalDto,
   UpdateAsocomunalDto,
@@ -9,12 +9,19 @@ import { AsocomunalesService } from "../services/asocomunalesService";
 
 const initialFilters: AsocomunalFilters = {
   busqueda: "",
-  municipio: "",
-  estado: "",
+  municipio: null,
+  estado: null,
 };
 
+/**
+ * Hook personalizado para gestionar el estado y operaciones de asocomunales.
+ * Maneja la carga de datos, filtros, CRUD y estado de carga/error.
+ * Separa la lógica de negocio de los componentes UI.
+ *
+ * Flujo: Component → Hook → Service → Backend
+ */
 export function useAsocomunales() {
-  const [data, setData] = useState<AsocomunalItem[]>([]);
+  const [data, setData] = useState<Asocomunal[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [filters, setFilters] = useState<AsocomunalFilters>(initialFilters);
@@ -63,10 +70,11 @@ export function useAsocomunales() {
       item.nombre.toLowerCase().includes(debouncedBusqueda.toLowerCase());
 
     const matchMunicipio =
-      !filters.municipio || item.municipio.id.toString() === filters.municipio;
+      filters.municipio === null || (item.municipio && Number(item.municipio.id) === filters.municipio);
 
     const matchEstado =
-      filters.estado === "" || item.estado.toString() === filters.estado;
+      filters.estado === null ||
+      String(item.estado) === String(filters.estado);
 
     return matchBusqueda && matchMunicipio && matchEstado;
   });
@@ -128,7 +136,7 @@ export function useAsocomunales() {
     updateAsocomunal,
     toggleAsocomunalStatus,
     setBusqueda: (v: string) => setFilters((p) => ({ ...p, busqueda: v })),
-    setMunicipio: (v: string) => setFilters((p) => ({ ...p, municipio: v })),
-    setEstado: (v: string) => setFilters((p) => ({ ...p, estado: v })),
+    setMunicipio: (v: number | null) => setFilters((p) => ({ ...p, municipio: v })),
+    setEstado: (v: boolean | null) => setFilters((p) => ({ ...p, estado: v })),
   };
 }

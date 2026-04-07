@@ -10,6 +10,7 @@ import { ModalEditarAsocomunal } from "../components/ModalEditarAsocomunal";
 import { useAsocomunales } from "../hooks/useAsocomunales";
 import { useMunicipios } from "../hooks/useMunicipios";
 import { useAuth } from "../../../context/AuthContext";
+import { Asocomunal } from "../types";
 
 function Asocomunales() {
   const {
@@ -23,7 +24,7 @@ function Asocomunales() {
   const navigate = useNavigate();
   const { user } = useAuth();
   const [showModal, setShowModal] = useState(false);
-  const [editingAsocomunal, setEditingAsocomunal] = useState(null);
+  const [editingAsocomunal, setEditingAsocomunal] = useState<Asocomunal | null>(null);
   const [creatingLoading, setCreatingLoading] = useState(false);
 
   const canViewActions = user?.rol === "admin" || user?.rol === "operador";
@@ -123,8 +124,8 @@ function Asocomunales() {
           />
 
           <select
-            value={filters.municipio}
-            onChange={(e) => setMunicipio(e.target.value)}
+            value={filters.municipio ?? ""}
+            onChange={(e) => setMunicipio(e.target.value ? Number(e.target.value) : null)}
             className="appearance-none w-full bg-white border border-gray-200 text-sm text-gray-600 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-[#1B7F4B]/30 focus:border-[#1B7F4B] transition-all cursor-pointer disabled:opacity-50"
             disabled={municipiosLoading}
           >
@@ -137,8 +138,8 @@ function Asocomunales() {
           </select>
 
           <select
-            value={filters.estado}
-            onChange={(e) => setEstado(e.target.value)}
+            value={filters.estado === null ? "" : filters.estado.toString()}
+            onChange={(e) => setEstado(e.target.value ? e.target.value === "true" : null)}
             className="appearance-none w-full bg-white border border-gray-200 text-sm text-gray-600 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-[#1B7F4B]/30 focus:border-[#1B7F4B] transition-all cursor-pointer"
           >
             <option value="">Todos los estados</option>

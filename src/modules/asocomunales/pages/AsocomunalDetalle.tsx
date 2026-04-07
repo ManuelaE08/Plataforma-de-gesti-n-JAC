@@ -7,14 +7,14 @@ import SearchBar from "../../../components/ui/SearchBar";
 import EmptyState from "../../../components/ui/EmptyState";
 import { useAuth } from "../../../context/AuthContext";
 import { AsocomunalesService } from "../services/asocomunalesService";
-import type { AsocomunalItem } from "../types";
+import type { Asocomunal } from "../types";
 
 function AsocomunalDetalle() {
   const { id } = useParams();
   const navigate = useNavigate();
   const { user } = useAuth();
 
-  const [asoc, setAsoc] = useState<AsocomunalItem | null>(null);
+  const [asoc, setAsoc] = useState<Asocomunal | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
@@ -200,9 +200,7 @@ function AsocomunalDetalle() {
           </div>
 
           {jacsFiltradas.length === 0 ? (
-            <div className="px-5 py-8">
-              <EmptyState message="No se encontraron JAC con los criterios ingresados" />
-            </div>
+            <EmptyState key="empty-state" message="No se encontraron JAC con los criterios ingresados" />
           ) : (
             <div className="overflow-x-auto">
               <table className="w-full text-sm">
