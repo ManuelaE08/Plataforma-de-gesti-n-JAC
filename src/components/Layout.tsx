@@ -68,7 +68,6 @@ function NavItem({ path, name }: NavItemProps) {
 }
 
 function Layout({ children }: LayoutProps) {
-  const location = useLocation();
   const navigate = useNavigate();
   const { user, logout } = useAuth();
 
