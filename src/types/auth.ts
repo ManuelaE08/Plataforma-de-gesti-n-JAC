@@ -9,7 +9,6 @@ export interface User {
   nombre: string;
   email?: string;
   foto?: string;
-  jwt?: string;
 }
 
 export interface AuthContextType {

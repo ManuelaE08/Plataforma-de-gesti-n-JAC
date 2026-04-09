@@ -5,7 +5,7 @@ import type { AuthContextType, User } from "../types/auth";
 const AuthContext = createContext<AuthContextType | null>(null);
 
 type AuthBackendPayload = Partial<
-  Pick<User, "sub" | "usuario" | "email" | "nombre" | "rol" | "jwt">
+  Pick<User, "sub" | "usuario" | "email" | "nombre" | "rol">
 >;
 
 interface AuthBackendResponse extends AuthBackendPayload {
@@ -44,7 +44,6 @@ function buildUserFromPayload(payload: AuthBackendPayload): User {
     rol,
     nombre: payload.nombre,
     email: payload.email,
-    jwt: payload.jwt,
   };
 }
 
