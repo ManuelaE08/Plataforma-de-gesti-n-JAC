@@ -6,6 +6,7 @@ export interface Municipio {
 
 // Jac (referencia básica para mostrar en asocomunal)
 export interface JacItem {
+  estado: any;
   id: number;
   nombre: string;
   barrio?: string;
@@ -61,17 +62,6 @@ export interface AsocomunalFilters {
   busqueda: string;
   municipio: number | null; // Cambiado a number | null
   estado: boolean | null; // Cambiado a boolean | null
-}
-  presidente?: string | null;
-  telefono?: string | null;
-  correo?: string | null;
-}
-
-// Filtros de búsqueda
-export interface AsocomunalFilters {
-  busqueda: string;
-  municipio: string;
-  estado: string;
 }
 
 // Tipos de roles (si aplica)

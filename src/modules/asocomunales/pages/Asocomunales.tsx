@@ -1,6 +1,8 @@
 import { Plus, RotateCcw, UserRound, Edit } from "lucide-react";
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
+import Swal from "sweetalert2";
+import "sweetalert2/dist/sweetalert2.min.css";
 import Badge from "../../../components/ui/Badge";
 import PageHeader from "../../../components/ui/PageHeader";
 import SearchBar from "../../../components/ui/SearchBar";
@@ -10,7 +12,7 @@ import { ModalEditarAsocomunal } from "../components/ModalEditarAsocomunal";
 import { useAsocomunales } from "../hooks/useAsocomunales";
 import { useMunicipios } from "../hooks/useMunicipios";
 import { useAuth } from "../../../context/AuthContext";
-import { Asocomunal } from "../types";
+import { Asocomunal, CreateAsocomunalDto, UpdateAsocomunalDto } from "../types";
 
 function Asocomunales() {
   const {
@@ -30,23 +32,39 @@ function Asocomunales() {
   const canViewActions = user?.rol === "admin" || user?.rol === "operador";
   const canCreate = user?.rol === "admin" || user?.rol === "operador";
 
-  const handleEdit = (asocomunal) => {
+  const handleEdit = (asocomunal: Asocomunal) => {
     setEditingAsocomunal(asocomunal);
   };
 
-  const handleSaveEdit = async (id, updates) => {
+  const handleSaveEdit = async (id: number, asoc: CreateAsocomunalDto | UpdateAsocomunalDto) => {
     try {
+      const updates = asoc as UpdateAsocomunalDto;
       await updateAsocomunal(id, updates);
       setEditingAsocomunal(null);
-    } catch (err) {
-      alert("Error al actualizar la asocomunal");
+      await Swal.fire({
+        icon: "success",
+        title: "Asocomunal actualizada",
+        text: "La actualización se guardó correctamente.",
+        confirmButtonColor: "#1B7F4B",
+        timer: 2500,
+        timerProgressBar: true,
+      });
+    } catch (err: unknown) {
+      console.error("Error al actualizar la asocomunal:", err);
+      const errorMessage = err instanceof Error ? err.message : "No se pudo actualizar la asocomunal. Intenta de nuevo.";
+      await Swal.fire({
+        icon: "error",
+        title: "Error",
+        text: errorMessage,
+        confirmButtonColor: "#1B7F4B",
+      });
     }
   };
 
-  const handleToggleStatus = async (id, currentStatus) => {
+  const handleToggleStatus = async (id: number, currentStatus: boolean) => {
     try {
       await toggleAsocomunalStatus(id, !currentStatus);
-    } catch (err) {
+    } catch (err: unknown) {
       alert(`Error al ${currentStatus ? "desactivar" : "activar"} la asocomunal`);
     }
   };
@@ -74,14 +92,29 @@ function Asocomunales() {
           municipios={municipios}
           loading={creatingLoading}
           onClose={() => setShowModal(false)}
-          onSave={async (nueva) => {
+          onSave={async (nueva: CreateAsocomunalDto | UpdateAsocomunalDto) => {
             try {
               setCreatingLoading(true);
-              await createAsocomunal(nueva);
+              const data = nueva as CreateAsocomunalDto;
+              await createAsocomunal(data);
               setShowModal(false);
-            } catch (error) {
+              await Swal.fire({
+                icon: "success",
+                title: "Asocomunal creada",
+                text: "La nueva asocomunal ha sido registrada correctamente.",
+                confirmButtonColor: "#1B7F4B",
+                timer: 2500,
+                timerProgressBar: true,
+              });
+            } catch (error: unknown) {
               console.error("Error creando asocomunal:", error);
-              // TODO: mostrar error al usuario
+              const errorMessage = error instanceof Error ? error.message : "No se pudo crear la asocomunal. Verifica los datos e intenta de nuevo.";
+              await Swal.fire({
+                icon: "error",
+                title: "Error",
+                text: errorMessage,
+                confirmButtonColor: "#1B7F4B",
+              });
             } finally {
               setCreatingLoading(false);
             }
@@ -179,9 +212,7 @@ function Asocomunales() {
                 <th className="text-left text-xs font-semibold text-gray-500 uppercase tracking-wider px-4 py-3">
                   Estado
                 </th>
-                <th className="text-left text-xs font-semibold text-gray-500 uppercase tracking-wider px-4 py-3">
-                  JACs
-                </th>
+              
                 {canViewActions && (
                   <th className="text-left text-xs font-semibold text-gray-500 uppercase tracking-wider px-4 py-3">
                     Acciones
@@ -205,7 +236,6 @@ function Asocomunales() {
                     <td className="px-4 py-3">
                       <Badge label={item.estado ? "Activo" : "Inactivo"} variant={item.estado ? "green" : "gray"} />
                     </td>
-                    <td className="px-4 py-3 text-gray-700 tabular-nums font-medium">{item.jacs?.length || 0}</td>
                     {canViewActions && (
                       <td className="px-4 py-3">
                         <div className="flex items-center gap-2">

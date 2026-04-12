@@ -207,24 +207,21 @@ function AsocomunalDetalle() {
                 <thead>
                   <tr className="border-b border-gray-100 bg-gray-50">
                     <th className="text-left text-xs font-semibold text-gray-500 uppercase tracking-wider px-4 py-3">Nombre</th>
-                    <th className="text-left text-xs font-semibold text-gray-500 uppercase tracking-wider px-4 py-3">Barrio</th>
-                    <th className="text-left text-xs font-semibold text-gray-500 uppercase tracking-wider px-4 py-3">Municipio</th>
-                    <th className="text-left text-xs font-semibold text-gray-500 uppercase tracking-wider px-4 py-3">Acciones</th>
+                    <th className="text-left text-xs font-semibold text-gray-500 uppercase tracking-wider px-4 py-3">Estado</th>
                   </tr>
                 </thead>
                 <tbody>
                   {jacsFiltradas.map((jac) => (
                     <tr key={jac.id} className="border-b border-gray-50 hover:bg-gray-50 transition-colors">
                       <td className="px-4 py-3 font-medium text-gray-800">{jac.nombre}</td>
-                      <td className="px-4 py-3 text-gray-600">{jac.barrio || "—"}</td>
-                      <td className="px-4 py-3 text-gray-600">{jac.municipio?.nombre || "—"}</td>
                       <td className="px-4 py-3">
-                        <button
-                          onClick={() => navigate(`/jac/${jac.id}`)}
-                          className="text-[#1B7F4B] hover:underline text-sm font-medium"
-                        >
-                          Ver detalle
-                        </button>
+                        <span className={`inline-flex px-2 py-1 text-xs font-medium rounded-full ${
+                          jac.estado
+                            ? 'bg-green-100 text-green-800'
+                            : 'bg-gray-100 text-gray-800'
+                        }`}>
+                          {jac.estado ? 'Activa' : 'Inactiva'}
+                        </span>
                       </td>
                     </tr>
                   ))}
