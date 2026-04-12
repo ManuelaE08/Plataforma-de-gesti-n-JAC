@@ -1,10 +1,10 @@
 import { X } from "lucide-react";
-import type { CreateAsocomunalDto, Municipio } from "../types";
+import type { CreateAsocomunalDto, UpdateAsocomunalDto, Municipio } from "../types";
 import { AsocomunalForm } from "./AsocomunalForm";
 
 interface ModalCrearAsocomunalProps {
   onClose: () => void;
-  onSave: (asoc: CreateAsocomunalDto) => void;
+  onSave: (asoc: CreateAsocomunalDto | UpdateAsocomunalDto) => Promise<void>;
   municipios: Municipio[];
   loading?: boolean;
 }

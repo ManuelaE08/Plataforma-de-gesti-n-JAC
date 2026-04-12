@@ -21,6 +21,7 @@ export function useAsocomunalForm(initialData?: Partial<Asocomunal>) {
 
   // Estado de errores
   const [errors, setErrors] = useState<Record<string, string>>({});
+  const [touched, setTouched] = useState<Record<string, boolean>>({});
 
   // Estado de carga
   const [loading, setLoading] = useState(false);
@@ -36,6 +37,7 @@ export function useAsocomunalForm(initialData?: Partial<Asocomunal>) {
       correo: initialData?.correo || "",
     });
     setErrors({});
+    setTouched({});
   };
 
   // Actualizar formulario cuando cambian los datos iniciales (para edición)
@@ -45,34 +47,82 @@ export function useAsocomunalForm(initialData?: Partial<Asocomunal>) {
     }
   }, [initialData]);
 
-  // Función de validación
+  const validateField = (
+    key: keyof (CreateAsocomunalDto | UpdateAsocomunalDto),
+    value: any,
+  ): string => {
+    if (key === "nombre") {
+      if (!value?.toString().trim()) {
+        return "El nombre es obligatorio";
+      }
+    }
+
+    if (key === "municipioId") {
+      if (!value || value === 0) {
+        return "El municipio es obligatorio";
+      }
+    }
+
+    if (key === "telefono") {
+      const telefonoValue = value?.toString().trim();
+      if (telefonoValue && !/^[0-9]{7,15}$/.test(telefonoValue)) {
+        return "El teléfono debe contener solo dígitos y tener entre 7 y 15 números";
+      }
+    }
+
+    if (key === "correo") {
+      const correoValue = value?.toString().trim();
+      if (correoValue && !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(correoValue)) {
+        return "El correo electrónico no es válido";
+      }
+    }
+
+    return "";
+  };
+
   const validate = (): boolean => {
     const newErrors: Record<string, string> = {};
+    const fieldKeys: Array<keyof (CreateAsocomunalDto | UpdateAsocomunalDto)> = [
+      "nombre",
+      "municipioId",
+      "telefono",
+      "correo",
+    ];
 
-    if (!form.nombre?.toString().trim()) {
-      newErrors.nombre = "El nombre es obligatorio";
-    }
-
-    if (!form.municipioId || form.municipioId === 0) {
-      newErrors.municipioId = "El municipio es obligatorio";
-    }
-
-    // Validaciones adicionales si es necesario
-    if (form.correo && !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(form.correo.toString())) {
-      newErrors.correo = "El correo electrónico no es válido";
-    }
+    fieldKeys.forEach((key) => {
+      const error = validateField(key, form[key]);
+      if (error) {
+        newErrors[key] = error;
+      }
+    });
 
     setErrors(newErrors);
+    setTouched((prev) => ({
+      ...prev,
+      nombre: true,
+      municipioId: true,
+      telefono: true,
+      correo: true,
+    }));
+
     return Object.keys(newErrors).length === 0;
   };
 
-  // Manejador de cambios en inputs
-  const handleChange = (key: keyof (CreateAsocomunalDto | UpdateAsocomunalDto), value: any) => {
-    setForm(prev => ({ ...prev, [key]: value }));
-    // Limpiar error del campo cuando el usuario empiece a escribir
-    if (errors[key]) {
-      setErrors(prev => ({ ...prev, [key]: "" }));
-    }
+  const handleFieldChange = (
+    key: keyof (CreateAsocomunalDto | UpdateAsocomunalDto),
+    value: any,
+  ) => {
+    setForm((prev) => ({ ...prev, [key]: value }));
+    setTouched((prev) => ({ ...prev, [key]: true }));
+
+    const error = validateField(key, value);
+    setErrors((prev) => ({ ...prev, [key]: error }));
+  };
+
+  const handleBlur = (key: keyof (CreateAsocomunalDto | UpdateAsocomunalDto)) => {
+    setTouched((prev) => ({ ...prev, [key]: true }));
+    const error = validateField(key, form[key]);
+    setErrors((prev) => ({ ...prev, [key]: error }));
   };
 
   // Manejador de submit
@@ -96,8 +146,10 @@ export function useAsocomunalForm(initialData?: Partial<Asocomunal>) {
   return {
     form,
     errors,
+    touched,
     loading,
-    handleChange,
+    handleChange: handleFieldChange,
+    handleBlur,
     handleSubmit,
     resetForm,
     validate,

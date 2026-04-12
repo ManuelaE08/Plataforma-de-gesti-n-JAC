@@ -107,7 +107,16 @@ export class AsocomunalesService {
 
     if (!response.ok) {
       const errorText = await response.text();
-      throw new Error(`Error al crear asocomunal: ${errorText || response.statusText}`);
+      let errorMessage = errorText;
+      try {
+        const errorData = JSON.parse(errorText);
+        if (errorData.message) {
+          errorMessage = errorData.message;
+        }
+      } catch {
+        // Si no es JSON, usar el texto tal cual
+      }
+      throw new Error(errorMessage);
     }
 
     const created: Asocomunal = await response.json();
@@ -132,7 +141,17 @@ export class AsocomunalesService {
     });
 
     if (!response.ok) {
-      throw new Error(`Error al actualizar asocomunal: ${response.statusText}`);
+      const errorText = await response.text();
+      let errorMessage = errorText;
+      try {
+        const errorData = JSON.parse(errorText);
+        if (errorData.message) {
+          errorMessage = errorData.message;
+        }
+      } catch {
+        // Si no es JSON, usar el texto tal cual
+      }
+      throw new Error(errorMessage);
     }
 
     const updated: Asocomunal = await response.json();
@@ -168,16 +187,11 @@ export class AsocomunalesService {
    * PATCH /asocomunal/:id/deactivate
    */
   static async deactivateAsocomunal(id: number): Promise<Asocomunal> {
-    if (!baseEndpoint) {
-      throw new Error("VITE_ENDPOINT no está configurado");
-    }
-
-    const response = await fetch(`${baseEndpoint}/asocomunal/${id}/deactivate`, {
-      method: "PATCH",
-      headers: {
-        "Content-Type": "application/json",
-      },
+    const response = await fetch(`${baseEndpoint}/asocomunal/${id}`, {
+      method: "DELETE"
     });
+
+
 
     if (!response.ok) {
       throw new Error(`Error al desactivar asocomunal: ${response.statusText}`);
