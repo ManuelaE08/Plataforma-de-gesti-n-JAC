@@ -1,7 +1,13 @@
 import { useMemo } from "react";
 import { jacData } from "./useJac";
-import { asocomunalesData } from "./useAsocomunales";
 import { useSolicitudes } from "./useSolicitudes";
+
+// Datos mock de asocomunales para notificaciones
+const asocomunalesDataMock = [
+  { id: 1, nombre: "Asocomunal Popayán Urbana", documental: "Vigente", organizativo: "Activa" as const },
+  { id: 2, nombre: "Asocomunal Norte del Cauca", documental: "Por vencer", organizativo: "Activa" as const },
+  { id: 3, nombre: "Asocomunal Patía", documental: "Vigente", organizativo: "Activa" as const },
+];
 
 export type TipoNotificacion =
   | "solicitud"
@@ -99,7 +105,7 @@ export function useNotificaciones(rol: string, userId?: number) {
           });
         });
 
-      asocomunalesData
+      asocomunalesDataMock
         .filter((a) => a.documental === "Vencida")
         .forEach((a) => {
           result.push({
@@ -112,7 +118,7 @@ export function useNotificaciones(rol: string, userId?: number) {
           });
         });
 
-      asocomunalesData
+      asocomunalesDataMock
         .filter((a) => a.documental === "Por vencer")
         .forEach((a) => {
           result.push({
@@ -164,7 +170,7 @@ export function useNotificaciones(rol: string, userId?: number) {
           });
         });
 
-      asocomunalesData
+      asocomunalesDataMock
         .filter((a) => a.documental === "Vencida")
         .forEach((a) => {
           result.push({
@@ -190,7 +196,7 @@ export function useNotificaciones(rol: string, userId?: number) {
           });
         });
 
-      asocomunalesData
+      asocomunalesDataMock
         .filter((a) => a.documental === "Por vencer")
         .forEach((a) => {
           result.push({

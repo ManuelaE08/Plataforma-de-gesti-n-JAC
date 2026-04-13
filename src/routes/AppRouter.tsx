@@ -4,16 +4,15 @@ import Layout from "../components/Layout";
 import Dashboard from "../pages/Dashboard";
 import DashboardUsuario from "../pages/DashboardUsuario";
 import Jac from "../pages/Jac";
-import Asocomunales from "../pages/Asocomunales";
+import Asocomunales from "../modules/asocomunales/pages/Asocomunales";
 import Usuarios from "../pages/Usuarios";
 import Reportes from "../pages/Reportes";
 import Analiticas from "../pages/Analiticas";
-import { AlignVerticalSpaceBetween } from "lucide-react";
 import Alertas from "../pages/Alertas";
 import SolicitudesAdmin from "../pages/SolicitudesAdmin";
 import MisSolicitudes from "../pages/MisSolicitudes";
 import JacDetalle from "../pages/JacDetalle";
- import AsocomunalDetalle from "../pages/AsocomunalDetalle";
+import AsocomunalDetalle from "../modules/asocomunales/pages/AsocomunalDetalle";
 
 import { useAuth } from "../context/AuthContext";
 import Login from "../pages/Login";
@@ -25,10 +24,28 @@ function RootDashboard() {
 }
 
 function ProtectedRoute({ children }: { children: ReactNode }) {
-  const { user } = useAuth();
+  const { user, isAuthLoading } = useAuth();
+  if (isAuthLoading) {
+    return null;
+  }
+
   if (!user) {
     return <Navigate to="/login" replace />;
   }
+
+  return <>{children}</>;
+}
+
+function PublicOnlyRoute({ children }: { children: ReactNode }) {
+  const { user, isAuthLoading } = useAuth();
+  if (isAuthLoading) {
+    return null;
+  }
+
+  if (user) {
+    return <Navigate to="/" replace />;
+  }
+
   return <>{children}</>;
 }
 
@@ -50,9 +67,15 @@ function ComingSoon({ title }: { title: string }) {
 }
 
 function AppRouter() {
+  const { isAuthLoading } = useAuth();
+
+  if (isAuthLoading) {
+    return null;
+  }
+
   return (
     <Routes>
-      <Route path="/login" element={<Login />} />
+      <Route path="/login" element={<PublicOnlyRoute><Login /></PublicOnlyRoute>} />
       <Route path="/" element={<Layout><RootDashboard /></Layout>} />
       <Route path="/jac" element={<Layout><Jac /></Layout>} />
       <Route path="/jac/:id" element={<Layout><JacDetalle /></Layout>} />

@@ -69,7 +69,7 @@ function JacDetalle() {
           </button>
         </PageHeader>
         <div className="bg-white rounded-xl shadow-sm border border-gray-100">
-          <EmptyState message="La JAC que intenta consultar no existe o no está disponible" />
+          <EmptyState message="La JAC que intenta consultar no existe o no está disponible" inTable={false} />
         </div>
       </div>
     );

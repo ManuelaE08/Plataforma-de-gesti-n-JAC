@@ -1,11 +1,35 @@
-import { Plus, ChevronDown } from "lucide-react";
+import { Plus, ChevronDown, ChevronUp } from "lucide-react";
 import { useState } from "react";
 import Badge from "../components/ui/Badge";
 import PageHeader from "../components/ui/PageHeader";
 import EmptyState from "../components/ui/EmptyState";
 import { ModalCrearSolicitud } from "../components/ui/ModalCrearSolicitud";
-import { useSolicitudes, estadoVariant, tipoVariant } from "../hooks/useSolicitudes";
+import { useSolicitudes, estadoVariant, tipoVariant, type CambioCampo, type SolicitudItem } from "../hooks/useSolicitudes";
 import { useAuth } from "../context/AuthContext";
+
+function TablaCambios({ cambios, tipo }: { cambios: CambioCampo[]; tipo: SolicitudItem["tipo"] }) {
+  const esEdicion = tipo.startsWith("Editar");
+  return (
+    <table className="w-full text-xs border border-gray-100 rounded-lg overflow-hidden">
+      <thead>
+        <tr className="bg-gray-50 text-gray-500 uppercase tracking-wider">
+          <th className="text-left px-3 py-2 font-semibold">Campo</th>
+          {esEdicion && <th className="text-left px-3 py-2 font-semibold">Valor anterior</th>}
+          <th className="text-left px-3 py-2 font-semibold">Valor nuevo</th>
+        </tr>
+      </thead>
+      <tbody className="divide-y divide-gray-100">
+        {cambios.map((c, i) => (
+          <tr key={i} className="bg-white">
+            <td className="px-3 py-2 text-gray-600 font-medium">{c.campo}</td>
+            {esEdicion && <td className="px-3 py-2 text-red-500">{c.valorAnterior ?? "—"}</td>}
+            <td className="px-3 py-2 text-[#1B7F4B] font-medium">{c.valorNuevo}</td>
+          </tr>
+        ))}
+      </tbody>
+    </table>
+  );
+}
 
 function MisSolicitudes() {
   const { user } = useAuth();
@@ -18,6 +42,8 @@ function MisSolicitudes() {
   const filtradas = filtroEstado
     ? filtered.filter((s) => s.estado === filtroEstado)
     : filtered;
+
+  const toggle = (id: number) => setExpandidoId((prev) => (prev === id ? null : id));
 
   return (
     <div>
@@ -61,63 +87,74 @@ function MisSolicitudes() {
         </select>
       </div>
 
-      <div className="bg-white rounded-xl shadow-sm border border-gray-100 overflow-hidden">
-        <div className="overflow-x-auto">
-          <table className="w-full text-sm">
-            <thead>
-              <tr className="border-b border-gray-100 bg-gray-50">
-                {["Tipo de acción", "Descripción", "Fecha", "Estado", ""].map((col, i) => (
-                  <th key={i} className="text-left text-xs font-semibold text-gray-500 uppercase tracking-wider px-4 py-3">
-                    {col}
-                  </th>
-                ))}
-              </tr>
-            </thead>
-            <tbody>
-              {filtradas.length === 0 ? (
-                <EmptyState message="No tienes solicitudes registradas aún" />
-              ) : (
-                filtradas.map((s) => (
-                  <>
-                    <tr key={s.id} className="border-b border-gray-50 hover:bg-gray-50 transition-colors">
-                      <td className="px-4 py-3">
-                        <Badge label={s.tipo} variant={tipoVariant[s.tipo]} />
-                      </td>
-                      <td className="px-4 py-3 text-gray-700 max-w-xs">
-                        <p className="truncate">{s.descripcion}</p>
-                      </td>
-                      <td className="px-4 py-3 text-gray-600 tabular-nums">
-                        {new Date(s.fecha).toLocaleDateString("es-CO", { day: "2-digit", month: "short", year: "numeric" })}
-                      </td>
-                      <td className="px-4 py-3">
-                        <Badge label={s.estado} variant={estadoVariant[s.estado]} />
-                      </td>
-                      <td className="px-4 py-3">
-                        {s.estado === "Rechazada" && s.motivoRechazo && (
-                          <button
-                            onClick={() => setExpandidoId(expandidoId === s.id ? null : s.id)}
-                            className="p-1.5 rounded-lg hover:bg-gray-100 text-gray-400 hover:text-gray-600 transition-colors"
-                            title="Ver motivo de rechazo"
-                          >
-                            <ChevronDown size={16} className={`transition-transform ${expandidoId === s.id ? "rotate-180" : ""}`} />
-                          </button>
-                        )}
-                      </td>
-                    </tr>
-                    {expandidoId === s.id && s.motivoRechazo && (
-                      <tr key={`motivo-${s.id}`} className="bg-red-50">
-                        <td colSpan={5} className="px-4 py-3">
-                          <p className="text-xs font-semibold text-red-600 uppercase tracking-wider mb-1">Motivo del rechazo</p>
-                          <p className="text-sm text-red-700">{s.motivoRechazo}</p>
-                        </td>
-                      </tr>
+      <div className="flex flex-col gap-3">
+        {filtradas.length === 0 ? (
+          <div className="bg-white rounded-xl border border-gray-100 py-16 flex flex-col items-center text-center">
+            <EmptyState message="No tienes solicitudes registradas aún" />
+          </div>
+        ) : (
+          filtradas.map((s) => {
+            const expandida = expandidoId === s.id;
+            const badgeTipo = s.tipo.startsWith("Crear")
+              ? "Nuevo Registro"
+              : s.tipo.startsWith("Editar")
+              ? "Modificación"
+              : "Eliminación";
+
+            return (
+              <div key={s.id} className="bg-white rounded-xl border border-gray-100 shadow-sm overflow-hidden">
+                {/* Cabecera */}
+                <div className="flex items-start justify-between gap-4 px-5 py-4">
+                  <div>
+                    <div className="flex items-center gap-2 flex-wrap">
+                      <span className="text-sm font-semibold text-gray-800">{s.descripcion}</span>
+                      <span className={`inline-flex items-center px-2 py-0.5 rounded-full text-[10px] font-bold ${
+                        badgeTipo === "Nuevo Registro" ? "bg-green-100 text-green-700"
+                        : badgeTipo === "Modificación" ? "bg-blue-100 text-blue-700"
+                        : "bg-red-100 text-red-600"
+                      }`}>
+                        {badgeTipo}
+                      </span>
+                      <span className="inline-flex items-center px-2 py-0.5 rounded-full text-[10px] font-semibold bg-gray-100 text-gray-600">
+                        {s.entidad}
+                      </span>
+                    </div>
+                    <p className="text-xs text-gray-400 mt-1">
+                      {new Date(s.fecha).toLocaleDateString("es-CO", { day: "2-digit", month: "short", year: "numeric" })}
+                    </p>
+                  </div>
+                  <div className="flex items-center gap-2 shrink-0">
+                    <Badge label={s.estado} variant={estadoVariant[s.estado]} />
+                    <button
+                      onClick={() => toggle(s.id)}
+                      className="p-1.5 rounded-lg hover:bg-gray-100 text-gray-400 transition"
+                    >
+                      {expandida ? <ChevronUp size={15} /> : <ChevronDown size={15} />}
+                    </button>
+                  </div>
+                </div>
+
+                {/* Detalle */}
+                {expandida && (
+                  <div className="px-5 pb-5 border-t border-gray-100">
+                    <p className="text-xs font-semibold text-gray-500 uppercase tracking-wider mt-4 mb-2">
+                      Cambios propuestos
+                    </p>
+                    <TablaCambios cambios={s.cambios} tipo={s.tipo} />
+                    {s.estado === "Rechazada" && s.motivoRechazo && (
+                      <div className="mt-3 flex items-start gap-2 bg-red-50 border border-red-100 rounded-lg px-3 py-2.5">
+                        <p className="text-xs text-red-600">
+                          <span className="font-semibold">Motivo del rechazo: </span>
+                          {s.motivoRechazo}
+                        </p>
+                      </div>
                     )}
-                  </>
-                ))
-              )}
-            </tbody>
-          </table>
-        </div>
+                  </div>
+                )}
+              </div>
+            );
+          })
+        )}
       </div>
     </div>
   );

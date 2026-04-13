@@ -1,14 +1,57 @@
-import { createContext, useContext, useState } from "react";
+import { createContext, useContext, useEffect, useState } from "react";
 import type { ReactNode } from "react";
 import type { AuthContextType, User } from "../types/auth";
 
 const AuthContext = createContext<AuthContextType | null>(null);
 
+type AuthBackendPayload = Partial<
+  Pick<User, "sub" | "usuario" | "email" | "nombre" | "rol">
+>;
+
+interface AuthBackendResponse extends AuthBackendPayload {
+  payload?: AuthBackendPayload;
+  user?: AuthBackendPayload;
+}
+
+const baseEndpoint = import.meta.env.VITE_ENDPOINT?.replace(/\/$/, "");
+
+function isValidRole(rol: unknown): rol is User["rol"] {
+  return rol === "admin" || rol === "operador" || rol === "usuario";
+}
+
+function normalizePayload(data: AuthBackendResponse): AuthBackendPayload {
+  return data.user ?? data.payload ?? data;
+}
+
+function buildUserFromPayload(payload: AuthBackendPayload): User {
+  const rol = payload.rol;
+  if (!isValidRole(rol)) {
+    throw new Error("El rol retornado por el backend no es válido");
+  }
+
+  if (!payload.nombre) {
+    throw new Error("La respuesta del backend no contiene el nombre del usuario");
+  }
+
+  const usuario = payload.usuario || payload.email || payload.sub;
+  if (!usuario) {
+    throw new Error("La respuesta del backend no contiene un identificador de usuario");
+  }
+
+  return {
+    sub: payload.sub,
+    usuario,
+    rol,
+    nombre: payload.nombre,
+    email: payload.email,
+  };
+}
+
 const usuarios: User[] = [
-  { id: 1, usuario: "admin", password: "1234", rol: "admin", nombre: "Administrador/Auditor" },
-  { id: 2, usuario: "operador", password: "1234", rol: "operador", nombre: "Carlos" },
-  { id: 3, usuario: "operador2", password: "1234", rol: "operador", nombre: "Maria" },
-  { id: 4, usuario: "usuario", password: "1234", rol: "usuario", nombre: "Usuario" },
+  { usuario: "admin", password: "1234", rol: "admin", nombre: "Administrador/Auditor" },
+  { usuario: "operador", password: "1234", rol: "operador", nombre: "Carlos" },
+  { usuario: "operador2", password: "1234", rol: "operador", nombre: "Maria" },
+  { usuario: "usuario", password: "1234", rol: "usuario", nombre: "Usuario" },
 ];
 
 interface AuthProviderProps {
@@ -17,6 +60,53 @@ interface AuthProviderProps {
 
 export function AuthProvider({ children }: AuthProviderProps) {
   const [user, setUser] = useState<User | null>(null);
+  const [isAuthLoading, setIsAuthLoading] = useState<boolean>(true);
+
+  const loadSessionFromCookie = async (): Promise<User | null> => {
+    if (!baseEndpoint) {
+      return null;
+    }
+
+    const response = await fetch(baseEndpoint + "/auth/me", {
+      method: "GET",
+      credentials: "include",
+    });
+
+    if (!response.ok) {
+      return null;
+    }
+
+    const data = (await response.json()) as AuthBackendResponse;
+    return buildUserFromPayload(normalizePayload(data));
+  };
+
+  useEffect(() => {
+    let active = true;
+
+    const bootstrapSession = async () => {
+      try {
+        const sessionUser = await loadSessionFromCookie();
+        if (active) {
+          setUser(sessionUser);
+        }
+      } catch (error) {
+        console.error("No se pudo restaurar la sesión desde cookie:", error);
+        if (active) {
+          setUser(null);
+        }
+      } finally {
+        if (active) {
+          setIsAuthLoading(false);
+        }
+      }
+    };
+
+    void bootstrapSession();
+
+    return () => {
+      active = false;
+    };
+  }, []);
 
   const login = (usuario: string, password: string): boolean => {
     const found = usuarios.find(
@@ -41,6 +131,7 @@ export function AuthProvider({ children }: AuthProviderProps) {
       const response = await fetch(baseEndpoint + "/auth/google", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
+        credentials: "include",
         body: JSON.stringify({ credential }),
       });
 
@@ -54,25 +145,27 @@ export function AuthProvider({ children }: AuthProviderProps) {
         );
       }
 
-      const data = (await response.json()) as Partial<User>;
-      const rol = data.rol;
+      let nextUser: User | null = null;
+      const contentType = response.headers.get("content-type") ?? "";
 
-      if (!data.usuario || !rol || !data.nombre) {
-        throw new Error("La respuesta del backend no contiene los campos requeridos");
+      if (contentType.includes("application/json")) {
+        const data = (await response.json()) as AuthBackendResponse;
+        try {
+          nextUser = buildUserFromPayload(normalizePayload(data));
+        } catch {
+          nextUser = null;
+        }
       }
 
-      if (rol !== "admin" && rol !== "operador" && rol !== "usuario") {
-        throw new Error("El rol retornado por el backend no es válido");
+      if (!nextUser) {
+        nextUser = await loadSessionFromCookie();
       }
 
-      setUser({
-        id: data.id || 0,
-        usuario: data.usuario,
-        rol,
-        nombre: data.nombre,
-        email: data.email,
-      });
-      
+      if (!nextUser) {
+        throw new Error("No fue posible recuperar la sesión después del login");
+      }
+
+      setUser(nextUser);
       return true;
     } catch (error) {
       console.error("Error en login de Google:", error);
@@ -80,15 +173,21 @@ export function AuthProvider({ children }: AuthProviderProps) {
     }
   };
 
-  const logout = () =>  setUser({
-        id: 0,
-        usuario: "usuario_invitado",
-        rol: "usuario",
-        nombre: "Usuario invitado",
-      });;
+  const logout = () => {
+    setUser(null);
+
+    if (!baseEndpoint) {
+      return;
+    }
+
+    void fetch(baseEndpoint + "/auth/logout", {
+      method: "POST",
+      credentials: "include",
+    });
+  };
 
   return (
-    <AuthContext.Provider value={{ user, login, loginWithGoogle, logout }}>
+    <AuthContext.Provider value={{ user, isAuthLoading, login, loginWithGoogle, logout }}>
       {children}
     </AuthContext.Provider>
   );

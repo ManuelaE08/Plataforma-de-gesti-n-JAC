@@ -1,10 +1,15 @@
-import { X } from "lucide-react";
+import { X, Plus, Trash2 } from "lucide-react";
 import { useState } from "react";
-import type { TipoAccion } from "../../hooks/useSolicitudes";
+import type { TipoAccion, CambioCampo } from "../../hooks/useSolicitudes";
 
 interface ModalCrearSolicitudProps {
   onClose: () => void;
-  onSave: (datos: { tipo: TipoAccion; descripcion: string }) => void;
+  onSave: (datos: {
+    tipo: TipoAccion;
+    descripcion: string;
+    entidad: "JAC" | "Asocomunal";
+    cambios: CambioCampo[];
+  }) => void;
 }
 
 const tiposAccion: TipoAccion[] = [
@@ -12,61 +17,249 @@ const tiposAccion: TipoAccion[] = [
   "Crear Asocomunal", "Editar Asocomunal", "Eliminar Asocomunal",
 ];
 
+// Campos predefinidos según tipo de acción
+const camposPreset: Record<TipoAccion, CambioCampo[]> = {
+  "Crear JAC": [
+    { campo: "Nombre", valorNuevo: "" },
+    { campo: "Municipio", valorNuevo: "" },
+    { campo: "Barrio/Vereda", valorNuevo: "" },
+    { campo: "Afiliados", valorNuevo: "" },
+    { campo: "Estado", valorNuevo: "" },
+  ],
+  "Editar JAC": [
+    { campo: "Campo a modificar", valorAnterior: "", valorNuevo: "" },
+  ],
+  "Eliminar JAC": [
+    { campo: "Nombre de la JAC", valorNuevo: "" },
+    { campo: "Motivo", valorNuevo: "" },
+  ],
+  "Crear Asocomunal": [
+    { campo: "Nombre", valorNuevo: "" },
+    { campo: "Municipio", valorNuevo: "" },
+    { campo: "JAC asociadas", valorNuevo: "" },
+    { campo: "Estado", valorNuevo: "" },
+  ],
+  "Editar Asocomunal": [
+    { campo: "Campo a modificar", valorAnterior: "", valorNuevo: "" },
+  ],
+  "Eliminar Asocomunal": [
+    { campo: "Nombre de la Asocomunal", valorNuevo: "" },
+    { campo: "Motivo", valorNuevo: "" },
+  ],
+};
+
+function getEntidad(tipo: TipoAccion): "JAC" | "Asocomunal" {
+  return tipo.includes("Asocomunal") ? "Asocomunal" : "JAC";
+}
+
+function getDescripcion(tipo: TipoAccion, cambios: CambioCampo[]): string {
+  const nombre = cambios.find(
+    (c) => c.campo === "Nombre" || c.campo === "Nombre de la JAC" || c.campo === "Nombre de la Asocomunal"
+  )?.valorNuevo;
+  return nombre ? `${nombre}` : tipo;
+}
+
 export function ModalCrearSolicitud({ onClose, onSave }: ModalCrearSolicitudProps) {
   const [tipo, setTipo] = useState<TipoAccion>("Crear JAC");
-  const [descripcion, setDescripcion] = useState("");
-  const [error, setError] = useState("");
+  const [cambios, setCambios] = useState<CambioCampo[]>(camposPreset["Crear JAC"]);
+  const [errors, setErrors] = useState<Record<number, string>>({});
+
+  const esEdicion = tipo.startsWith("Editar");
+
+  const handleTipoChange = (nuevoTipo: TipoAccion) => {
+    setTipo(nuevoTipo);
+    setCambios(camposPreset[nuevoTipo].map((c) => ({ ...c })));
+    setErrors({});
+  };
+
+  const updateCampo = (i: number, key: keyof CambioCampo, value: string) => {
+    setCambios((prev) => prev.map((c, idx) => idx === i ? { ...c, [key]: value } : c));
+    setErrors((prev) => { const e = { ...prev }; delete e[i]; return e; });
+  };
+
+  const agregarFila = () => {
+    setCambios((prev) => [
+      ...prev,
+      esEdicion
+        ? { campo: "", valorAnterior: "", valorNuevo: "" }
+        : { campo: "", valorNuevo: "" },
+    ]);
+  };
+
+  const eliminarFila = (i: number) => {
+    setCambios((prev) => prev.filter((_, idx) => idx !== i));
+  };
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    if (!descripcion.trim()) { setError("La descripción es obligatoria"); return; }
-    onSave({ tipo, descripcion: descripcion.trim() });
+    const newErrors: Record<number, string> = {};
+    cambios.forEach((c, i) => {
+      if (!c.campo.trim() || !c.valorNuevo.trim()) {
+        newErrors[i] = "Completa todos los campos";
+      }
+    });
+    if (Object.keys(newErrors).length > 0) {
+      setErrors(newErrors);
+      return;
+    }
+    onSave({
+      tipo,
+      entidad: getEntidad(tipo),
+      descripcion: getDescripcion(tipo, cambios),
+      cambios,
+    });
     onClose();
   };
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 px-4">
-      <div className="bg-white rounded-2xl shadow-xl w-full max-w-md">
-        <div className="flex items-center justify-between px-6 py-4 border-b border-gray-100">
+    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 px-4 py-6">
+      <div className="bg-white rounded-2xl shadow-xl w-full max-w-2xl max-h-[90vh] flex flex-col">
+
+        {/* Header */}
+        <div className="flex items-center justify-between px-6 py-4 border-b border-gray-100 shrink-0">
           <div>
             <h2 className="text-base font-semibold text-gray-800">Nueva solicitud de cambio</h2>
-            <p className="text-xs text-gray-400 mt-0.5">Describa el cambio que desea proponer al administrador</p>
+            <p className="text-xs text-gray-400 mt-0.5">
+              Seleccione el tipo de acción y complete los campos del cambio propuesto
+            </p>
           </div>
-          <button onClick={onClose} className="p-2 rounded-lg hover:bg-gray-100 text-gray-400 hover:text-gray-600 transition-colors">
+          <button
+            onClick={onClose}
+            className="p-2 rounded-lg hover:bg-gray-100 text-gray-400 hover:text-gray-600 transition-colors"
+          >
             <X size={18} />
           </button>
         </div>
-        <form onSubmit={handleSubmit} className="px-6 py-5 flex flex-col gap-4">
+
+        {/* Body */}
+        <form onSubmit={handleSubmit} className="flex flex-col gap-5 px-6 py-5 overflow-y-auto flex-1">
+
+          {/* Tipo de acción */}
           <div className="flex flex-col gap-1">
-            <label className="text-xs font-medium text-gray-600">Tipo de acción</label>
+            <label className="text-xs font-semibold text-gray-600 uppercase tracking-wider">
+              Tipo de acción
+            </label>
             <select
               value={tipo}
-              onChange={(e) => setTipo(e.target.value as TipoAccion)}
+              onChange={(e) => handleTipoChange(e.target.value as TipoAccion)}
               className="appearance-none w-full border border-gray-200 text-sm text-gray-700 rounded-lg px-3 py-2 bg-gray-50 focus:bg-white focus:outline-none focus:ring-2 focus:ring-[#1B7F4B]/30 focus:border-[#1B7F4B] transition-all cursor-pointer"
             >
               {tiposAccion.map((t) => <option key={t} value={t}>{t}</option>)}
             </select>
           </div>
-          <div className="flex flex-col gap-1">
-            <label className="text-xs font-medium text-gray-600">Descripción del cambio</label>
-            <textarea
-              rows={4}
-              value={descripcion}
-              onChange={(e) => setDescripcion(e.target.value)}
-              placeholder="Detalle qué cambio propone y sobre qué registro..."
-              className={`w-full border text-sm text-gray-700 rounded-lg px-3 py-2 bg-gray-50 focus:bg-white focus:outline-none focus:ring-2 focus:ring-[#1B7F4B]/30 focus:border-[#1B7F4B] transition-all resize-none ${error ? "border-red-300" : "border-gray-200"}`}
-            />
-            {error && <p className="text-xs text-red-500">{error}</p>}
-          </div>
-          <div className="flex items-center justify-end gap-3 pt-1 border-t border-gray-100">
-            <button type="button" onClick={onClose} className="px-4 py-2 text-sm font-medium text-gray-600 bg-white border border-gray-200 rounded-lg hover:bg-gray-50 transition-colors">
-              Cancelar
-            </button>
-            <button type="submit" className="px-4 py-2 text-sm font-semibold text-white bg-[#1B7F4B] hover:bg-[#166340] rounded-lg transition-colors">
-              Enviar solicitud
-            </button>
+
+          {/* Tabla de cambios */}
+          <div>
+            <div className="flex items-center justify-between mb-2">
+              <label className="text-xs font-semibold text-gray-600 uppercase tracking-wider">
+                Cambios propuestos
+              </label>
+              {esEdicion && (
+                <button
+                  type="button"
+                  onClick={agregarFila}
+                  className="inline-flex items-center gap-1 text-xs text-[#1B7F4B] hover:underline font-medium"
+                >
+                  <Plus size={13} /> Agregar campo
+                </button>
+              )}
+            </div>
+
+            <div className="border border-gray-200 rounded-xl overflow-hidden">
+              <table className="w-full text-sm">
+                <thead>
+                  <tr className="bg-gray-50 border-b border-gray-200">
+                    <th className="text-left px-3 py-2 text-xs font-semibold text-gray-500 uppercase tracking-wider w-1/3">
+                      Campo
+                    </th>
+                    {esEdicion && (
+                      <th className="text-left px-3 py-2 text-xs font-semibold text-gray-500 uppercase tracking-wider w-1/3">
+                        Valor anterior
+                      </th>
+                    )}
+                    <th className="text-left px-3 py-2 text-xs font-semibold text-gray-500 uppercase tracking-wider">
+                      Valor nuevo
+                    </th>
+                    {esEdicion && <th className="w-8" />}
+                  </tr>
+                </thead>
+                <tbody className="divide-y divide-gray-100">
+                  {cambios.map((c, i) => (
+                    <tr key={i} className={errors[i] ? "bg-red-50" : "bg-white"}>
+                      <td className="px-3 py-2">
+                        <input
+                          type="text"
+                          value={c.campo}
+                          onChange={(e) => updateCampo(i, "campo", e.target.value)}
+                          placeholder="Ej: Nombre"
+                          className="w-full text-xs rounded border border-gray-200 px-2 py-1.5 text-gray-700 placeholder:text-gray-300 focus:outline-none focus:ring-1 focus:ring-[#1B7F4B]/40 focus:border-[#1B7F4B] transition bg-transparent"
+                        />
+                      </td>
+                      {esEdicion && (
+                        <td className="px-3 py-2">
+                          <input
+                            type="text"
+                            value={c.valorAnterior ?? ""}
+                            onChange={(e) => updateCampo(i, "valorAnterior", e.target.value)}
+                            placeholder="Valor actual"
+                            className="w-full text-xs rounded border border-gray-200 px-2 py-1.5 text-red-500 placeholder:text-gray-300 focus:outline-none focus:ring-1 focus:ring-red-300 focus:border-red-300 transition bg-transparent"
+                          />
+                        </td>
+                      )}
+                      <td className="px-3 py-2">
+                        <input
+                          type="text"
+                          value={c.valorNuevo}
+                          onChange={(e) => updateCampo(i, "valorNuevo", e.target.value)}
+                          placeholder="Valor propuesto"
+                          className="w-full text-xs rounded border border-gray-200 px-2 py-1.5 text-[#1B7F4B] placeholder:text-gray-300 focus:outline-none focus:ring-1 focus:ring-[#1B7F4B]/40 focus:border-[#1B7F4B] transition bg-transparent"
+                        />
+                      </td>
+                      {esEdicion && (
+                        <td className="px-2 py-2">
+                          {cambios.length > 1 && (
+                            <button
+                              type="button"
+                              onClick={() => eliminarFila(i)}
+                              className="p-1 rounded hover:bg-red-50 text-gray-300 hover:text-red-400 transition"
+                              title="Eliminar fila"
+                            >
+                              <Trash2 size={13} />
+                            </button>
+                          )}
+                        </td>
+                      )}
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
+            {Object.keys(errors).length > 0 && (
+              <p className="text-xs text-red-500 mt-1.5">
+                Completa todos los campos antes de enviar.
+              </p>
+            )}
           </div>
         </form>
+
+        {/* Footer */}
+        <div className="flex items-center justify-end gap-3 px-6 py-4 border-t border-gray-100 shrink-0">
+          <button
+            type="button"
+            onClick={onClose}
+            className="px-4 py-2 text-sm font-medium text-gray-600 bg-white border border-gray-200 rounded-lg hover:bg-gray-50 transition-colors"
+          >
+            Cancelar
+          </button>
+          <button
+            type="submit"
+            form=""
+            onClick={handleSubmit}
+            className="px-4 py-2 text-sm font-semibold text-white bg-[#1B7F4B] hover:bg-[#166340] rounded-lg transition-colors"
+          >
+            Enviar solicitud
+          </button>
+        </div>
       </div>
     </div>
   );
