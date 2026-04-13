@@ -14,6 +14,12 @@ import { useMunicipios } from "../hooks/useMunicipios";
 import { useAuth } from "../../../context/AuthContext";
 import { Asocomunal, CreateAsocomunalDto, UpdateAsocomunalDto } from "../types";
 
+/**
+ * Componente principal para la gestión de Asocomunales.
+ * 
+ * Renderiza la lista de Asocomunales con filtros, modales para creación y edición,
+ * y permite la gestión de su estado (activación/desactivación).
+ */
 function Asocomunales() {
   const {
     filtered, loading, error, filters, handleClear,
@@ -62,10 +68,39 @@ function Asocomunales() {
   };
 
   const handleToggleStatus = async (id: number, currentStatus: boolean) => {
-    try {
-      await toggleAsocomunalStatus(id, !currentStatus);
-    } catch (err: unknown) {
-      alert(`Error al ${currentStatus ? "desactivar" : "activar"} la asocomunal`);
+    const actionText = currentStatus ? "desactivar" : "activar";
+
+    const result = await Swal.fire({
+      title: "¿Estás seguro?",
+      text: `¿Deseas ${actionText} esta asocomunal?`,
+      icon: "warning",
+      showCancelButton: true,
+      confirmButtonColor: currentStatus ? "#d33" : "#1B7F4B",
+      cancelButtonColor: "#6b7280",
+      confirmButtonText: `Sí, ${actionText}`,
+      cancelButtonText: "Cancelar",
+    });
+
+    if (result.isConfirmed) {
+      try {
+        await toggleAsocomunalStatus(id, !currentStatus);
+        await Swal.fire({
+          title: "¡Éxito!",
+          text: `La asocomunal fue ${currentStatus ? "desactivada" : "activada"} correctamente.`,
+          icon: "success",
+          confirmButtonColor: "#1B7F4B",
+          timer: 2000,
+          timerProgressBar: true,
+        });
+      } catch (err: unknown) {
+        console.error(`Error al ${actionText} la asocomunal:`, err);
+        await Swal.fire({
+          title: "Error",
+          text: `Hubo un problema al intentar ${actionText} la asocomunal.`,
+          icon: "error",
+          confirmButtonColor: "#1B7F4B",
+        });
+      }
     }
   };
 
@@ -212,7 +247,7 @@ function Asocomunales() {
                 <th className="text-left text-xs font-semibold text-gray-500 uppercase tracking-wider px-4 py-3">
                   Estado
                 </th>
-              
+
                 {canViewActions && (
                   <th className="text-left text-xs font-semibold text-gray-500 uppercase tracking-wider px-4 py-3">
                     Acciones
@@ -257,11 +292,10 @@ function Asocomunales() {
                           )}
                           <button
                             onClick={() => handleToggleStatus(item.id, item.estado)}
-                            className={`p-1.5 rounded-lg transition-colors ${
-                              item.estado
+                            className={`p-1.5 rounded-lg transition-colors ${item.estado
                                 ? "hover:bg-red-50 text-gray-400 hover:text-red-500"
                                 : "hover:bg-green-50 text-gray-400 hover:text-green-500"
-                            }`}
+                              }`}
                             title={item.estado ? "Desactivar" : "Activar"}
                           >
                             <RotateCcw size={15} />

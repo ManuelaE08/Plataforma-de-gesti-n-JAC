@@ -9,6 +9,12 @@ import { useAuth } from "../../../context/AuthContext";
 import { AsocomunalesService } from "../services/asocomunalesService";
 import type { Asocomunal } from "../types";
 
+/**
+ * Componente para mostrar el detalle de una Asocomunal.
+ * 
+ * Muestra información general de la asocomunal y la lista de JACs afiliadas,
+ * permitiendo la navegación y búsqueda dentro de las JACs.
+ */
 function AsocomunalDetalle() {
   const { id } = useParams();
   const navigate = useNavigate();
@@ -215,11 +221,10 @@ function AsocomunalDetalle() {
                     <tr key={jac.id} className="border-b border-gray-50 hover:bg-gray-50 transition-colors">
                       <td className="px-4 py-3 font-medium text-gray-800">{jac.nombre}</td>
                       <td className="px-4 py-3">
-                        <span className={`inline-flex px-2 py-1 text-xs font-medium rounded-full ${
-                          jac.estado
+                        <span className={`inline-flex px-2 py-1 text-xs font-medium rounded-full ${jac.estado
                             ? 'bg-green-100 text-green-800'
                             : 'bg-gray-100 text-gray-800'
-                        }`}>
+                          }`}>
                           {jac.estado ? 'Activa' : 'Inactiva'}
                         </span>
                       </td>
