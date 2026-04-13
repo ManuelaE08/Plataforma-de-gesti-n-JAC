@@ -1,3 +1,11 @@
+/**
+ * Tipos de datos para el módulo de Asocomunales.
+ * 
+ * Este archivo define las interfaces y tipos utilizados en el módulo de Asocomunales,
+ * incluyendo las entidades del backend y los DTOs para operaciones CRUD.
+ */
+
+
 // Municipio
 export interface Municipio {
   id: number;
