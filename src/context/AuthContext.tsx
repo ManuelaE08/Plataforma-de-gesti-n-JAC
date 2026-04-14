@@ -47,13 +47,6 @@ function buildUserFromPayload(payload: AuthBackendPayload): User {
   };
 }
 
-const usuarios: User[] = [
-  { usuario: "admin", password: "1234", rol: "admin", nombre: "Administrador/Auditor" },
-  { usuario: "operador", password: "1234", rol: "operador", nombre: "Carlos" },
-  { usuario: "operador2", password: "1234", rol: "operador", nombre: "Maria" },
-  { usuario: "usuario", password: "1234", rol: "usuario", nombre: "Usuario" },
-];
-
 interface AuthProviderProps {
   children: ReactNode;
 }
@@ -107,15 +100,6 @@ export function AuthProvider({ children }: AuthProviderProps) {
       active = false;
     };
   }, []);
-
-  const login = (usuario: string, password: string): boolean => {
-    const found = usuarios.find(
-      (u) => u.usuario === usuario && u.password === password
-    );
-    if (!found) return false;
-    setUser(found);
-    return true;
-  };
 
   const loginWithGoogle = async (credential: string): Promise<boolean> => {
     try {
@@ -187,7 +171,7 @@ export function AuthProvider({ children }: AuthProviderProps) {
   };
 
   return (
-    <AuthContext.Provider value={{ user, isAuthLoading, login, loginWithGoogle, logout }}>
+    <AuthContext.Provider value={{ user, isAuthLoading, loginWithGoogle, logout }}>
       {children}
     </AuthContext.Provider>
   );
