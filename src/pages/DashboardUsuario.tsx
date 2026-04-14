@@ -1,9 +1,6 @@
-import { useState } from "react";
 import { Building2, CalendarDays, CircleCheck, MapPin, type LucideIcon } from "lucide-react";
-import { GoogleLogin } from "@react-oauth/google";
 import KpiCard from "../components/ui/KpiCard";
 import PageHeader from "../components/ui/PageHeader";
-import { useGoogleAuthHandlers } from "../hooks/useGoogleAuthHandlers";
 
 interface DashboardKpi {
   id: string;
@@ -58,33 +55,12 @@ const upcoming: UpcomingActivity[] = [
 ];
 
 function DashboardUsuario() {
-  const [ authMessage, setAuthMessage] = useState<string>("");
-  const { handleGoogleSuccess, handleGoogleError } = useGoogleAuthHandlers({
-    onFailure: setAuthMessage,
-    navigateTo: "/",
-  });
-
   return (
     <div>
       <PageHeader
         title="Dashboard"
         subtitle="Resumen de tus juntas, trámites y próximos vencimientos"
-      >
-            <GoogleLogin
-              onSuccess={handleGoogleSuccess}
-              onError={handleGoogleError}
-              useOneTap
-              shape="rectangular"
-              theme="outline"
-              text="signin_with"
-            />
-      </PageHeader>
-
-      {authMessage && (
-        <div className="mb-4 rounded-lg border border-[#1B7F4B]/20 bg-[#1B7F4B]/5 px-4 py-3 text-sm text-[#1B7F4B]">
-          {authMessage}
-        </div>
-      )}
+      />
 
       <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 xl:grid-cols-3 mb-6">
         {kpis.map(({ id, ...kpi }) => (

@@ -71,6 +71,7 @@ function Layout({ children }: LayoutProps) {
   const navigate = useNavigate();
   const { user, logout } = useAuth();
 
+  const isLoggedIn = Boolean(user);
   const activeRole  = user?.rol ?? "usuario";
   const displayName = user?.nombre ?? "Invitado";
   const menu        = menuByRole[activeRole];
@@ -121,7 +122,7 @@ function Layout({ children }: LayoutProps) {
   }, []);
 
   const handleLogout = () => { logout(); navigate("/login", { replace: true }); };
-  const mostrarBell  = activeRole === "admin" || activeRole === "operador";
+  const mostrarBell  = isLoggedIn && (activeRole === "admin" || activeRole === "operador");
 
   return (
     <TemaContext.Provider value={{ tema, toggleTema }}>
@@ -135,21 +136,27 @@ function Layout({ children }: LayoutProps) {
             {menu.map((item) => <NavItem key={item.path} path={item.path} name={item.name} />)}
           </nav>
           <div className="px-2 py-3 border-t border-white/10">
-            <div className="flex items-center gap-2 px-3 py-2 mb-1">
-              <div className="w-8 h-8 rounded-full bg-white/20 flex items-center justify-center text-xs font-bold shrink-0">
-                {roleInitials[activeRole]}
-              </div>
-              <div className="min-w-0">
-                <p className="text-[12px] font-medium text-white truncate">{displayName}</p>
-                <p className="text-[10px] text-white/50 truncate capitalize">{roleLabels[activeRole]}</p>
-              </div>
-            </div>
-            <button
-              onClick={handleLogout}
-              className="flex items-center gap-2 w-full px-3 py-2 rounded-lg text-[12px] text-white/60 hover:bg-white/10 hover:text-white transition-all"
-            >
-              <LogOut size={14} /><span>Cerrar sesión</span>
-            </button>
+            {isLoggedIn ? (
+              <>
+                <div className="flex items-center gap-2 px-3 py-2 mb-1">
+                  <div className="w-8 h-8 rounded-full bg-white/20 flex items-center justify-center text-xs font-bold shrink-0">
+                    {roleInitials[activeRole]}
+                  </div>
+                  <div className="min-w-0">
+                    <p className="text-[12px] font-medium text-white truncate">{displayName}</p>
+                    <p className="text-[10px] text-white/50 truncate capitalize">{roleLabels[activeRole]}</p>
+                  </div>
+                </div>
+                <button
+                  onClick={handleLogout}
+                  className="flex items-center gap-2 w-full px-3 py-2 rounded-lg text-[12px] text-white/60 hover:bg-white/10 hover:text-white transition-all"
+                >
+                  <LogOut size={14} /><span>Cerrar sesión</span>
+                </button>
+              </>
+            ) : (
+              <p className="px-3 py-2 text-[11px] text-white/70">No has iniciado sesión</p>
+            )}
           </div>
         </aside>
 
@@ -252,15 +259,24 @@ function Layout({ children }: LayoutProps) {
                 </div>
               )}
 
-              <div className="flex items-center gap-2 border-l border-gray-100 dark:border-gray-700 pl-3">
-                <div className="w-8 h-8 rounded-full bg-[#1B7F4B]/10 flex items-center justify-center text-xs font-bold text-[#1B7F4B]">
-                  {roleInitials[activeRole]}
+              {isLoggedIn ? (
+                <div className="flex items-center gap-2 border-l border-gray-100 dark:border-gray-700 pl-3">
+                  <div className="w-8 h-8 rounded-full bg-[#1B7F4B]/10 flex items-center justify-center text-xs font-bold text-[#1B7F4B]">
+                    {roleInitials[activeRole]}
+                  </div>
+                  <div className="hidden sm:block">
+                    <p className="text-xs font-medium text-gray-700 dark:text-gray-200 leading-tight">{displayName}</p>
+                    <p className="text-[10px] text-gray-400 leading-tight capitalize">{roleLabels[activeRole]}</p>
+                  </div>
                 </div>
-                <div className="hidden sm:block">
-                  <p className="text-xs font-medium text-gray-700 dark:text-gray-200 leading-tight">{displayName}</p>
-                  <p className="text-[10px] text-gray-400 leading-tight capitalize">{roleLabels[activeRole]}</p>
-                </div>
-              </div>
+              ) : (
+                <button
+                  onClick={() => navigate("/login")}
+                  className="rounded-lg bg-[#1B7F4B] px-4 py-2 text-xs font-medium text-white hover:bg-[#166A3F] transition-colors"
+                >
+                  Iniciar sesión
+                </button>
+              )}
             </div>
           </header>
 
