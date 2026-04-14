@@ -56,11 +56,12 @@ function ProtectedLayout({ children }: { children: ReactNode }) {
     </ProtectedRoute>
   );
 }
+
 function ComingSoon({ title }: { title: string }) {
   return (
-    <div className="flex flex-col items-center justify-center h-64 text-gray-400 gap-2">
+    <div className="flex flex-col items-center justify-center h-64 text-gray-400 dark:text-gray-500 gap-2">
       <p className="text-4xl">🚧</p>
-      <p className="text-sm font-medium text-gray-500">{title}</p>
+      <p className="text-sm font-medium text-gray-500 dark:text-gray-400">{title}</p>
       <p className="text-xs">Módulo en desarrollo</p>
     </div>
   );
@@ -88,9 +89,10 @@ function AppRouter() {
       <Route path="/solicitudes" element={<Layout><SolicitudesAdmin /></Layout>} />
       <Route path="/mis-solicitudes" element={<Layout><MisSolicitudes /></Layout>} />
       <Route path="/migracion" element={<ProtectedLayout><ComingSoon title="Migración de Datos" /></ProtectedLayout>} />
-      <Route path="/configuracion" element={<Layout><Configuracion /></Layout> } />
+      <Route path="/configuracion" element={<Layout><Configuracion /></Layout>} />
       <Route path="*" element={<Navigate to="/" replace />} />
     </Routes>
   );
 }
+
 export default AppRouter;
