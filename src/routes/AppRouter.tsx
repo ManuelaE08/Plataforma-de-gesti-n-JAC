@@ -13,6 +13,7 @@ import SolicitudesAdmin from "../pages/SolicitudesAdmin";
 import MisSolicitudes from "../pages/MisSolicitudes";
 import JacDetalle from "../pages/JacDetalle";
 import AsocomunalDetalle from "../modules/asocomunales/pages/AsocomunalDetalle";
+import Migracion from "../pages/Migracion";
 
 import { useAuth } from "../context/AuthContext";
 import Login from "../pages/Login";
@@ -25,27 +26,15 @@ function RootDashboard() {
 
 function ProtectedRoute({ children }: { children: ReactNode }) {
   const { user, isAuthLoading } = useAuth();
-  if (isAuthLoading) {
-    return null;
-  }
-
-  if (!user) {
-    return <Navigate to="/login" replace />;
-  }
-
+  if (isAuthLoading) return null;
+  if (!user) return <Navigate to="/login" replace />;
   return <>{children}</>;
 }
 
 function PublicOnlyRoute({ children }: { children: ReactNode }) {
   const { user, isAuthLoading } = useAuth();
-  if (isAuthLoading) {
-    return null;
-  }
-
-  if (user) {
-    return <Navigate to="/" replace />;
-  }
-
+  if (isAuthLoading) return null;
+  if (user) return <Navigate to="/" replace />;
   return <>{children}</>;
 }
 
@@ -57,22 +46,9 @@ function ProtectedLayout({ children }: { children: ReactNode }) {
   );
 }
 
-function ComingSoon({ title }: { title: string }) {
-  return (
-    <div className="flex flex-col items-center justify-center h-64 text-gray-400 dark:text-gray-500 gap-2">
-      <p className="text-4xl">🚧</p>
-      <p className="text-sm font-medium text-gray-500 dark:text-gray-400">{title}</p>
-      <p className="text-xs">Módulo en desarrollo</p>
-    </div>
-  );
-}
-
 function AppRouter() {
   const { isAuthLoading } = useAuth();
-
-  if (isAuthLoading) {
-    return null;
-  }
+  if (isAuthLoading) return null;
 
   return (
     <Routes>
@@ -88,7 +64,7 @@ function AppRouter() {
       <Route path="/alertas" element={<ProtectedLayout><Alertas /></ProtectedLayout>} />
       <Route path="/solicitudes" element={<Layout><SolicitudesAdmin /></Layout>} />
       <Route path="/mis-solicitudes" element={<Layout><MisSolicitudes /></Layout>} />
-      <Route path="/migracion" element={<ProtectedLayout><ComingSoon title="Migración de Datos" /></ProtectedLayout>} />
+      <Route path="/migracion" element={<ProtectedLayout><Migracion /></ProtectedLayout>} />
       <Route path="/configuracion" element={<Layout><Configuracion /></Layout>} />
       <Route path="*" element={<Navigate to="/" replace />} />
     </Routes>

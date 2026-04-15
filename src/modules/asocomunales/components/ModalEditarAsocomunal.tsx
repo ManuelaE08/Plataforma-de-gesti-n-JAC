@@ -2,6 +2,7 @@ import { X } from "lucide-react";
 import type { CreateAsocomunalDto, UpdateAsocomunalDto, Municipio, Asocomunal } from "../types";
 import { AsocomunalForm } from "./AsocomunalForm";
 
+
 interface ModalEditarAsocomunalProps {
   onClose: () => void;
   onSave: (id: number, asoc: CreateAsocomunalDto | UpdateAsocomunalDto) => Promise<void>;
@@ -9,6 +10,7 @@ interface ModalEditarAsocomunalProps {
   asocomunal: Asocomunal;
   loading?: boolean;
 }
+
 
 /**
  * Modal para editar una asocomunal existente.
@@ -22,18 +24,20 @@ export function ModalEditarAsocomunal({ onClose, onSave, municipios, asocomunal,
     await onSave(asocomunal.id, data);
   };
 
+
   return (
     <div className="fixed inset-0 bg-black/50 flex items-center justify-center p-4 z-50">
-      <div className="bg-white rounded-xl shadow-lg w-full max-w-md">
-        <div className="flex items-center justify-between p-6 border-b border-gray-100">
-          <h2 className="text-lg font-semibold text-gray-800">Editar Asocomunal</h2>
+      <div className="bg-white dark:bg-gray-800 rounded-xl shadow-lg w-full max-w-md">
+        <div className="flex items-center justify-between p-6 border-b border-gray-100 dark:border-gray-700">
+          <h2 className="text-lg font-semibold text-gray-800 dark:text-gray-100">Editar Asocomunal</h2>
           <button
             onClick={onClose}
-            className="p-1 rounded-lg hover:bg-gray-100 transition-colors"
+            className="p-1 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-700 text-gray-400 dark:text-gray-500 hover:text-gray-600 dark:hover:text-gray-300 transition-colors"
           >
             <X size={20} />
           </button>
         </div>
+
 
         <div className="p-6">
           <AsocomunalForm
