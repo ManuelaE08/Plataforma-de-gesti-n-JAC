@@ -13,7 +13,7 @@ interface AuthBackendResponse extends AuthBackendPayload {
   user?: AuthBackendPayload;
 }
 
-const baseEndpoint = import.meta.env.VITE_ENDPOINT?.replace(/\/$/, "");
+const baseEndpoint = import.meta.env.VITE_AUTH?.replace(/\/$/, "");
 
 function isValidRole(rol: unknown): rol is User["rol"] {
   return rol === "admin" || rol === "operador" || rol === "usuario";
@@ -107,9 +107,9 @@ export function AuthProvider({ children }: AuthProviderProps) {
         throw new Error("No se recibió la credencial de Google");
       }
 
-      const baseEndpoint = import.meta.env.VITE_ENDPOINT?.replace(/\/$/, "");
+      const baseEndpoint = import.meta.env.VITE_AUTH?.replace(/\/$/, "");
       if (!baseEndpoint) {
-        throw new Error("VITE_ENDPOINT no está configurado");
+        throw new Error("VITE_AUTH no está configurado");
       }
 
       const response = await fetch(baseEndpoint + "/auth/google", {

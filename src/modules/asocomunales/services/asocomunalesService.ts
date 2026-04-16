@@ -28,6 +28,7 @@ export class AsocomunalesService {
       headers: {
         "Content-Type": "application/json",
       },
+      credentials: "include",
     });
 
     if (!response.ok) {
@@ -53,6 +54,7 @@ export class AsocomunalesService {
       headers: {
         "Content-Type": "application/json",
       },
+      credentials: "include",
     });
 
     if (!response.ok) {
@@ -78,6 +80,7 @@ export class AsocomunalesService {
       headers: {
         "Content-Type": "application/json",
       },
+      credentials: "include",
     });
 
     if (!response.ok) {
@@ -103,6 +106,7 @@ export class AsocomunalesService {
         "Content-Type": "application/json",
       },
       body: JSON.stringify(data),
+      credentials: "include",
     });
 
     if (!response.ok) {
@@ -138,6 +142,7 @@ export class AsocomunalesService {
         "Content-Type": "application/json",
       },
       body: JSON.stringify(data),
+      credentials: "include",
     });
 
     if (!response.ok) {
@@ -172,6 +177,7 @@ export class AsocomunalesService {
       headers: {
         "Content-Type": "application/json",
       },
+      credentials: "include",
     });
 
     if (!response.ok) {
@@ -188,7 +194,8 @@ export class AsocomunalesService {
    */
   static async deactivateAsocomunal(id: number): Promise<Asocomunal> {
     const response = await fetch(`${baseEndpoint}/asocomunal/${id}`, {
-      method: "DELETE"
+      method: "DELETE",
+      credentials: "include",
     });
 
 
@@ -215,6 +222,7 @@ export class AsocomunalesService {
       headers: {
         "Content-Type": "application/json",
       },
+      credentials: "include",
     });
 
     if (!response.ok) {
