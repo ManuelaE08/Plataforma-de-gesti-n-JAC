@@ -9,22 +9,20 @@ import { useAuth } from "../../../context/AuthContext";
 import { AsocomunalesService } from "../services/asocomunalesService";
 import type { Asocomunal } from "../types";
 
-/**
- * Componente para mostrar el detalle de una Asocomunal.
- * 
- * Muestra información general de la asocomunal y la lista de JACs afiliadas,
- * permitiendo la navegación y búsqueda dentro de las JACs.
- */
+const card    = "bg-white dark:bg-gray-800 rounded-xl border border-gray-100 dark:border-gray-700 shadow-sm";
+const lbl     = "text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wider mb-1";
+const btnBack = "flex items-center gap-2 bg-white dark:bg-gray-800 hover:bg-gray-50 dark:hover:bg-gray-700 text-gray-700 dark:text-gray-200 text-sm font-semibold px-4 py-2.5 rounded-lg border border-gray-200 dark:border-gray-600 transition-colors";
+
 function AsocomunalDetalle() {
-  const { id } = useParams();
-  const navigate = useNavigate();
-  const { user } = useAuth();
+  const { id }     = useParams();
+  const navigate   = useNavigate();
+  const { user }   = useAuth();
 
-  const [asoc, setAsoc] = useState<Asocomunal | null>(null);
+  const [asoc,    setAsoc]    = useState<Asocomunal | null>(null);
   const [loading, setLoading] = useState(true);
-  const [error, setError] = useState<string | null>(null);
+  const [error,   setError]   = useState<string | null>(null);
 
-  const [busquedaJac, setBusquedaJac] = useState("");
+  const [busquedaJac,       setBusquedaJac]       = useState("");
   const [debouncedBusqueda, setDebouncedBusqueda] = useState("");
 
   useEffect(() => {
@@ -36,10 +34,7 @@ function AsocomunalDetalle() {
     const fetchAsocomunal = async () => {
       try {
         setLoading(true);
-        if (id) {
-          const data = await AsocomunalesService.getAsocomunalWithJacs(Number(id));
-          setAsoc(data);
-        }
+        if (id) { const data = await AsocomunalesService.getAsocomunalWithJacs(Number(id)); setAsoc(data); }
       } catch (err) {
         console.error("Error cargando asocomunal:", err);
         setError("No se pudo cargar la asocomunal");
@@ -51,18 +46,16 @@ function AsocomunalDetalle() {
   }, [id]);
 
   const canViewJacs = user?.rol === "admin" || user?.rol === "operador";
-
   const jacsFiltradas = asoc?.jacs.filter((j) =>
-    !debouncedBusqueda ||
-    j.nombre.toLowerCase().includes(debouncedBusqueda.toLowerCase())
+    !debouncedBusqueda || j.nombre.toLowerCase().includes(debouncedBusqueda.toLowerCase())
   ) || [];
 
   if (loading) {
     return (
       <div>
         <PageHeader title="Cargando..." subtitle="Detalle de Asociación Comunal" />
-        <div className="bg-white rounded-xl shadow-sm border border-gray-100 p-6 text-center">
-          <p className="text-gray-500">Cargando información...</p>
+        <div className={`${card} p-6 text-center`}>
+          <p className="text-gray-500 dark:text-gray-400">Cargando información...</p>
         </div>
       </div>
     );
@@ -76,12 +69,8 @@ function AsocomunalDetalle() {
           subtitle="Información detallada"
           description={error || "No se encontró la asocomunal solicitada"}
         >
-          <button
-            onClick={() => navigate("/asocomunales")}
-            className="flex items-center gap-2 bg-white hover:bg-gray-50 text-gray-700 text-sm font-semibold px-4 py-2.5 rounded-lg border border-gray-200 transition-colors"
-          >
-            <ArrowLeft size={16} />
-            Volver
+          <button onClick={() => navigate("/asocomunales")} className={btnBack}>
+            <ArrowLeft size={16} /> Volver
           </button>
         </PageHeader>
       </div>
@@ -95,111 +84,98 @@ function AsocomunalDetalle() {
         subtitle="Detalle de Asociación Comunal"
         description={`Información de la asocomunal del municipio de ${asoc.municipio.nombre}`}
       >
-        <button
-          onClick={() => navigate("/asocomunales")}
-          className="flex items-center gap-2 bg-white hover:bg-gray-50 text-gray-700 text-sm font-semibold px-4 py-2.5 rounded-lg border border-gray-200 transition-colors"
-        >
-          <ArrowLeft size={16} />
-          Volver al listado
+        <button onClick={() => navigate("/asocomunales")} className={btnBack}>
+          <ArrowLeft size={16} /> Volver al listado
         </button>
       </PageHeader>
 
-      {/* Cards de información general */}
+      {/* Cards resumen */}
       <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-4 gap-4 mb-4">
-        <div className="bg-white rounded-xl p-4 border border-gray-100 shadow-sm">
-          <div className="flex items-center gap-2 mb-2 text-gray-500">
+        <div className={`${card} p-4`}>
+          <div className="flex items-center gap-2 mb-2 text-gray-500 dark:text-gray-400">
             <MapPin size={16} />
             <span className="text-xs font-semibold uppercase tracking-wider">Municipio</span>
           </div>
-          <p className="text-sm font-semibold text-gray-800">{asoc.municipio.nombre}</p>
+          <p className="text-sm font-semibold text-gray-800 dark:text-gray-100">{asoc.municipio.nombre}</p>
         </div>
 
-        <div className="bg-white rounded-xl p-4 border border-gray-100 shadow-sm">
-          <div className="flex items-center gap-2 mb-2 text-gray-500">
+        <div className={`${card} p-4`}>
+          <div className="flex items-center gap-2 mb-2 text-gray-500 dark:text-gray-400">
             <Users size={16} />
             <span className="text-xs font-semibold uppercase tracking-wider">JACs Afiliadas</span>
           </div>
-          <p className="text-2xl font-bold text-gray-800">{asoc.jacs.length}</p>
-          <p className="text-xs text-gray-400">Registradas</p>
+          <p className="text-2xl font-bold text-gray-800 dark:text-gray-100">{asoc.jacs.length}</p>
+          <p className="text-xs text-gray-400 dark:text-gray-500">Registradas</p>
         </div>
 
-        <div className="bg-white rounded-xl p-4 border border-gray-100 shadow-sm">
-          <div className="flex items-center gap-2 mb-2 text-gray-500">
+        <div className={`${card} p-4`}>
+          <div className="flex items-center gap-2 mb-2 text-gray-500 dark:text-gray-400">
             <span className="text-xs font-semibold uppercase tracking-wider">Estado</span>
           </div>
           <Badge label={asoc.estado ? "Activo" : "Inactivo"} variant={asoc.estado ? "green" : "gray"} />
         </div>
 
-        <div className="bg-white rounded-xl p-4 border border-gray-100 shadow-sm">
-          <div className="flex items-center gap-2 mb-2 text-gray-500">
+        <div className={`${card} p-4`}>
+          <div className="flex items-center gap-2 mb-2 text-gray-500 dark:text-gray-400">
             <span className="text-xs font-semibold uppercase tracking-wider">Contacto</span>
           </div>
-          <p className="text-xs text-gray-600 truncate">{asoc.correo || "—"}</p>
-          <p className="text-xs text-gray-600 truncate">{asoc.telefono || "—"}</p>
+          <p className="text-xs text-gray-600 dark:text-gray-300 truncate">{asoc.correo   || "—"}</p>
+          <p className="text-xs text-gray-600 dark:text-gray-300 truncate">{asoc.telefono || "—"}</p>
         </div>
       </div>
 
       {/* Información general */}
-      <div className="bg-white rounded-xl shadow-sm border border-gray-100 p-5 mb-4">
-        <h2 className="text-sm font-semibold text-gray-800 mb-4">Información general</h2>
+      <div className={`${card} p-5 mb-4`}>
+        <h2 className="text-sm font-semibold text-gray-800 dark:text-gray-100 mb-4">Información general</h2>
         <div className="grid grid-cols-1 md:grid-cols-2 gap-5 text-sm">
           <div>
-            <p className="text-xs font-semibold text-gray-500 uppercase tracking-wider mb-1">Presidente</p>
-            <p className="text-gray-800">{asoc.presidente || "No especificado"}</p>
+            <p className={lbl}>Presidente</p>
+            <p className="text-gray-800 dark:text-gray-200">{asoc.presidente || "No especificado"}</p>
           </div>
           <div>
-            <p className="text-xs font-semibold text-gray-500 uppercase tracking-wider mb-1">Teléfono</p>
+            <p className={lbl}>Teléfono</p>
             <div className="flex items-center gap-2">
-              <Phone size={14} className="text-gray-400" />
-              <p className="text-gray-800">{asoc.telefono || "No especificado"}</p>
+              <Phone size={14} className="text-gray-400 dark:text-gray-500" />
+              <p className="text-gray-800 dark:text-gray-200">{asoc.telefono || "No especificado"}</p>
             </div>
           </div>
           <div>
-            <p className="text-xs font-semibold text-gray-500 uppercase tracking-wider mb-1">Correo</p>
+            <p className={lbl}>Correo</p>
             <div className="flex items-center gap-2">
-              <Mail size={14} className="text-gray-400" />
-              <p className="text-gray-800">{asoc.correo || "No especificado"}</p>
+              <Mail size={14} className="text-gray-400 dark:text-gray-500" />
+              <p className="text-gray-800 dark:text-gray-200">{asoc.correo || "No especificado"}</p>
             </div>
           </div>
           <div>
-            <p className="text-xs font-semibold text-gray-500 uppercase tracking-wider mb-1">Total JAC afiliadas</p>
-            <p className="text-lg font-semibold text-gray-800">{asoc.jacs.length}</p>
+            <p className={lbl}>Total JAC afiliadas</p>
+            <p className="text-lg font-semibold text-gray-800 dark:text-gray-100">{asoc.jacs.length}</p>
           </div>
         </div>
       </div>
 
-      {/* JAC Afiliadas */}
+      {/* JAC Afiliadas — con permisos */}
       {canViewJacs && (
-        <div className="bg-white rounded-xl shadow-sm border border-gray-100 overflow-hidden">
-          <div className="px-5 py-4 border-b border-gray-100">
-            <h2 className="text-sm font-semibold text-gray-800">JAC Afiliadas</h2>
-            <p className="text-xs text-gray-400 mt-1">
-              Listado de Juntas de Acción Comunal registradas bajo esta asocomunal
-            </p>
+        <div className={`${card} overflow-hidden`}>
+          <div className="px-5 py-4 border-b border-gray-100 dark:border-gray-700">
+            <h2 className="text-sm font-semibold text-gray-800 dark:text-gray-100">JAC Afiliadas</h2>
+            <p className="text-xs text-gray-400 dark:text-gray-500 mt-1">Listado de Juntas de Acción Comunal registradas bajo esta asocomunal</p>
           </div>
 
-          <div className="px-5 py-3 border-b border-gray-100 bg-gray-50">
+          {/* Filtros */}
+          <div className="px-5 py-3 border-b border-gray-100 dark:border-gray-700 bg-gray-50 dark:bg-gray-900/50">
             <div className="flex flex-col sm:flex-row gap-3 items-start sm:items-center">
               <div className="flex-1 min-w-0">
-                <SearchBar
-                  placeholder="Buscar por nombre de JAC..."
-                  value={busquedaJac}
-                  onChange={(e) => setBusquedaJac(e.target.value)}
-                />
+                <SearchBar placeholder="Buscar por nombre de JAC..." value={busquedaJac} onChange={(e) => setBusquedaJac(e.target.value)} />
               </div>
               {busquedaJac && (
                 <button
-                  onClick={() => {
-                    setBusquedaJac("");
-                    setDebouncedBusqueda("");
-                  }}
-                  className="inline-flex items-center gap-1.5 bg-white hover:bg-gray-100 text-gray-500 text-sm px-3 py-2 rounded-lg border border-gray-200 transition-colors shrink-0"
+                  onClick={() => { setBusquedaJac(""); setDebouncedBusqueda(""); }}
+                  className="inline-flex items-center gap-1.5 bg-white dark:bg-gray-800 hover:bg-gray-100 dark:hover:bg-gray-700 text-gray-500 dark:text-gray-400 text-sm px-3 py-2 rounded-lg border border-gray-200 dark:border-gray-600 transition-colors shrink-0"
                 >
-                  <RotateCcw size={14} />
-                  Limpiar
+                  <RotateCcw size={14} /> Limpiar
                 </button>
               )}
-              <span className="text-xs text-gray-400 shrink-0">
+              <span className="text-xs text-gray-400 dark:text-gray-500 shrink-0">
                 {jacsFiltradas.length} de {asoc.jacs.length}
               </span>
             </div>
@@ -211,21 +187,22 @@ function AsocomunalDetalle() {
             <div className="overflow-x-auto">
               <table className="w-full text-sm">
                 <thead>
-                  <tr className="border-b border-gray-100 bg-gray-50">
-                    <th className="text-left text-xs font-semibold text-gray-500 uppercase tracking-wider px-4 py-3">Nombre</th>
-                    <th className="text-left text-xs font-semibold text-gray-500 uppercase tracking-wider px-4 py-3">Estado</th>
+                  <tr className="border-b border-gray-100 dark:border-gray-700 bg-gray-50 dark:bg-gray-900/50">
+                    <th className="text-left text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wider px-4 py-3">Nombre</th>
+                    <th className="text-left text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wider px-4 py-3">Estado</th>
                   </tr>
                 </thead>
                 <tbody>
                   {jacsFiltradas.map((jac) => (
-                    <tr key={jac.id} className="border-b border-gray-50 hover:bg-gray-50 transition-colors">
-                      <td className="px-4 py-3 font-medium text-gray-800">{jac.nombre}</td>
+                    <tr key={jac.id} className="border-b border-gray-50 dark:border-gray-700 hover:bg-gray-50 dark:hover:bg-gray-700/40 transition-colors">
+                      <td className="px-4 py-3 font-medium text-gray-800 dark:text-gray-100">{jac.nombre}</td>
                       <td className="px-4 py-3">
-                        <span className={`inline-flex px-2 py-1 text-xs font-medium rounded-full ${jac.estado
-                            ? 'bg-green-100 text-green-800'
-                            : 'bg-gray-100 text-gray-800'
-                          }`}>
-                          {jac.estado ? 'Activa' : 'Inactiva'}
+                        <span className={`inline-flex px-2 py-1 text-xs font-medium rounded-full ${
+                          jac.estado
+                            ? "bg-green-100 dark:bg-green-900/30 text-green-800 dark:text-green-400"
+                            : "bg-gray-100 dark:bg-gray-700 text-gray-800 dark:text-gray-300"
+                        }`}>
+                          {jac.estado ? "Activa" : "Inactiva"}
                         </span>
                       </td>
                     </tr>
@@ -237,12 +214,11 @@ function AsocomunalDetalle() {
         </div>
       )}
 
+      {/* Sin permisos */}
       {!canViewJacs && (
-        <div className="bg-white rounded-xl shadow-sm border border-gray-100 p-5">
-          <h2 className="text-sm font-semibold text-gray-800 mb-2">JAC Afiliadas</h2>
-          <p className="text-sm text-gray-500">
-            No tiene permisos para consultar el detalle de JAC afiliadas a esta asocomunal.
-          </p>
+        <div className={`${card} p-5`}>
+          <h2 className="text-sm font-semibold text-gray-800 dark:text-gray-100 mb-2">JAC Afiliadas</h2>
+          <p className="text-sm text-gray-500 dark:text-gray-400">No tiene permisos para consultar el detalle de JAC afiliadas a esta asocomunal.</p>
         </div>
       )}
     </div>

@@ -14,6 +14,12 @@ export interface ReporteItem {
   generadoPor: string;
 }
 
+export interface NuevoReporteForm {
+  nombre: string;
+  tipo: TipoReporte | "";
+  formato: "PDF" | "Excel" | "CSV" | "";
+}
+
 interface ReportesFilters {
   busqueda: string;
   tipo: string;
@@ -26,13 +32,17 @@ const initialFilters: ReportesFilters = {
   busqueda: "", tipo: "", formato: "", estado: "", fecha: "",
 };
 
-const reportesData: ReporteItem[] = [
-  { nombre: "Reporte general de JAC - Marzo 2026",        tipo: "Consolidado JAC",            fecha: "2026-03-28", formato: "PDF",   estado: "Generado",  generadoPor: "Administrador/Auditor" },
-  { nombre: "Asocomunales activas por municipio",          tipo: "Consolidado Asocomunales",   fecha: "2026-03-27", formato: "Excel", estado: "Generado",  generadoPor: "Administrador/Auditor" },
-  { nombre: "Documentación pendiente de actualización",    tipo: "Estado documental",          fecha: "2026-03-26", formato: "CSV",   estado: "Pendiente", generadoPor: "Administrador/Auditor" },
-  { nombre: "Organizaciones en riesgo alto",               tipo: "Riesgo organizativo",        fecha: "2026-03-24", formato: "PDF",   estado: "Generado",  generadoPor: "Administrador/Auditor" },
-  { nombre: "Reporte de usuarios y roles",                 tipo: "Usuarios",                   fecha: "2026-03-22", formato: "Excel", estado: "Error",     generadoPor: "Administrador/Auditor" },
-  { nombre: "Historial de acciones del sistema",           tipo: "Auditoría",                  fecha: "2026-03-20", formato: "CSV",   estado: "Generado",  generadoPor: "Administrador/Auditor" },
+export const initialForm: NuevoReporteForm = {
+  nombre: "", tipo: "", formato: "",
+};
+
+const reportesDataInicial: ReporteItem[] = [
+  { nombre: "Reporte general de JAC - Marzo 2026",       tipo: "Consolidado JAC",          fecha: "2026-03-28", formato: "PDF",   estado: "Generado",  generadoPor: "Administrador/Auditor" },
+  { nombre: "Asocomunales activas por municipio",         tipo: "Consolidado Asocomunales", fecha: "2026-03-27", formato: "Excel", estado: "Generado",  generadoPor: "Administrador/Auditor" },
+  { nombre: "Documentación pendiente de actualización",   tipo: "Estado documental",        fecha: "2026-03-26", formato: "CSV",   estado: "Pendiente", generadoPor: "Administrador/Auditor" },
+  { nombre: "Organizaciones en riesgo alto",              tipo: "Riesgo organizativo",      fecha: "2026-03-24", formato: "PDF",   estado: "Generado",  generadoPor: "Administrador/Auditor" },
+  { nombre: "Reporte de usuarios y roles",                tipo: "Usuarios",                 fecha: "2026-03-22", formato: "Excel", estado: "Error",     generadoPor: "Administrador/Auditor" },
+  { nombre: "Historial de acciones del sistema",          tipo: "Auditoría",                fecha: "2026-03-20", formato: "CSV",   estado: "Generado",  generadoPor: "Administrador/Auditor" },
 ];
 
 export const columns: string[] = [
@@ -44,9 +54,15 @@ export const estadoVariant: Record<EstadoReporte, "green" | "amber" | "red"> = {
 };
 
 export function useReportes() {
+  const [reportes, setReportes] = useState<ReporteItem[]>(reportesDataInicial);
   const [filters, setFilters] = useState<ReportesFilters>(initialFilters);
   const [debouncedBusqueda, setDebouncedBusqueda] = useState("");
   const debounceRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+
+  const [modalAbierto, setModalAbierto] = useState(false);
+  const [form, setForm] = useState<NuevoReporteForm>(initialForm);
+  const [formError, setFormError] = useState("");
+  const [generando, setGenerando] = useState(false);
 
   useEffect(() => {
     if (debounceRef.current) clearTimeout(debounceRef.current);
@@ -59,7 +75,7 @@ export function useReportes() {
     setDebouncedBusqueda("");
   };
 
-  const filtered = reportesData.filter((item) => {
+  const filtered = reportes.filter((item) => {
     const matchBusqueda =
       !debouncedBusqueda ||
       [item.nombre, item.tipo, item.generadoPor].some((v) =>
@@ -72,6 +88,48 @@ export function useReportes() {
     return matchBusqueda && matchTipo && matchFormato && matchEstado && matchFecha;
   });
 
+  const abrirModal = () => {
+    setForm(initialForm);
+    setFormError("");
+    setModalAbierto(true);
+  };
+
+  const cerrarModal = () => {
+    if (generando) return;
+    setModalAbierto(false);
+    setForm(initialForm);
+    setFormError("");
+  };
+
+  const setFormField = <K extends keyof NuevoReporteForm>(key: K, value: NuevoReporteForm[K]) => {
+    setForm((prev) => ({ ...prev, [key]: value }));
+    setFormError("");
+  };
+
+  const generarReporte = () => {
+    if (!form.nombre.trim()) { setFormError("El nombre del reporte es requerido."); return; }
+    if (!form.tipo)           { setFormError("Seleccione un tipo de reporte."); return; }
+    if (!form.formato)        { setFormError("Seleccione un formato de exportación."); return; }
+
+    setGenerando(true);
+    window.setTimeout(() => {
+      const hoy = new Date().toISOString().split("T")[0];
+      const nuevo: ReporteItem = {
+        nombre: form.nombre.trim(),
+        tipo: form.tipo as TipoReporte,
+        fecha: hoy,
+        formato: form.formato as "PDF" | "Excel" | "CSV",
+        estado: "Generado",
+        generadoPor: "Administrador/Auditor",
+      };
+      setReportes((prev) => [nuevo, ...prev]);
+      setGenerando(false);
+      setModalAbierto(false);
+      setForm(initialForm);
+      setFormError("");
+    }, 1200);
+  };
+
   return {
     filters,
     filtered,
@@ -81,5 +139,13 @@ export function useReportes() {
     setFormato:  (v: string) => setFilters((p) => ({ ...p, formato: v })),
     setEstado:   (v: string) => setFilters((p) => ({ ...p, estado: v })),
     setFecha:    (v: string) => setFilters((p) => ({ ...p, fecha: v })),
+    modalAbierto,
+    form,
+    formError,
+    generando,
+    abrirModal,
+    cerrarModal,
+    setFormField,
+    generarReporte,
   };
 }
