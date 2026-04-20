@@ -1,15 +1,13 @@
-import { useMemo, useRef, useState, type ChangeEvent, type DragEvent } from "react";
+import { useRef, useState, type ChangeEvent, type DragEvent } from "react";
+import { ExcelParser } from "../modules/migracion_datos/utils/excelParser";
+import { JacImportStrategy } from "../modules/migracion_datos/utils/strategies/jacImportStrategy";
+import { AsocomunalImportStrategy } from "../modules/migracion_datos/utils/strategies/asocomunalImportStrategy";
+import { MigrationService } from "../modules/migracion_datos/services/migrationService";
+import { MigrationEntity } from "../modules/migracion_datos/types";
 
-export type EstadoCarga = "idle" | "archivo" | "validando" | "listo" | "importando" | "importado" | "error";
+export type EstadoCarga = "idle" | "archivo" | "previsualizando" | "listo" | "importando" | "importado" | "error";
 
-export interface RegistroPreview {
-  id: number;
-  nombre: string;
-  municipio: string;
-  barrio: string;
-  afiliados: number;
-  estado: string;
-}
+export type RegistroPreview = Record<string, any>;
 
 interface MigracionResultado {
   filasDetectadas: number;
@@ -20,27 +18,6 @@ interface MigracionResultado {
 
 const formatosPermitidos = [".xlsx", ".xls", ".csv"];
 const tamanoMaximoMb = 10;
-
-const previewBase: RegistroPreview[] = [
-  { id: 1, nombre: "JAC Bello Horizonte", municipio: "Popayán", barrio: "Bello Horizonte", afiliados: 124, estado: "Activa" },
-  { id: 2, nombre: "JAC La Esmeralda", municipio: "Santander de Quilichao", barrio: "La Esmeralda", afiliados: 98, estado: "Activa" },
-  { id: 3, nombre: "JAC El Recuerdo", municipio: "Patía", barrio: "El Recuerdo", afiliados: 67, estado: "Pendiente" },
-  { id: 4, nombre: "JAC San José", municipio: "Piendamó", barrio: "San José", afiliados: 143, estado: "Activa" },
-];
-
-function validarArchivoLocal(file: File) {
-  const extension = `.${file.name.split(".").pop()?.toLowerCase() || ""}`;
-
-  if (!formatosPermitidos.includes(extension)) {
-    return "Formato no permitido. Solo se aceptan archivos .xlsx, .xls y .csv.";
-  }
-
-  if (file.size > tamanoMaximoMb * 1024 * 1024) {
-    return `El archivo supera el tamaño máximo permitido de ${tamanoMaximoMb}MB.`;
-  }
-
-  return "";
-}
 
 export function formatBytes(bytes: number) {
   if (bytes === 0) return "0 B";
@@ -53,11 +30,13 @@ export function formatBytes(bytes: number) {
 export function useMigracion() {
   const inputRef = useRef<HTMLInputElement | null>(null);
   const [archivo, setArchivo] = useState<File | null>(null);
+  const [tipoEntidad, setTipoEntidad] = useState<MigrationEntity>("jacs");
   const [arrastrando, setArrastrando] = useState(false);
   const [estado, setEstado] = useState<EstadoCarga>("idle");
   const [error, setError] = useState("");
   const [progreso, setProgreso] = useState(0);
   const [mostrarPreview, setMostrarPreview] = useState(false);
+  const [preview, setPreview] = useState<RegistroPreview[]>([]);
   const [resultado, setResultado] = useState<MigracionResultado>({
     filasDetectadas: 0,
     validas: 0,
@@ -65,29 +44,72 @@ export function useMigracion() {
     errores: 0,
   });
 
-  const preview = useMemo(() => previewBase, []);
-
   const resetEstado = () => {
     setArchivo(null);
     setEstado("idle");
     setError("");
     setProgreso(0);
     setMostrarPreview(false);
+    setPreview([]);
     setResultado({ filasDetectadas: 0, validas: 0, advertencias: 0, errores: 0 });
     setArrastrando(false);
     if (inputRef.current) inputRef.current.value = "";
   };
 
-  const procesarArchivo = (file: File) => {
-    const validacion = validarArchivoLocal(file);
+  const previsualizarDatos = async (fileToProcess?: File) => {
+    const targetFile = fileToProcess || archivo;
+    if (!targetFile) return;
 
-    if (validacion) {
-      setArchivo(null);
+    setEstado("previsualizando");
+    setProgreso(20);
+
+    try {
+      const strategy = tipoEntidad === "jacs" ? new JacImportStrategy() : new AsocomunalImportStrategy();
+      const expectedHeaders = strategy.getExpectedHeaders();
+      
+      const buffer = await targetFile.arrayBuffer();
+      setProgreso(50);
+      
+      const rawData = await ExcelParser.parse(buffer, expectedHeaders);
+      setProgreso(80);
+      
+      const transformedData = strategy.transform(rawData);
+      
+      if (transformedData.length === 0) {
+        throw new Error("No se detectaron datos válidos en el archivo.");
+      }
+
+      // Tomar las primeras 5 filas tal como salen de la estrategia
+      const mappedPreview: RegistroPreview[] = transformedData.slice(0, 5);
+
+      setPreview(mappedPreview);
+      setResultado({
+        filasDetectadas: rawData.length,
+        validas: transformedData.length,
+        advertencias: 0,
+        errores: 0,
+      });
+      
+      setProgreso(100);
+      setEstado("listo");
+      setMostrarPreview(true);
+    } catch (err: any) {
+      setError(err.message || "Error al procesar el archivo Excel.");
       setEstado("error");
-      setError(validacion);
-      setResultado({ filasDetectadas: 0, validas: 0, advertencias: 0, errores: 0 });
-      setProgreso(0);
-      setMostrarPreview(false);
+    }
+  };
+
+  const procesarArchivo = (file: File) => {
+    const extension = `.${file.name.split(".").pop()?.toLowerCase() || ""}`;
+    if (!formatosPermitidos.includes(extension)) {
+      setError("Formato no permitido. Solo se aceptan archivos .xlsx, .xls y .csv.");
+      setEstado("error");
+      return;
+    }
+
+    if (file.size > tamanoMaximoMb * 1024 * 1024) {
+      setError(`El archivo supera el tamaño máximo permitido de ${tamanoMaximoMb}MB.`);
+      setEstado("error");
       return;
     }
 
@@ -96,7 +118,9 @@ export function useMigracion() {
     setError("");
     setProgreso(0);
     setMostrarPreview(false);
-    setResultado({ filasDetectadas: 0, validas: 0, advertencias: 0, errores: 0 });
+    
+    // Auto-previsualizar
+    previsualizarDatos(file);
   };
 
   const onFileChange = (e: ChangeEvent<HTMLInputElement>) => {
@@ -120,37 +144,29 @@ export function useMigracion() {
     setArrastrando(false);
   };
 
-  const validarArchivo = () => {
-    if (!archivo) return;
+  // previsualizarDatos moved above procesarArchivo
 
-    setEstado("validando");
-    setProgreso(20);
-    window.setTimeout(() => setProgreso(48), 350);
-    window.setTimeout(() => setProgreso(72), 700);
-    window.setTimeout(() => {
-      setProgreso(100);
-      setEstado("listo");
-      setMostrarPreview(true);
-      setResultado({ filasDetectadas: 128, validas: 121, advertencias: 5, errores: 2 });
-    }, 1000);
-  };
-
-  const importarArchivo = () => {
+  const importarArchivo = async () => {
     if (!archivo) return;
 
     setEstado("importando");
-    setProgreso(25);
-    window.setTimeout(() => setProgreso(55), 350);
-    window.setTimeout(() => setProgreso(82), 700);
-    window.setTimeout(() => {
+    setProgreso(50);
+
+    try {
+      await MigrationService.uploadExcel({ file: archivo, entity: tipoEntidad });
       setProgreso(100);
       setEstado("importado");
-    }, 1050);
+    } catch (err: any) {
+      setError(err.message || "Error al importar los datos.");
+      setEstado("error");
+    }
   };
 
   return {
     inputRef,
     archivo,
+    tipoEntidad,
+    setTipoEntidad,
     arrastrando,
     estado,
     error,
@@ -163,7 +179,7 @@ export function useMigracion() {
     onDrop,
     onDragOver,
     onDragLeave,
-    validarArchivo,
+    previsualizarDatos,
     importarArchivo,
     resetEstado,
     formatBytes,
