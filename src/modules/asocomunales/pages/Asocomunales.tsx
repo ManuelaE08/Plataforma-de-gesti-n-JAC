@@ -12,9 +12,10 @@ import { ModalEditarAsocomunal } from "../components/ModalEditarAsocomunal";
 import { useAsocomunales } from "../hooks/useAsocomunales";
 import { useMunicipios } from "../hooks/useMunicipios";
 import { useAuth } from "../../../context/AuthContext";
+import { useSolicitudes } from "../../solicitudes/hooks/useSolicitudes";
 import type { Asocomunal, CreateAsocomunalDto, UpdateAsocomunalDto } from "../types";
 
-const card      = "bg-white dark:bg-gray-800 rounded-xl border border-gray-100 dark:border-gray-700 shadow-sm";
+const card = "bg-white dark:bg-gray-800 rounded-xl border border-gray-100 dark:border-gray-700 shadow-sm";
 const selectCls = "appearance-none w-full bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-600 text-sm text-gray-600 dark:text-gray-300 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-[#1B7F4B]/30 focus:border-[#1B7F4B] transition-all cursor-pointer disabled:opacity-50";
 
 /**
@@ -26,30 +27,42 @@ const selectCls = "appearance-none w-full bg-white dark:bg-gray-900 border borde
 
 function Asocomunales() {
   const {
-    filtered, loading, error, filters, handleClear,
+    data, filtered, loading, error, filters, handleClear,
     setBusqueda, setMunicipio, setEstado,
     createAsocomunal, updateAsocomunal, toggleAsocomunalStatus,
   } = useAsocomunales();
 
+  const { crearSolicitud: proponerCambio } = useSolicitudes(true); // true para que el operador solo vea lo suyo o nada (evita Forbidden)
+
   const { municipios, loading: municipiosLoading } = useMunicipios();
   const navigate = useNavigate();
-  const { user }  = useAuth();
+  const { user } = useAuth();
 
-  const [showModal,         setShowModal]         = useState(false);
+  const [showModal, setShowModal] = useState(false);
   const [editingAsocomunal, setEditingAsocomunal] = useState<Asocomunal | null>(null);
-  const [creatingLoading,   setCreatingLoading]   = useState(false);
+  const [creatingLoading, setCreatingLoading] = useState(false);
 
   const canViewActions = user?.rol === "admin" || user?.rol === "operador";
-  const canCreate      = user?.rol === "admin";
+  //Nuevo cambio, se permite la creacion de asocomunales por parte de los operadores
+  const canCreate = user?.rol === "admin" || user?.rol === "operador";
+
+  const canDirectEdit = user?.rol === "admin";
 
   const handleSaveEdit = async (id: number, asoc: CreateAsocomunalDto | UpdateAsocomunalDto) => {
     try {
-      await updateAsocomunal(id, asoc as UpdateAsocomunalDto);
+      if (user?.rol === "admin") {
+        await updateAsocomunal(id, asoc as UpdateAsocomunalDto);
+        await Swal.fire({ icon: "success", title: "Asocomunal actualizada", text: "La actualización se guardó correctamente.", confirmButtonColor: "#1B7F4B", timer: 2500, timerProgressBar: true });
+      } else {
+        // Buscamos la asocomunal actual para enviarla como payloadAnterior
+        const currentAsoc = data.find(a => a.id === id);
+        await proponerCambio("ASOCOMUNAL", "EDITAR", asoc, currentAsoc, String(id));
+        await Swal.fire({ icon: "info", title: "Propuesta enviada", text: "Tu propuesta de edición ha sido enviada para revisión del administrador.", confirmButtonColor: "#1B7F4B" });
+      }
       setEditingAsocomunal(null);
-      await Swal.fire({ icon: "success", title: "Asocomunal actualizada", text: "La actualización se guardó correctamente.", confirmButtonColor: "#1B7F4B", timer: 2500, timerProgressBar: true });
     } catch (err: unknown) {
-      console.error("Error al actualizar la asocomunal:", err);
-      await Swal.fire({ icon: "error", title: "Error", text: err instanceof Error ? err.message : "No se pudo actualizar la asocomunal.", confirmButtonColor: "#1B7F4B" });
+      console.error("Error al procesar la asocomunal:", err);
+      await Swal.fire({ icon: "error", title: "Error", text: err instanceof Error ? err.message : "No se pudo procesar la acción.", confirmButtonColor: "#1B7F4B" });
     }
   };
 
@@ -85,6 +98,7 @@ function Asocomunales() {
         )}
       </PageHeader>
 
+
       {showModal && (
         <ModalCrearAsocomunal
           municipios={municipios}
@@ -93,11 +107,16 @@ function Asocomunales() {
           onSave={async (nueva: CreateAsocomunalDto | UpdateAsocomunalDto) => {
             try {
               setCreatingLoading(true);
-              await createAsocomunal(nueva as CreateAsocomunalDto);
+              if (user?.rol === "admin") {
+                await createAsocomunal(nueva as CreateAsocomunalDto);
+                await Swal.fire({ icon: "success", title: "Asocomunal creada", text: "La nueva asocomunal ha sido registrada correctamente.", confirmButtonColor: "#1B7F4B", timer: 2500, timerProgressBar: true });
+              } else {
+                await proponerCambio("ASOCOMUNAL", "CREAR", nueva);
+                await Swal.fire({ icon: "info", title: "Propuesta enviada", text: "Tu solicitud de creación ha sido enviada al administrador.", confirmButtonColor: "#1B7F4B" });
+              }
               setShowModal(false);
-              await Swal.fire({ icon: "success", title: "Asocomunal creada", text: "La nueva asocomunal ha sido registrada correctamente.", confirmButtonColor: "#1B7F4B", timer: 2500, timerProgressBar: true });
             } catch (error: unknown) {
-              await Swal.fire({ icon: "error", title: "Error", text: error instanceof Error ? error.message : "No se pudo crear la asocomunal.", confirmButtonColor: "#1B7F4B" });
+              await Swal.fire({ icon: "error", title: "Error", text: error instanceof Error ? error.message : "No se pudo procesar la solicitud.", confirmButtonColor: "#1B7F4B" });
             } finally {
               setCreatingLoading(false);
             }
@@ -218,7 +237,7 @@ function Asocomunales() {
                             className={`p-1.5 rounded-lg transition-colors ${item.estado
                               ? "hover:bg-red-50 dark:hover:bg-red-900/20 text-gray-400 dark:text-gray-500 hover:text-red-500 dark:hover:text-red-400"
                               : "hover:bg-green-50 dark:hover:bg-green-900/20 text-gray-400 dark:text-gray-500 hover:text-green-500 dark:hover:text-green-400"
-                            }`}
+                              }`}
                             title={item.estado ? "Desactivar" : "Activar"}
                           >
                             <RotateCcw size={15} />
