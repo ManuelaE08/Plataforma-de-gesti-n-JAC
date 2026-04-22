@@ -9,8 +9,9 @@ import Usuarios from "../pages/Usuarios";
 import Reportes from "../pages/Reportes";
 import Analiticas from "../pages/Analiticas";
 import Alertas from "../pages/Alertas";
-import SolicitudesAdmin from "../pages/SolicitudesAdmin";
-import MisSolicitudes from "../pages/MisSolicitudes";
+import SolicitudesAdmin from "../modules/solicitudes/pages/SolicitudesAdmin";
+import MisSolicitudes from "../modules/solicitudes/pages/MisSolicitudes";
+
 import JacDetalle from "../pages/JacDetalle";
 import AsocomunalDetalle from "../modules/asocomunales/pages/AsocomunalDetalle";
 import Migracion from "../pages/Migracion";

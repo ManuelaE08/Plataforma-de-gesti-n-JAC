@@ -134,6 +134,7 @@ export function useAsocomunales() {
     handleClear,
     createAsocomunal,
     updateAsocomunal,
+    deleteAsocomunal,
     toggleAsocomunalStatus,
     setBusqueda: (v: string) => setFilters((p) => ({ ...p, busqueda: v })),
     setMunicipio: (v: number | null) => setFilters((p) => ({ ...p, municipio: v })),
