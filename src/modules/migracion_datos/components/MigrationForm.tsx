@@ -2,7 +2,7 @@ import { useState, useEffect } from "react";
 import DropzoneExcel from "./DropzoneExcel";
 import { useMigration } from "../hooks/useMigration";
 import { MigrationEntity } from "../types";
-import { AlertCircle, CheckCircle2 } from "lucide-react";
+import { AlertCircle, CheckCircle2, XCircle } from "lucide-react";
 import PreviewTable from "./PreviewTable";
 import { ExcelParser } from "../utils/excelParser";
 import { JacImportStrategy } from "../utils/strategies/jacImportStrategy";
@@ -18,7 +18,7 @@ export default function MigrationForm({ entity, onSuccess }: MigrationFormProps)
   const [previewData, setPreviewData] = useState<any[] | null>(null);
   const [previewError, setPreviewError] = useState<string | null>(null);
   const [isParsing, setIsParsing] = useState(false);
-  const { startMigration, loading, error, successResponse, resetMigration } = useMigration();
+  const { startMigration, loading, error, summary, resetMigration } = useMigration();
 
   useEffect(() => {
     if (!file) {
@@ -32,19 +32,13 @@ export default function MigrationForm({ entity, onSuccess }: MigrationFormProps)
       setPreviewError(null);
 
       try {
-        // 1. Crear la estrategia según la entidad seleccionada
         const strategy = entity === "jacs"
           ? new JacImportStrategy()
           : new AsocomunalImportStrategy();
 
-        // 2. Obtener los encabezados esperados desde la estrategia
         const expectedHeaders = strategy.getExpectedHeaders();
-
-        // 3. Parsear el Excel pasándole los encabezados (el parser es genérico)
         const buffer = await file.arrayBuffer();
         const rawData = await ExcelParser.parse(buffer, expectedHeaders);
-
-        // 4. Transformar los datos según la estrategia
         const transformedData = strategy.transform(rawData);
 
         if (transformedData.length === 0) {
@@ -65,7 +59,7 @@ export default function MigrationForm({ entity, onSuccess }: MigrationFormProps)
 
   const handleFileSelect = (newFile: File | null) => {
     setFile(newFile);
-    resetMigration(); // Limpiar errores pasados al cambiar archivo
+    resetMigration();
   };
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -74,7 +68,7 @@ export default function MigrationForm({ entity, onSuccess }: MigrationFormProps)
 
     try {
       await startMigration(file, entity);
-      if (onSuccess) {
+      if (onSuccess && summary && summary.errores === 0) {
         setTimeout(() => onSuccess(), 2000);
       }
     } catch {
@@ -121,12 +115,41 @@ export default function MigrationForm({ entity, onSuccess }: MigrationFormProps)
           </div>
         )}
 
-        {successResponse && (
-          <div className="p-4 border-l-4 border-green-500 bg-green-50 rounded-r-lg flex gap-3">
-            <CheckCircle2 className="w-5 h-5 text-green-500 flex-shrink-0" />
-            <div>
-              <p className="text-sm font-semibold text-green-800 uppercase tracking-wider text-[11px]">Migración Completada</p>
-              <p className="text-sm text-green-700 font-medium mt-1">{successResponse.message}</p>
+        {summary && (
+          <div className={`p-4 rounded-lg border-l-4 ${summary.errores === 0 ? 'border-green-500 bg-green-50' : 'border-amber-500 bg-amber-50'}`}>
+            <div className="flex items-start gap-3">
+              {summary.errores === 0
+                ? <CheckCircle2 className="w-5 h-5 text-green-500 flex-shrink-0 mt-0.5" />
+                : <AlertCircle className="w-5 h-5 text-amber-500 flex-shrink-0 mt-0.5" />
+              }
+              <div className="w-full">
+                <p className={`text-sm font-semibold uppercase tracking-wider text-[11px] ${summary.errores === 0 ? 'text-green-800' : 'text-amber-800'}`}>
+                  Resumen de Importación
+                </p>
+                <div className="flex gap-4 mt-2 text-sm">
+                  <span className="text-neutral-600">Total enviados: <strong>{summary.total}</strong></span>
+                  <span className="text-green-700">✓ Importados: <strong>{summary.validas}</strong></span>
+                  {summary.errores > 0 && (
+                    <span className="text-red-600">✗ Fallidos: <strong>{summary.errores}</strong></span>
+                  )}
+                </div>
+
+                {summary.detalles && summary.detalles.length > 0 && (
+                  <div className="mt-3">
+                    <p className="text-xs font-semibold text-amber-700 uppercase tracking-wider mb-2">Registros con error:</p>
+                    <div className="max-h-40 overflow-y-auto space-y-1">
+                      {summary.detalles.map((d, i) => (
+                        <div key={i} className="flex items-start gap-2 text-xs bg-white/60 rounded px-2 py-1">
+                          <XCircle className="w-3.5 h-3.5 text-red-500 flex-shrink-0 mt-0.5" />
+                          <span className="text-neutral-500 font-medium">Fila {d.fila}:</span>
+                          <span className="text-neutral-700 font-semibold">{d.asocomunal}</span>
+                          <span className="text-red-600 ml-auto">{d.error}</span>
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+                )}
+              </div>
             </div>
           </div>
         )}
