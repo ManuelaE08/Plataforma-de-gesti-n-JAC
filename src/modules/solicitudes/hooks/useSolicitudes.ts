@@ -25,6 +25,8 @@ export interface SolicitudItem {
   estado: EstadoSolicitud;
   motivoRechazo?: string;
   cambios: CambioCampo[];
+  /** true cuando el admin registró la acción directamente (no es propuesta de operador) */
+  esAccionAdmin: boolean;
 }
 
 interface SolicitudFilters {
@@ -97,17 +99,21 @@ const mapearSolicitud = (back: any): SolicitudItem => {
   // Intentar extraer un "nombre" o descripcion representativa
   const desc = desired.nombre || previous.nombre || `${entityNombre} #${back.entidadId || 'Nueva'}`;
 
+  // Es acción directa del admin cuando él mismo figura como operador y revisor
+  const esAccionAdmin = !!back.revisadoPorAdminId && back.operadorId === back.revisadoPorAdminId;
+
   return {
     id: back.id,
     tipo: tipoStr,
     descripcion: desc,
     entidad: entityNombre,
-    operador: back.usuarioOperador?.nombre || back.operadorId, 
+    operador: back.usuarioOperador?.nombre || back.operadorId,
     operadorId: back.operadorId,
     fecha: new Date(back.fechaCreacion || back.creadoEn).toISOString().split("T")[0],
     estado: back.estado === "PENDIENTE" ? "Pendiente" : back.estado === "APROBADA" ? "Aprobada" : "Rechazada",
     motivoRechazo: back.motivoRechazo,
-    cambios: campos
+    cambios: campos,
+    esAccionAdmin,
   };
 };
 

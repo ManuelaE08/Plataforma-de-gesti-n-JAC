@@ -13,6 +13,7 @@ import { useAsocomunales } from "../hooks/useAsocomunales";
 import { useMunicipios } from "../hooks/useMunicipios";
 import { useAuth } from "../../../context/AuthContext";
 import { useSolicitudes } from "../../solicitudes/hooks/useSolicitudes";
+import { SolicitudesService } from "../../solicitudes/services/solicitudes.service";
 import type { Asocomunal, CreateAsocomunalDto, UpdateAsocomunalDto } from "../types";
 
 const card = "bg-white dark:bg-gray-800 rounded-xl border border-gray-100 dark:border-gray-700 shadow-sm";
@@ -51,7 +52,16 @@ function Asocomunales() {
   const handleSaveEdit = async (id: number, asoc: CreateAsocomunalDto | UpdateAsocomunalDto) => {
     try {
       if (user?.rol === "admin") {
+        const currentAsoc = data.find(a => a.id === id);
         await updateAsocomunal(id, asoc as UpdateAsocomunalDto);
+        // Log fire-and-forget en auditoría (no bloquea la UI)
+        SolicitudesService.registrarAccionAdmin({
+          entidadAfectada: "ASOCOMUNAL",
+          tipoAccion: "EDITAR",
+          entidadId: String(id),
+          payloadAnterior: currentAsoc,
+          payloadDeseado: asoc,
+        }).catch(err => console.warn("[Auditoría] No se pudo registrar el log:", err));
         await Swal.fire({ icon: "success", title: "Asocomunal actualizada", text: "La actualización se guardó correctamente.", confirmButtonColor: "#1B7F4B", timer: 2500, timerProgressBar: true });
       } else {
         // Buscamos la asocomunal actual para enviarla como payloadAnterior
@@ -76,6 +86,15 @@ function Asocomunales() {
     if (result.isConfirmed) {
       try {
         await toggleAsocomunalStatus(id, !currentStatus);
+        // Log fire-and-forget en auditoría solo si es admin
+        if (user?.rol === "admin") {
+          SolicitudesService.registrarAccionAdmin({
+            entidadAfectada: "ASOCOMUNAL",
+            tipoAccion: currentStatus ? "DESACTIVAR" : "ACTIVAR",
+            entidadId: String(id),
+            payloadDeseado: { estado: !currentStatus },
+          }).catch(err => console.warn("[Auditoría] No se pudo registrar el log:", err));
+        }
         await Swal.fire({ title: "¡Éxito!", text: `La asocomunal fue ${currentStatus ? "desactivada" : "activada"} correctamente.`, icon: "success", confirmButtonColor: "#1B7F4B", timer: 2000, timerProgressBar: true });
       } catch (err: unknown) {
         console.error(`Error al ${actionText} la asocomunal:`, err);
@@ -109,6 +128,12 @@ function Asocomunales() {
               setCreatingLoading(true);
               if (user?.rol === "admin") {
                 await createAsocomunal(nueva as CreateAsocomunalDto);
+                // Log fire-and-forget en auditoría
+                SolicitudesService.registrarAccionAdmin({
+                  entidadAfectada: "ASOCOMUNAL",
+                  tipoAccion: "CREAR",
+                  payloadDeseado: nueva,
+                }).catch(err => console.warn("[Auditoría] No se pudo registrar el log:", err));
                 await Swal.fire({ icon: "success", title: "Asocomunal creada", text: "La nueva asocomunal ha sido registrada correctamente.", confirmButtonColor: "#1B7F4B", timer: 2500, timerProgressBar: true });
               } else {
                 await proponerCambio("ASOCOMUNAL", "CREAR", nueva);
