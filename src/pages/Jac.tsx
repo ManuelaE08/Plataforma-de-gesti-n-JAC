@@ -15,7 +15,7 @@ const inputCls  = "w-full bg-white dark:bg-gray-900 border border-gray-200 dark:
 
 function Jac() {
   const {
-    filters, filtered, handleClear,
+    filters, filtered, loading, error, refetch, handleClear,
     setBusqueda, setMunicipio, setEstado, setDocumental, setMinAfiliados,
   } = useJac();
 
@@ -117,7 +117,11 @@ function Jac() {
               </tr>
             </thead>
             <tbody>
-              {filtered.length === 0 ? (
+              {loading ? (
+                <tr><td colSpan={visibleColumns.length} className="px-4 py-8 text-center text-sm text-gray-400">Cargando JAC...</td></tr>
+              ) : error ? (
+                <tr><td colSpan={visibleColumns.length} className="px-4 py-8 text-center text-sm text-red-500">{error} — <button onClick={refetch} className="underline">Reintentar</button></td></tr>
+              ) : filtered.length === 0 ? (
                 <EmptyState message="No se encontraron JAC con los criterios seleccionados" />
               ) : (
                 filtered.map((jac) => (
