@@ -51,9 +51,9 @@ export class JACService {
   /** GET /jac/buscar?nombre=&municipio=&estado= — Búsqueda con filtros del backend. */
   static async search(filters: SearchJACDto): Promise<JacItem[]> {
     const params = new URLSearchParams();
-    if (filters.nombre)    params.set("nombre",    filters.nombre);
-    if (filters.municipio) params.set("municipio", filters.municipio);
-    if (filters.estado)    params.set("estado",    filters.estado);
+    if (filters.nombre)    params.set("nombre",    filters.nombre.toLowerCase());
+    if (filters.municipio) params.set("municipio", filters.municipio.toLowerCase());
+    if (filters.estado)    params.set("estado",    filters.estado.toLowerCase());
 
     const qs  = params.size ? `?${params.toString()}` : "";
     const res = await fetch(`${base()}/buscar${qs}`, {

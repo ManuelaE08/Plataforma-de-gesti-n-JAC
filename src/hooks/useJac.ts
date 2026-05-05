@@ -1,17 +1,17 @@
 import { useState, useEffect, useRef, useCallback } from "react";
 import { JACService } from "../modules/jac/services/jacService";
+import type { JacItem, EstadoDocumental, EstadoOrganizativo } from "../modules/jac/types";
 
 // ── Tipos re-exportados desde el módulo para que las páginas no cambien sus imports ──
 export type { EstadoDocumental, EstadoOrganizativo, EstadoAprobacion, RolAfiliado, AfiliadoItem, JacItem } from "../modules/jac/types";
-import type { JacItem } from "../modules/jac/types";
 
 // ── Tipos de filtros ──────────────────────────────────────────────────────────
 
 interface JacFilters {
   busqueda: string;
   municipio: string;
-  estado: string;
-  documental: string;
+  estado: EstadoOrganizativo | "";
+  documental: EstadoDocumental | "";
   minAfiliados: string;
 }
 
@@ -23,7 +23,7 @@ const initialFilters: JacFilters = {
 
 export const columns: string[] = [
   "Nombre de la JAC", "Municipio", "Barrio/Vereda", "Afiliados",
-  "Estado documental", "Estado organizativo", "Estado de aprobación", "Acciones",
+  "Estado documental", "Estado organizativo", "Acciones",
 ];
 
 export const docVariant: Record<string, "green" | "red" | "amber"> = {
@@ -50,19 +50,29 @@ export function useJac() {
   const [debouncedBusqueda, setDebouncedBusqueda] = useState("");
   const debounceRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 
-  // Carga inicial de datos desde el microservicio
+  // Carga inicial y busqueda desde el microservicio
   const fetchJacs = useCallback(async () => {
     setLoading(true);
     setError(null);
     try {
-      const data = await JACService.findAll();
+      const nombre = debouncedBusqueda.trim();
+      const municipio = filters.municipio;
+      const estado = filters.estado ? filters.estado : undefined;
+      const hasSearch = Boolean(nombre || municipio || estado);
+      const data = hasSearch
+        ? await JACService.search({
+            nombre: nombre || undefined,
+            municipio: municipio || undefined,
+            estado,
+          })
+        : await JACService.findAll();
       setJacData(data);
     } catch (err) {
       setError(err instanceof Error ? err.message : "Error al cargar las JAC");
     } finally {
       setLoading(false);
     }
-  }, []);
+  }, [debouncedBusqueda, filters.estado, filters.municipio]);
 
   useEffect(() => {
     fetchJacs();
@@ -82,18 +92,11 @@ export function useJac() {
     setDebouncedBusqueda("");
   };
 
-  // Filtrado en cliente (instantáneo tras la carga)
+  // Filtrado local para campos no cubiertos por la busqueda del backend
   const filtered = jacData.filter((j) => {
-    const matchBusqueda =
-      !debouncedBusqueda ||
-      [j.nombre, j.municipio, j.barrio].some((v) =>
-        v.toLowerCase().includes(debouncedBusqueda.toLowerCase())
-      );
-    const matchMunicipio  = !filters.municipio    || j.municipio    === filters.municipio;
-    const matchEstado     = !filters.estado       || j.organizativo === filters.estado;
-    const matchDocumental = !filters.documental   || j.documental   === filters.documental;
-    const matchAfiliados  = !filters.minAfiliados || j.afiliados    >= Number(filters.minAfiliados);
-    return matchBusqueda && matchMunicipio && matchEstado && matchDocumental && matchAfiliados;
+    const matchDocumental = !filters.documental   || j.documental === filters.documental;
+    const matchAfiliados  = !filters.minAfiliados || j.afiliados  >= Number(filters.minAfiliados);
+    return matchDocumental && matchAfiliados;
   });
 
   const getJacById = (id: number) => jacData.find((item) => item.id === id) ?? null;
@@ -112,8 +115,8 @@ export function useJac() {
     filters,
     setBusqueda:     (v: string) => setFilters((p) => ({ ...p, busqueda: v })),
     setMunicipio:    (v: string) => setFilters((p) => ({ ...p, municipio: v })),
-    setEstado:       (v: string) => setFilters((p) => ({ ...p, estado: v })),
-    setDocumental:   (v: string) => setFilters((p) => ({ ...p, documental: v })),
+    setEstado:       (v: EstadoOrganizativo | "") => setFilters((p) => ({ ...p, estado: v })),
+    setDocumental:   (v: EstadoDocumental | "") => setFilters((p) => ({ ...p, documental: v })),
     setMinAfiliados: (v: string) => setFilters((p) => ({ ...p, minAfiliados: v })),
   };
 }

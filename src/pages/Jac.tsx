@@ -6,7 +6,7 @@ import PageHeader from "../components/ui/PageHeader";
 import SearchBar from "../components/ui/SearchBar";
 import EmptyState from "../components/ui/EmptyState";
 import { ModalCrearJac } from "../components/ui/ModalCrearJac";
-import { useJac, columns, docVariant, orgVariant, aprobVariant } from "../hooks/useJac";
+import { useJac, columns, docVariant, orgVariant, aprobVariant, type EstadoDocumental, type EstadoOrganizativo } from "../hooks/useJac";
 import { useAuth } from "../context/AuthContext";
 
 const card      = "bg-white dark:bg-gray-800 rounded-xl border border-gray-100 dark:border-gray-700 shadow-sm";
@@ -74,12 +74,12 @@ function Jac() {
             <option value="Timbío">Timbío</option>
             <option value="Piendamó">Piendamó</option>
           </select>
-          <select value={filters.estado} onChange={(e) => setEstado(e.target.value)} className={selectCls}>
+          <select value={filters.estado} onChange={(e) => setEstado(e.target.value as EstadoOrganizativo | "")} className={selectCls}>
             <option value="">Todos los estados</option>
             <option value="Activa">Activa</option>
             <option value="Inactiva">Inactiva</option>
           </select>
-          <select value={filters.documental} onChange={(e) => setDocumental(e.target.value)} className={selectCls}>
+          <select value={filters.documental} onChange={(e) => setDocumental(e.target.value as EstadoDocumental | "")} className={selectCls}>
             <option value="">Todos los estados documentales</option>
             <option value="Vigente">Vigente</option>
             <option value="Por vencer">Por vencer</option>
@@ -143,7 +143,7 @@ function Jac() {
                     <td className="px-4 py-3 text-gray-700 dark:text-gray-200 tabular-nums font-medium">{jac.afiliados}</td>
                     <td className="px-4 py-3"><Badge label={jac.documental}   variant={docVariant[jac.documental]} /></td>
                     <td className="px-4 py-3"><Badge label={jac.organizativo} variant={orgVariant[jac.organizativo]} /></td>
-                    <td className="px-4 py-3"><Badge label={jac.aprobacion}   variant={aprobVariant[jac.aprobacion]} /></td>
+                    
                     {canViewAfiliados && (
                       <td className="px-4 py-3">
                         <div className="flex items-center gap-2">
