@@ -1,4 +1,4 @@
-import { Plus, RotateCcw, UserRound, Trash2 } from "lucide-react";
+import { Plus, RotateCcw, Ellipsis, CircleEllipsis, Trash2 } from "lucide-react";
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import Badge from "../components/ui/Badge";
@@ -15,8 +15,8 @@ const inputCls  = "w-full bg-white dark:bg-gray-900 border border-gray-200 dark:
 
 function Jac() {
   const {
-    filters, filtered, loading, error, refetch, handleClear,
-    setBusqueda, setMunicipio, setEstado, setDocumental, setMinAfiliados,
+    filters, filtered, loading, error, refetch, handleClear, totalLoaded,
+    setBusqueda, setMunicipio, setEstado, setDocumental, setMinAfiliados, setLimite,
   } = useJac();
 
   const navigate = useNavigate();
@@ -92,6 +92,18 @@ function Jac() {
             onChange={(e) => setMinAfiliados(e.target.value)}
             className={inputCls}
           />
+          <select
+            value={filters.limite}
+            onChange={(e) => setLimite(Number(e.target.value))}
+            className={selectCls}
+            title="Cantidad máxima de JAC a cargar"
+          >
+            <option value={50}>Cargar hasta 50 JAC</option>
+            <option value={100}>Cargar hasta 100 JAC</option>
+            <option value={200}>Cargar hasta 200 JAC</option>
+            <option value={500}>Cargar hasta 500 JAC</option>
+            <option value={1000}>Cargar hasta 1 000 JAC</option>
+          </select>
         </div>
         <div className="flex items-center gap-3 mt-4">
           <button
@@ -102,6 +114,27 @@ function Jac() {
           </button>
         </div>
       </div>
+
+      {/* Alerta de cantidad cargada */}
+      {!loading && !error && (
+        <div
+          className={`rounded-lg px-4 py-2.5 text-sm font-medium mb-4 border ${
+            totalLoaded <= 100
+              ? "bg-green-50 text-green-700 border-green-200 dark:bg-green-900/20 dark:text-green-400 dark:border-green-800"
+              : totalLoaded <= 500
+              ? "bg-orange-50 text-orange-700 border-orange-200 dark:bg-orange-900/20 dark:text-orange-400 dark:border-orange-800"
+              : "bg-red-50 text-red-700 border-red-200 dark:bg-red-900/20 dark:text-red-400 dark:border-red-800"
+          }`}
+        >
+          {totalLoaded === 0
+            ? "No se encontraron JAC con los criterios seleccionados."
+            : totalLoaded <= 100
+            ? `Se cargaron ${totalLoaded} JAC correctamente.`
+            : totalLoaded <= 500
+            ? `Se cargaron ${totalLoaded} JAC. Considere aplicar filtros para reducir la cantidad de registros.`
+            : `Se cargaron ${totalLoaded} JAC. Se recomienda limitar la cantidad de JAC cargadas para mejorar el rendimiento.`}
+        </div>
+      )}
 
       {/* Tabla */}
       <div className={`${card} overflow-hidden`}>
@@ -152,14 +185,16 @@ function Jac() {
                             className="p-1.5 rounded-lg hover:bg-[#1B7F4B]/10 dark:hover:bg-[#1B7F4B]/20 text-gray-500 dark:text-gray-400 hover:text-[#1B7F4B] dark:hover:text-emerald-400 transition-colors"
                             title="Ver detalle"
                           >
-                            <UserRound size={15} />
+                            
+                            <Ellipsis size={20} />
+                            
                           </button>
                           {canDelete && (
                             <button
                               className="p-1.5 rounded-lg hover:bg-red-50 dark:hover:bg-red-900/20 text-gray-400 dark:text-gray-500 hover:text-red-500 dark:hover:text-red-400 transition-colors"
                               title="Eliminar"
                             >
-                              <Trash2 size={15} />
+                              <Trash2 size={20} />
                             </button>
                           )}
                         </div>

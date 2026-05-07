@@ -13,17 +13,18 @@ interface JacFilters {
   estado: EstadoOrganizativo | "";
   documental: EstadoDocumental | "";
   minAfiliados: string;
+  limite: number;
 }
 
 const initialFilters: JacFilters = {
-  busqueda: "", municipio: "", estado: "", documental: "", minAfiliados: "",
+  busqueda: "", municipio: "", estado: "", documental: "", minAfiliados: "", limite: 100,
 };
 
 // ── Constantes de UI ──────────────────────────────────────────────────────────
 
 export const columns: string[] = [
   "Nombre de la JAC", "Municipio", "Barrio/Vereda", "Afiliados",
-  "Estado documental", "Estado organizativo", "Acciones",
+  "Estado documental", "Estado organizativo", "Opciones",
 ];
 
 export const docVariant: Record<string, "green" | "red" | "amber"> = {
@@ -64,15 +65,16 @@ export function useJac() {
             nombre: nombre || undefined,
             municipio: municipio || undefined,
             estado,
+            limite: filters.limite,
           })
-        : await JACService.findAll();
+        : await JACService.findAll(filters.limite);
       setJacData(data);
     } catch (err) {
       setError(err instanceof Error ? err.message : "Error al cargar las JAC");
     } finally {
       setLoading(false);
     }
-  }, [debouncedBusqueda, filters.estado, filters.municipio]);
+  }, [debouncedBusqueda, filters.estado, filters.municipio, filters.limite]);
 
   useEffect(() => {
     fetchJacs();
@@ -107,6 +109,7 @@ export function useJac() {
     filtered,
     loading,
     error,
+    totalLoaded: jacData.length,
     // acciones
     refetch: fetchJacs,
     handleClear,
@@ -118,5 +121,6 @@ export function useJac() {
     setEstado:       (v: EstadoOrganizativo | "") => setFilters((p) => ({ ...p, estado: v })),
     setDocumental:   (v: EstadoDocumental | "") => setFilters((p) => ({ ...p, documental: v })),
     setMinAfiliados: (v: string) => setFilters((p) => ({ ...p, minAfiliados: v })),
+    setLimite:       (v: number) => setFilters((p) => ({ ...p, limite: v })),
   };
 }

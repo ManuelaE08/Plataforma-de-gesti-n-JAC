@@ -3,6 +3,7 @@
 export type EstadoDocumental  = "Vigente" | "Vencida" | "Por vencer";
 export type EstadoOrganizativo = "Activa" | "Inactiva";
 export type EstadoAprobacion  = "Activo" | "Pendiente" | "Rechazado";
+export type TipoJac           = "Barrio" | "Vereda";
 export type RolAfiliado =
   | "Presidente" | "Vicepresidente" | "Secretario"
   | "Tesorero"   | "Fiscal"         | "Afiliado";
@@ -28,6 +29,12 @@ export interface JacItem {
   documental: EstadoDocumental;
   organizativo: EstadoOrganizativo;
   aprobacion: EstadoAprobacion;
+  /** Tipo de territorio que cubre la JAC (Barrio urbano / Vereda rural). */
+  tipo: TipoJac;
+  /** Mínimo legal de afiliados para sostener la JAC activa según su tipo. */
+  minimoAfiliados: number;
+  /** `true` cuando la JAC está activa pero no alcanza el mínimo legal. */
+  enRiesgo: boolean;
   miembros: AfiliadoItem[];
 }
 
@@ -53,6 +60,7 @@ export interface SearchJACDto {
   nombre?: string;
   municipio?: string;
   estado?: EstadoOrganizativo;
+  limite?: number;
 }
 
 // ── Filtros del hook ──────────────────────────────────────────────────────────

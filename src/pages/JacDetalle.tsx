@@ -1,4 +1,4 @@
-import { ArrowLeft, Users, MapPin, FileText, ShieldCheck, RotateCcw } from "lucide-react";
+import { ArrowLeft, Users, MapPin, FileText, ShieldCheck, RotateCcw, AlertTriangle } from "lucide-react";
 import { useMemo, useState, useEffect, useRef } from "react";
 import { useNavigate, useParams } from "react-router-dom";
 import Badge from "../components/ui/Badge";
@@ -97,6 +97,22 @@ function JacDetalle() {
           <ArrowLeft size={16} /> Volver al listado
         </button>
       </PageHeader>
+
+      {/* Alerta de riesgo: solo JACs activas que no alcanzan el mínimo legal de afiliados */}
+      {jac.enRiesgo && (
+        <div className="rounded-lg px-4 py-3 mb-4 border bg-amber-50 text-amber-800 border-amber-200 dark:bg-amber-900/20 dark:text-amber-300 dark:border-amber-800">
+          <div className="flex items-start gap-3">
+            <AlertTriangle size={20} className="shrink-0 mt-0.5" />
+            <div className="text-sm">
+              <p className="font-semibold">JAC en riesgo de inactivación</p>
+              <p className="mt-0.5">
+                Esta junta cuenta con <span className="font-semibold tabular-nums">{jac.afiliados}</span> afiliado{jac.afiliados === 1 ? "" : "s"}, por debajo del mínimo legal de <span className="font-semibold tabular-nums">{jac.minimoAfiliados}</span> requerido para una JAC de tipo <span className="font-semibold">{jac.tipo}</span> (Ley 2166 de 2021, Art. 11).
+                Si no se incrementa el número de afiliados activos, la junta podría perder su condición de activa.
+              </p>
+            </div>
+          </div>
+        </div>
+      )}
 
       {/* KPI cards */}
       <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-4 gap-4 mb-4">

@@ -37,9 +37,9 @@ async function handleResponse<T>(res: Response): Promise<T> {
  *   DELETE /jac/:id         → remove
  */
 export class JACService {
-  /** GET /jac — Lista todas las JAC. */
-  static async findAll(): Promise<JacItem[]> {
-    const res = await fetch(base(), {
+  /** GET /jac?limite=N — Lista todas las JAC con un límite de registros. */
+  static async findAll(limite: number = 100): Promise<JacItem[]> {
+    const res = await fetch(`${base()}?limite=${limite}`, {
       method: "GET",
       headers: defaultHeaders,
       credentials: "include",
@@ -48,12 +48,13 @@ export class JACService {
     return JACAdapter.mapJACs(data);
   }
 
-  /** GET /jac/buscar?nombre=&municipio=&estado= — Búsqueda con filtros del backend. */
+  /** GET /jac/buscar?nombre=&municipio=&estado=&limite= — Búsqueda con filtros del backend. */
   static async search(filters: SearchJACDto): Promise<JacItem[]> {
     const params = new URLSearchParams();
     if (filters.nombre)    params.set("nombre",    filters.nombre.toLowerCase());
     if (filters.municipio) params.set("municipio", filters.municipio.toLowerCase());
     if (filters.estado)    params.set("estado",    filters.estado.toLowerCase());
+    if (filters.limite)    params.set("limite",    String(filters.limite));
 
     const qs  = params.size ? `?${params.toString()}` : "";
     const res = await fetch(`${base()}/buscar${qs}`, {
