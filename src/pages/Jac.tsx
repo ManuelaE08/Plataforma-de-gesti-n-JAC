@@ -13,14 +13,14 @@ import { JACService } from "../modules/jac/services/jacService";
 import Swal from "sweetalert2";
 import "sweetalert2/dist/sweetalert2.min.css";
 
-const card      = "bg-white dark:bg-gray-800 rounded-xl border border-gray-100 dark:border-gray-700 shadow-sm";
+const card = "bg-white dark:bg-gray-800 rounded-xl border border-gray-100 dark:border-gray-700 shadow-sm";
 const selectCls = "appearance-none w-full bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-600 text-sm text-gray-600 dark:text-gray-300 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-[#1B7F4B]/30 focus:border-[#1B7F4B] transition-all cursor-pointer";
-const inputCls  = "w-full bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-600 text-sm text-gray-600 dark:text-gray-300 placeholder:text-gray-400 dark:placeholder:text-gray-500 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-[#1B7F4B]/30 focus:border-[#1B7F4B] transition-all";
+const inputCls = "w-full bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-600 text-sm text-gray-600 dark:text-gray-300 placeholder:text-gray-400 dark:placeholder:text-gray-500 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-[#1B7F4B]/30 focus:border-[#1B7F4B] transition-all";
 
 function Jac() {
   const {
     filters, filtered, loading, error, refetch, handleClear, totalLoaded,
-    setBusqueda, setMunicipio, setEstado, setDocumental, setMinAfiliados, setLimite,
+    setBusqueda, setMunicipio, setEstado, setMinAfiliados, setLimite,
   } = useJac();
 
   const navigate = useNavigate();
@@ -28,8 +28,8 @@ function Jac() {
   const [showModal, setShowModal] = useState(false);
 
   const canViewAfiliados = user?.rol === "admin" || user?.rol === "operador";
-  const canDelete        = user?.rol === "admin";
-  const canCreate        = user?.rol === "admin";
+  const canDelete = user?.rol === "admin";
+  const canCreate = user?.rol === "admin";
 
   const visibleColumns = canViewAfiliados
     ? columns
@@ -149,13 +149,12 @@ function Jac() {
       {/* Alerta de cantidad cargada */}
       {!loading && !error && (
         <div
-          className={`rounded-lg px-4 py-2.5 text-sm font-medium mb-4 border ${
-            totalLoaded <= 100
+          className={`rounded-lg px-4 py-2.5 text-sm font-medium mb-4 border ${totalLoaded <= 100
               ? "bg-green-50 text-green-700 border-green-200 dark:bg-green-900/20 dark:text-green-400 dark:border-green-800"
               : totalLoaded <= 500
-              ? "bg-orange-50 text-orange-700 border-orange-200 dark:bg-orange-900/20 dark:text-orange-400 dark:border-orange-800"
-              : "bg-red-50 text-red-700 border-red-200 dark:bg-red-900/20 dark:text-red-400 dark:border-red-800"
-          }`}
+                ? "bg-orange-50 text-orange-700 border-orange-200 dark:bg-orange-900/20 dark:text-orange-400 dark:border-orange-800"
+                : "bg-red-50 text-red-700 border-red-200 dark:bg-red-900/20 dark:text-red-400 dark:border-red-800"
+            }`}
         >
           {totalLoaded === 0
             ? "No se encontraron JAC con los criterios seleccionados."

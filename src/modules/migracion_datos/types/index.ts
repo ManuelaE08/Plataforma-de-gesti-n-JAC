@@ -1,7 +1,8 @@
 export type MigrationEntity = 'jacs' | 'asocomunales';
 
 export interface MigrationOptions {
-  file: File;
+  file?: File;
+  data?: any[];
   entity: MigrationEntity;
 }
 
@@ -10,5 +11,7 @@ export interface MigrationResponse {
   message: string;
   totalRecords?: number;
   inserted?: number;
-  errors?: any[];
+  validas?: number;
+  advertencias?: number;
+  errores?: number | any[];
 }

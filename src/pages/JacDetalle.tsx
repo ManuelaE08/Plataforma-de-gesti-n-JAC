@@ -1,4 +1,4 @@
-import { ArrowLeft, Users, MapPin, FileText, ShieldCheck, RotateCcw, AlertTriangle } from "lucide-react";
+import { ArrowLeft, Users, MapPin, FileText, ShieldCheck, RotateCcw, AlertTriangle, Pencil, Tags } from "lucide-react";
 import { useMemo, useState, useEffect, useRef } from "react";
 import { useNavigate, useParams } from "react-router-dom";
 import Badge from "../components/ui/Badge";
@@ -10,19 +10,19 @@ import { orgVariant, rolVariant } from "../hooks/useJac";
 import { JACService } from "../modules/jac/services/jacService";
 import type { JacItem } from "../modules/jac/types";
 
-const card      = "bg-white dark:bg-gray-800 rounded-xl border border-gray-100 dark:border-gray-700 shadow-sm";
-const label     = "text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wider mb-1";
+const card = "bg-white dark:bg-gray-800 rounded-xl border border-gray-100 dark:border-gray-700 shadow-sm";
+const label = "text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wider mb-1";
 const selectCls = "appearance-none bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-600 text-sm text-gray-600 dark:text-gray-300 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-[#1B7F4B]/30 focus:border-[#1B7F4B] transition-all cursor-pointer shrink-0";
 
 function JacDetalle() {
-  const { id }     = useParams();
-  const navigate   = useNavigate();
-  const { user }   = useAuth();
+  const { id } = useParams();
+  const navigate = useNavigate();
+  const { user } = useAuth();
   const canViewAfiliados = user?.rol === "admin" || user?.rol === "operador";
 
-  const [jac,     setJac]     = useState<JacItem | null>(null);
+  const [jac, setJac] = useState<JacItem | null>(null);
   const [loading, setLoading] = useState(true);
-  const [error,   setError]   = useState<string | null>(null);
+  const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
     if (!id) return;
@@ -34,8 +34,8 @@ function JacDetalle() {
       .finally(() => setLoading(false));
   }, [id]);
 
-  const [busqueda,          setBusqueda]          = useState("");
-  const [filtroRol,         setFiltroRol]         = useState("");
+  const [busqueda, setBusqueda] = useState("");
+  const [filtroRol, setFiltroRol] = useState("");
   const [debouncedBusqueda, setDebouncedBusqueda] = useState("");
   const debounceRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 
@@ -115,7 +115,7 @@ function JacDetalle() {
       )}
 
       {/* KPI cards */}
-      <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-4 gap-4 mb-4">
+      <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-5 gap-4 mb-4">
         <div className={`${card} p-4`}>
           <div className="flex items-center gap-2 mb-2 text-gray-500 dark:text-gray-400">
             <MapPin size={16} />
@@ -134,24 +134,43 @@ function JacDetalle() {
           <p className="text-xs text-gray-400 dark:text-gray-500">Registrados en la junta</p>
         </div>
 
-        <div className={`${card} p-4`}>
+        <div className={`${card} p-4 relative group`}>
           <div className="flex items-center gap-2 mb-2 text-gray-500 dark:text-gray-400">
             <FileText size={16} />
-            <span className="text-xs font-semibold uppercase tracking-wider">RUC</span>
+            <span className="text-xs font-semibold uppercase tracking-wider">Número RUC</span>
           </div>
-          <p className="text-sm font-semibold text-gray-800 dark:text-gray-100 tabular-nums break-all">
-            {jac.numeroRuc ?? <span className="italic text-gray-400 dark:text-gray-500 font-normal">Inexistente</span>}
+          <p className="text-lg font-semibold text-gray-800 dark:text-gray-100">
+            {jac.numeroRUC || <span className="text-sm font-normal text-gray-400 italic">No tiene RUC</span>}
           </p>
+          <button className="absolute bottom-3 right-3 p-1.5 text-gray-400 hover:text-[#1B7F4B] hover:bg-green-50 dark:hover:bg-[#1B7F4B]/20 rounded-lg transition-colors opacity-0 group-hover:opacity-100" title="Editar Número RUC">
+            <Pencil size={14} />
+          </button>
         </div>
 
-        <div className={`${card} p-4`}>
+        <div className={`${card} p-4 relative group`}>
           <div className="flex items-center gap-2 mb-2 text-gray-500 dark:text-gray-400">
             <ShieldCheck size={16} />
-            <span className="text-xs font-semibold uppercase tracking-wider">Estado organizativo</span>
+            <span className="text-xs font-semibold uppercase tracking-wider">Estado de la JAC</span>
           </div>
-          <div className="flex flex-wrap gap-2">
-            <Badge label={jac.organizativo} variant={orgVariant[jac.organizativo]} />
+          <div className="flex flex-wrap gap-2 mt-1">
+            <Badge label={jac.estado} variant={orgVariant[jac.estado]} />
           </div>
+          <button className="absolute bottom-3 right-3 p-1.5 text-gray-400 hover:text-[#1B7F4B] hover:bg-green-50 dark:hover:bg-[#1B7F4B]/20 rounded-lg transition-colors opacity-0 group-hover:opacity-100" title="Editar Estado de la JAC">
+            <Pencil size={14} />
+          </button>
+        </div>
+
+        <div className={`${card} p-4 relative group`}>
+          <div className="flex items-center gap-2 mb-2 text-gray-500 dark:text-gray-400">
+            <Tags size={16} />
+            <span className="text-xs font-semibold uppercase tracking-wider">Tipo JAC</span>
+          </div>
+          <p className="text-lg font-semibold text-gray-800 dark:text-gray-100">
+            {jac.tipo}
+          </p>
+          <button className="absolute bottom-3 right-3 p-1.5 text-gray-400 hover:text-[#1B7F4B] hover:bg-green-50 dark:hover:bg-[#1B7F4B]/20 rounded-lg transition-colors opacity-0 group-hover:opacity-100" title="Editar Tipo JAC">
+            <Pencil size={14} />
+          </button>
         </div>
       </div>
 
@@ -160,12 +179,9 @@ function JacDetalle() {
         <h2 className="text-sm font-semibold text-gray-800 dark:text-gray-100 mb-3">Información general</h2>
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4 text-sm">
           {[
-            { label: "Nombre",          value: jac.nombre },
-            { label: "Municipio",       value: jac.municipio },
+            { label: "Nombre", value: jac.nombre },
+            { label: "Municipio", value: jac.municipio },
             { label: "Barrio / Vereda", value: jac.barrio },
-            { label: "Tipo",            value: jac.tipo },
-            { label: "RUC",             value: jac.numeroRuc ?? "Inexistente" },
-            { label: "Total afiliados", value: String(jac.afiliados) },
           ].map(({ label: l, value }) => (
             <div key={l}>
               <p className={label}>{l}</p>

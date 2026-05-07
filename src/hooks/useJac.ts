@@ -27,7 +27,7 @@ export const columns: string[] = [
 ];
 
 export const orgVariant: Record<string, "green" | "gray" | "red"> = {
-  Activa: "green", Inactiva: "red" ,Cancelada: "gray",
+  Activa: "green", Inactiva: "gray", Cancelada: "red"
 };
 export const rolVariant: Record<string, "green" | "blue" | "amber" | "gray"> = {
   Presidente: "green", Vicepresidente: "blue", Secretario: "blue",
@@ -109,11 +109,10 @@ export function useJac() {
     getJacById,
     // setters de filtros
     filters,
-    setBusqueda:     (v: string) => setFilters((p) => ({ ...p, busqueda: v })),
-    setMunicipio:    (v: string) => setFilters((p) => ({ ...p, municipio: v })),
-    setEstado:       (v: EstadoOrganizativo | "") => setFilters((p) => ({ ...p, estado: v })),
-    setDocumental:   (v: EstadoDocumental | "") => setFilters((p) => ({ ...p, documental: v })),
+    setBusqueda: (v: string) => setFilters((p) => ({ ...p, busqueda: v })),
+    setMunicipio: (v: string) => setFilters((p) => ({ ...p, municipio: v })),
+    setEstado: (v: EstadoOrganizativo | "") => setFilters((p) => ({ ...p, estado: v })),
     setMinAfiliados: (v: string) => setFilters((p) => ({ ...p, minAfiliados: v })),
-    setLimite:       (v: number) => setFilters((p) => ({ ...p, limite: v })),
+    setLimite: (v: number) => setFilters((p) => ({ ...p, limite: v })),
   };
 }

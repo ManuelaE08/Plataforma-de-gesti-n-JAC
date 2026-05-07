@@ -15,8 +15,8 @@ const inputCls = (hasError: boolean) =>
    bg-gray-50 dark:bg-gray-900 focus:bg-white dark:focus:bg-gray-800
    placeholder:text-gray-300 dark:placeholder:text-gray-600
    ${hasError
-     ? "border-red-300 dark:border-red-600"
-     : "border-gray-200 dark:border-gray-600"}`;
+    ? "border-red-300 dark:border-red-600"
+    : "border-gray-200 dark:border-gray-600"}`;
 
 const selectCls = "appearance-none w-full border border-gray-200 dark:border-gray-600 text-sm text-gray-700 dark:text-gray-200 rounded-lg px-3 py-2 bg-gray-50 dark:bg-gray-900 focus:bg-white dark:focus:bg-gray-800 focus:outline-none focus:ring-2 focus:ring-[#1B7F4B]/30 focus:border-[#1B7F4B] transition-all cursor-pointer";
 

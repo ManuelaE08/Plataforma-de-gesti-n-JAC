@@ -14,6 +14,7 @@ interface AuthBackendResponse extends AuthBackendPayload {
 }
 
 const baseEndpoint = import.meta.env.VITE_AUTH?.replace(/\/$/, "");
+const authEndpoint = baseEndpoint?.replace(/\/auth$/, "");
 
 function isValidRole(rol: unknown): rol is User["rol"] {
   return rol === "admin" || rol === "operador" || rol === "usuario";
@@ -60,7 +61,7 @@ export function AuthProvider({ children }: AuthProviderProps) {
       return null;
     }
 
-    const response = await fetch(baseEndpoint + "/auth/me", {
+    const response = await fetch(authEndpoint + "/auth/me", {
       method: "GET",
       credentials: "include",
     });
@@ -107,12 +108,11 @@ export function AuthProvider({ children }: AuthProviderProps) {
         throw new Error("No se recibió la credencial de Google");
       }
 
-      const baseEndpoint = import.meta.env.VITE_AUTH?.replace(/\/$/, "");
-      if (!baseEndpoint) {
+      if (!authEndpoint) {
         throw new Error("VITE_AUTH no está configurado");
       }
 
-      const response = await fetch(baseEndpoint + "/auth/google", {
+      const response = await fetch(authEndpoint + "/auth/google", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         credentials: "include",
@@ -160,11 +160,11 @@ export function AuthProvider({ children }: AuthProviderProps) {
   const logout = () => {
     setUser(null);
 
-    if (!baseEndpoint) {
+    if (!authEndpoint) {
       return;
     }
 
-    void fetch(baseEndpoint + "/auth/logout", {
+    void fetch(authEndpoint + "/auth/logout", {
       method: "POST",
       credentials: "include",
     });

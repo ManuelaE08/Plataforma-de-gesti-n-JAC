@@ -37,12 +37,14 @@ export function useMigracion() {
   const [progreso, setProgreso] = useState(0);
   const [mostrarPreview, setMostrarPreview] = useState(false);
   const [preview, setPreview] = useState<RegistroPreview[]>([]);
+  const [datosParaEnviar, setDatosParaEnviar] = useState<any[]>([]);
   const [resultado, setResultado] = useState<MigracionResultado>({
     filasDetectadas: 0,
     validas: 0,
     advertencias: 0,
     errores: 0,
   });
+  const [detallesErrores, setDetallesErrores] = useState<{fila: any; asocomunal: string; error: string}[]>([]);
 
   const resetEstado = () => {
     setArchivo(null);
@@ -51,6 +53,8 @@ export function useMigracion() {
     setProgreso(0);
     setMostrarPreview(false);
     setPreview([]);
+    setDatosParaEnviar([]);
+    setDetallesErrores([]);
     setResultado({ filasDetectadas: 0, validas: 0, advertencias: 0, errores: 0 });
     setArrastrando(false);
     if (inputRef.current) inputRef.current.value = "";
@@ -83,6 +87,7 @@ export function useMigracion() {
       const mappedPreview: RegistroPreview[] = transformedData.slice(0, 5);
 
       setPreview(mappedPreview);
+      setDatosParaEnviar(transformedData);
       setResultado({
         filasDetectadas: rawData.length,
         validas: transformedData.length,
@@ -147,13 +152,29 @@ export function useMigracion() {
   // previsualizarDatos moved above procesarArchivo
 
   const importarArchivo = async () => {
-    if (!archivo) return;
+    if (!archivo || datosParaEnviar.length === 0) return;
 
     setEstado("importando");
     setProgreso(50);
 
     try {
-      await MigrationService.uploadExcel({ file: archivo, entity: tipoEntidad });
+      // Para ASOCOMUNALES usaremos JSON. Si a futuro las JAC también se adaptan, usarán esto.
+      // Por consistencia temporal, apuntaremos uploadJSON a ambas entidades dentro del servicio.
+      const res = await MigrationService.uploadJSON({ data: datosParaEnviar, entity: tipoEntidad });
+      console.log("[useMigracion] Respuesta backend:", res);
+      
+      // Actualizar el resumen con lo que devuelve el backend
+      if (res) {
+        const resAny = res as any;
+        setResultado(prev => ({
+          ...prev,
+          validas: resAny.validas ?? prev.validas,
+          errores: resAny.errores ?? 0,
+          advertencias: resAny.advertencias ?? 0,
+        }));
+        setDetallesErrores(resAny.detalles ?? []);
+      }
+
       setProgreso(100);
       setEstado("importado");
     } catch (err: any) {
@@ -183,5 +204,6 @@ export function useMigracion() {
     importarArchivo,
     resetEstado,
     formatBytes,
+    detallesErrores,
   };
 }

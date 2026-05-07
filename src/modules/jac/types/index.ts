@@ -5,7 +5,7 @@ export type EstadoOrganizativo = "Activa" | "Inactiva";
 export type TipoJac           = "Barrio" | "Vereda";
 export type RolAfiliado =
   | "Presidente" | "Vicepresidente" | "Secretario"
-  | "Tesorero"   | "Fiscal"         | "Afiliado";
+  | "Tesorero" | "Fiscal" | "Afiliado";
 
 // ── Respuestas del microservicio ──────────────────────────────────────────────
 
@@ -40,8 +40,7 @@ export interface JacItem {
   municipio: string;
   barrio: string;
   afiliados: number;
-  documental: EstadoDocumental;
-  organizativo: EstadoOrganizativo;
+  estado: EstadoOrganizativo;
   /** Tipo de territorio que cubre la JAC (Barrio urbano / Vereda rural). */
   tipo: TipoJac;
   /** Número de RUC tal como está en BD; `null` cuando no está registrado. */
@@ -51,6 +50,7 @@ export interface JacItem {
   /** `true` cuando la JAC está activa pero no alcanza el mínimo legal. */
   enRiesgo: boolean;
   miembros: AfiliadoItem[];
+  numeroRUC: string | null;
 }
 
 // ── DTOs de entrada ───────────────────────────────────────────────────────────
