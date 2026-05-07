@@ -1,26 +1,19 @@
-import type { JACResponse, EstadoJAC } from "../types";
+import type { JacItem } from "../types";
 
-export type JACMapped = JACResponse & {
-  estadoLabel: "Activa" | "Inactiva" | "Cancelada";
-  nombre: string;
-};
-
-const estadoLabelMap: Record<EstadoJAC, "Activa" | "Inactiva" | "Cancelada"> = {
-  activa: "Activa",
-  inactiva: "Inactiva",
-  cancelada: "Cancelada",
-};
-
+/**
+ * Adapter para JAC.
+ *
+ * El microservicio ya devuelve los datos en el formato que consume el frontend
+ * (JacItemDto ≡ JacItem), por lo que no se necesita transformación.
+ * El adapter existe para que, si el contrato del backend cambia,
+ * solo haya que tocar este archivo sin modificar el hook ni las páginas.
+ */
 export class JACAdapter {
-  static mapJAC(jac: JACResponse): JACMapped {
-    return {
-      ...jac,
-      estadoLabel: estadoLabelMap[jac.estado] ?? "Inactiva",
-      nombre: jac.nombreCompleto,
-    };
+  static mapJAC(raw: JacItem): JacItem {
+    return raw;
   }
 
-  static mapJACs(jacs: JACResponse[]): JACMapped[] {
-    return jacs.map(JACAdapter.mapJAC);
+  static mapJACs(raw: JacItem[]): JacItem[] {
+    return raw;
   }
 }

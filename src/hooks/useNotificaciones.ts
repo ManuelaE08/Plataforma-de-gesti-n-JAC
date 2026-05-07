@@ -1,5 +1,5 @@
 import { useMemo } from "react";
-import { jacData } from "./useJac";
+import type { JacItem } from "../modules/jac/types";
 import { useSolicitudes } from "./useSolicitudes";
 
 // Datos mock de asocomunales para notificaciones
@@ -56,7 +56,7 @@ const migracionesMock: Notificacion[] = [
   },
 ];
 
-export function useNotificaciones(rol: string, userId?: number) {
+export function useNotificaciones(rol: string, userId?: number, jacs: JacItem[] = []) {
   const hoy = new Date().toISOString().split("T")[0];
 
   const { filtered: solicitudes, notificaciones: misResultados } =
@@ -79,7 +79,7 @@ export function useNotificaciones(rol: string, userId?: number) {
         });
       });
 
-      jacData
+      jacs
         .filter((j) => j.documental === "Vencida")
         .forEach((j) => {
           result.push({
@@ -92,7 +92,7 @@ export function useNotificaciones(rol: string, userId?: number) {
           });
         });
 
-      jacData
+      jacs
         .filter((j) => j.documental === "Por vencer")
         .forEach((j) => {
           result.push({
@@ -131,7 +131,7 @@ export function useNotificaciones(rol: string, userId?: number) {
           });
         });
 
-      jacData
+      jacs
         .filter((j) => j.organizativo === "Inactiva")
         .forEach((j) => {
           result.push({
@@ -157,7 +157,7 @@ export function useNotificaciones(rol: string, userId?: number) {
         });
       });
 
-      jacData
+      jacs
         .filter((j) => j.documental === "Vencida")
         .forEach((j) => {
           result.push({
@@ -183,7 +183,7 @@ export function useNotificaciones(rol: string, userId?: number) {
           });
         });
 
-      jacData
+      jacs
         .filter((j) => j.documental === "Por vencer")
         .forEach((j) => {
           result.push({
@@ -214,7 +214,7 @@ export function useNotificaciones(rol: string, userId?: number) {
 
     const orden = { error: 0, warning: 1, success: 2, info: 3 };
     return result.sort((a, b) => orden[a.nivel] - orden[b.nivel]);
-  }, [rol, userId, misResultados.length, pendientesAdmin.length]);
+  }, [rol, userId, misResultados.length, pendientesAdmin.length, jacs]);
 
   return { notifs, count: notifs.length };
 }

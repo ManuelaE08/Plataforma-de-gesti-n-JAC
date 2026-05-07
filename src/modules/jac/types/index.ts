@@ -1,26 +1,48 @@
-export type EstadoJAC = "activa" | "inactiva" | "cancelada";
+// ── Enums / literales ────────────────────────────────────────────────────────
 
-export interface AsocomunalResumen {
+export type EstadoDocumental  = "Vigente" | "Vencida" | "Por vencer";
+export type EstadoOrganizativo = "Activa" | "Inactiva";
+export type EstadoAprobacion  = "Activo" | "Pendiente" | "Rechazado";
+export type TipoJac           = "Barrio" | "Vereda";
+export type RolAfiliado =
+  | "Presidente" | "Vicepresidente" | "Secretario"
+  | "Tesorero"   | "Fiscal"         | "Afiliado";
+
+// ── Respuestas del microservicio ──────────────────────────────────────────────
+
+/** Miembro de una JAC tal como lo devuelve el backend (AfiliadoItemDto). */
+export interface AfiliadoItem {
   id: number;
   nombre: string;
-  municipioId: number | null;
-  municipioNombre: string | null;
-  estado: boolean;
+  documento: string;
+  telefono: string;
+  rol: RolAfiliado;
 }
 
-export interface JACResponse {
+/** JAC completa tal como la devuelve el backend (JacItemDto). */
+export interface JacItem {
   id: number;
-  asocomunalId: number | null;
-  estado: EstadoJAC;
-  nombreCorto: string | null;
-  nombreCompleto: string;
-  numeroRUC: string | null;
-  asocomunal?: AsocomunalResumen | null;
+  nombre: string;
+  municipio: string;
+  barrio: string;
+  afiliados: number;
+  documental: EstadoDocumental;
+  organizativo: EstadoOrganizativo;
+  aprobacion: EstadoAprobacion;
+  /** Tipo de territorio que cubre la JAC (Barrio urbano / Vereda rural). */
+  tipo: TipoJac;
+  /** Mínimo legal de afiliados para sostener la JAC activa según su tipo. */
+  minimoAfiliados: number;
+  /** `true` cuando la JAC está activa pero no alcanza el mínimo legal. */
+  enRiesgo: boolean;
+  miembros: AfiliadoItem[];
 }
+
+// ── DTOs de entrada ───────────────────────────────────────────────────────────
 
 export interface CreateJACDto {
   asocomunalId?: number;
-  estado?: EstadoJAC;
+  estado?: EstadoOrganizativo;
   nombreCorto?: string;
   nombreCompleto: string;
   numeroRUC?: string;
@@ -28,7 +50,7 @@ export interface CreateJACDto {
 
 export interface UpdateJACDto {
   asocomunalId?: number;
-  estado?: EstadoJAC;
+  estado?: EstadoOrganizativo;
   nombreCorto?: string;
   nombreCompleto?: string;
   numeroRUC?: string;
@@ -37,11 +59,16 @@ export interface UpdateJACDto {
 export interface SearchJACDto {
   nombre?: string;
   municipio?: string;
-  estado?: EstadoJAC;
+  estado?: EstadoOrganizativo;
+  limite?: number;
 }
+
+// ── Filtros del hook ──────────────────────────────────────────────────────────
 
 export interface JACFilters {
   busqueda: string;
   municipio: string;
   estado: string;
+  documental: string;
+  minAfiliados: string;
 }
