@@ -1,10 +1,9 @@
 import { X, Loader2 } from "lucide-react";
 import { useState, useEffect } from "react";
-import type { JacItem, EstadoDocumental, EstadoOrganizativo, EstadoAprobacion } from "../../hooks/useJac";
+import type { JacItem, EstadoDocumental, EstadoOrganizativo } from "../../hooks/useJac";
 import { JACService } from "../../modules/jac/services/jacService";
 
 interface ModalCrearJacProps {
-  initialData?: any;
   onClose: () => void;
   onSave: (jac: any) => void;
 }
@@ -16,21 +15,20 @@ const inputCls = (hasError: boolean) =>
    bg-gray-50 dark:bg-gray-900 focus:bg-white dark:focus:bg-gray-800
    placeholder:text-gray-300 dark:placeholder:text-gray-600
    ${hasError
-     ? "border-red-300 dark:border-red-600"
-     : "border-gray-200 dark:border-gray-600"}`;
+    ? "border-red-300 dark:border-red-600"
+    : "border-gray-200 dark:border-gray-600"}`;
 
 const selectCls = "appearance-none w-full border border-gray-200 dark:border-gray-600 text-sm text-gray-700 dark:text-gray-200 rounded-lg px-3 py-2 bg-gray-50 dark:bg-gray-900 focus:bg-white dark:focus:bg-gray-800 focus:outline-none focus:ring-2 focus:ring-[#1B7F4B]/30 focus:border-[#1B7F4B] transition-all cursor-pointer";
 
-export function ModalCrearJac({ initialData, onClose, onSave }: ModalCrearJacProps) {
+export function ModalCrearJac({ onClose, onSave }: ModalCrearJacProps) {
   const [form, setForm] = useState({
-    nombre:       initialData?.nombre || "",
-    municipio:    initialData?.municipio || "",
-    barrio:       initialData?.barrio || "",
-    afiliados:    initialData?.afiliados || 0,
-    asocomunalId: initialData?.asocomunalId || "" as string | number,
-    documental:   initialData?.documental || "Vigente"   as EstadoDocumental,
-    organizativo: initialData?.organizativo || "Activa"    as EstadoOrganizativo,
-    aprobacion:   initialData?.aprobacion || "Pendiente" as EstadoAprobacion,
+    nombre:       "",
+    municipio:    "",
+    barrio:       "",
+    afiliados:    0,
+    asocomunalId: "" as string | number,
+    documental:   "Vigente"   as EstadoDocumental,
+    organizativo: "Activa"    as EstadoOrganizativo,
   });
   const [errors, setErrors] = useState<Record<string, string>>({});
   const [asocomunales, setAsocomunales] = useState<any[]>([]);
@@ -81,9 +79,7 @@ export function ModalCrearJac({ initialData, onClose, onSave }: ModalCrearJacPro
       <div className="bg-white dark:bg-gray-800 border border-gray-100 dark:border-gray-700 rounded-2xl shadow-xl w-full max-w-lg max-h-[90vh] overflow-y-auto">
         <div className="flex items-center justify-between px-6 py-4 border-b border-gray-100 dark:border-gray-700">
           <div>
-            <h2 className="text-base font-semibold text-gray-800 dark:text-gray-100">
-              {initialData ? "Editar JAC" : "Crear nueva JAC"}
-            </h2>
+            <h2 className="text-base font-semibold text-gray-800 dark:text-gray-100">Crear nueva JAC</h2>
             <p className="text-xs text-gray-400 dark:text-gray-500 mt-0.5">Asocie la JAC a una Asocomunal</p>
           </div>
           <button onClick={onClose} className="p-2 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-700 text-gray-400 dark:text-gray-500 hover:text-gray-600 dark:hover:text-gray-300 transition-colors">

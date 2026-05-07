@@ -1,4 +1,4 @@
-import { AlertCircle, CheckCircle2, Database, Eye, FileSpreadsheet, FileWarning, RefreshCw, Upload, Building2, Users, X } from "lucide-react";
+import { AlertCircle, CheckCircle2, Database, Eye, FileSpreadsheet, FileWarning, RefreshCw, Upload, Building2, Users, X, XCircle } from "lucide-react";
 import PageHeader from "../components/ui/PageHeader";
 import Badge from "../components/ui/Badge";
 import { useAuth } from "../context/AuthContext";
@@ -26,7 +26,9 @@ function Migracion() {
     previsualizarDatos,
     importarArchivo,
     resetEstado,
+    detallesErrores,
   } = useMigracion();
+
 
   const columns = preview.length > 0 ? Object.keys(preview[0]) : [];
 
@@ -178,10 +180,46 @@ function Migracion() {
             )}
             
             {estado === "importado" && (
-                <div className="mt-5 p-4 rounded-xl bg-green-50 dark:bg-green-900/20 border border-green-200 dark:border-green-800 flex items-center gap-3 text-green-800 dark:text-green-400">
-                  <CheckCircle2 className="shrink-0" />
-                  <p className="text-sm font-semibold">Los datos han sido importados exitosamente a la plataforma.</p>
+              <div className="mt-5 space-y-3">
+                <div className={`p-4 rounded-xl border flex items-start gap-3 ${
+                  resultado.errores === 0
+                    ? 'bg-green-50 border-green-200 dark:bg-green-900/20 dark:border-green-800'
+                    : 'bg-amber-50 border-amber-200 dark:bg-amber-900/20 dark:border-amber-800'
+                }`}>
+                  {resultado.errores === 0
+                    ? <CheckCircle2 className="shrink-0 text-green-600" size={20} />
+                    : <AlertCircle className="shrink-0 text-amber-600" size={20} />
+                  }
+                  <div className="w-full">
+                    <p className={`text-sm font-bold mb-2 ${resultado.errores === 0 ? 'text-green-800 dark:text-green-400' : 'text-amber-800 dark:text-amber-400'}`}>
+                      {resultado.errores === 0 ? 'Importación completada exitosamente' : 'Importación completada con advertencias'}
+                    </p>
+                    <div className="flex flex-wrap gap-4 text-sm">
+                      <span className="text-gray-600 dark:text-gray-300">Total enviados: <strong>{resultado.filasDetectadas}</strong></span>
+                      <span className="text-green-700 dark:text-green-400">✓ Importados: <strong>{resultado.validas}</strong></span>
+                      {resultado.errores > 0 && (
+                        <span className="text-red-600 dark:text-red-400">✗ Fallidos: <strong>{resultado.errores}</strong></span>
+                      )}
+                    </div>
+                  </div>
                 </div>
+
+                {detallesErrores && detallesErrores.length > 0 && (
+                  <div className="rounded-xl border border-red-200 dark:border-red-900/40 bg-red-50 dark:bg-red-950/10 p-4">
+                    <p className="text-xs font-bold text-red-700 dark:text-red-400 uppercase tracking-wider mb-3">Registros que no se pudieron importar:</p>
+                    <div className="max-h-44 overflow-y-auto space-y-1.5">
+                      {detallesErrores.map((d: any, i: number) => (
+                        <div key={i} className="flex items-start gap-2 text-xs bg-white dark:bg-gray-800 rounded-lg px-3 py-1.5 border border-red-100 dark:border-red-900/30">
+                          <XCircle size={14} className="text-red-500 shrink-0 mt-0.5" />
+                          <span className="text-gray-500 font-medium">Fila {d.fila}:</span>
+                          <span className="text-gray-700 dark:text-gray-200 font-semibold">{d.asocomunal}</span>
+                          <span className="text-red-600 dark:text-red-400 ml-auto text-right">{d.error}</span>
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+                )}
+              </div>
             )}
           </section>
         </div>
