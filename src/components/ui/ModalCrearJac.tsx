@@ -1,6 +1,6 @@
 import { X } from "lucide-react";
 import { useState } from "react";
-import type { JacItem, EstadoDocumental, EstadoOrganizativo, EstadoAprobacion } from "../../hooks/useJac";
+import type { JacItem, EstadoDocumental, EstadoOrganizativo } from "../../hooks/useJac";
 
 interface ModalCrearJacProps {
   onClose: () => void;
@@ -8,13 +8,12 @@ interface ModalCrearJacProps {
 }
 
 const initialForm = {
-  nombre:       "",
-  municipio:    "",
-  barrio:       "",
-  afiliados:    0,
-  documental:   "Vigente"   as EstadoDocumental,
-  organizativo: "Activa"    as EstadoOrganizativo,
-  aprobacion:   "Pendiente" as EstadoAprobacion,
+  nombre: "",
+  municipio: "",
+  barrio: "",
+  afiliados: 0,
+  documental: "Vigente" as EstadoDocumental,
+  organizativo: "Activa" as EstadoOrganizativo,
 };
 
 const inputCls = (hasError: boolean) =>
@@ -23,19 +22,19 @@ const inputCls = (hasError: boolean) =>
    bg-gray-50 dark:bg-gray-900 focus:bg-white dark:focus:bg-gray-800
    placeholder:text-gray-300 dark:placeholder:text-gray-600
    ${hasError
-     ? "border-red-300 dark:border-red-600"
-     : "border-gray-200 dark:border-gray-600"}`;
+    ? "border-red-300 dark:border-red-600"
+    : "border-gray-200 dark:border-gray-600"}`;
 
 export function ModalCrearJac({ onClose, onSave }: ModalCrearJacProps) {
-  const [form,   setForm]   = useState(initialForm);
+  const [form, setForm] = useState(initialForm);
   const [errors, setErrors] = useState<Record<string, string>>({});
 
   const validate = () => {
     const e: Record<string, string> = {};
-    if (!form.nombre.trim())    e.nombre    = "El nombre es obligatorio";
+    if (!form.nombre.trim()) e.nombre = "El nombre es obligatorio";
     if (!form.municipio.trim()) e.municipio = "El municipio es obligatorio";
-    if (!form.barrio.trim())    e.barrio    = "El barrio o vereda es obligatorio";
-    if (form.afiliados < 0)     e.afiliados = "El número de afiliados no puede ser negativo";
+    if (!form.barrio.trim()) e.barrio = "El barrio o vereda es obligatorio";
+    if (form.afiliados < 0) e.afiliados = "El número de afiliados no puede ser negativo";
     return e;
   };
 
@@ -87,10 +86,10 @@ export function ModalCrearJac({ onClose, onSave }: ModalCrearJacProps) {
         </div>
 
         <form onSubmit={handleSubmit} className="px-6 py-5 flex flex-col gap-4">
-          {field("Nombre de la JAC",      "nombre")}
-          {field("Municipio",             "municipio")}
-          {field("Barrio / Vereda",       "barrio")}
-          {field("Número de afiliados",   "afiliados", "number")}
+          {field("Nombre de la JAC", "nombre")}
+          {field("Municipio", "municipio")}
+          {field("Barrio / Vereda", "barrio")}
+          {field("Número de afiliados", "afiliados", "number")}
 
           <div className="flex items-center justify-end gap-3 pt-2 border-t border-gray-100 dark:border-gray-700 mt-1">
             <button type="button" onClick={onClose}

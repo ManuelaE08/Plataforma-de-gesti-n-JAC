@@ -1,12 +1,10 @@
 // ── Enums / literales ────────────────────────────────────────────────────────
 
-export type EstadoDocumental  = "Vigente" | "Vencida" | "Por vencer";
-export type EstadoOrganizativo = "Activa" | "Inactiva";
-export type EstadoAprobacion  = "Activo" | "Pendiente" | "Rechazado";
-export type TipoJac           = "Barrio" | "Vereda";
+export type EstadoOrganizativo = "Activa" | "Inactiva" | "Cancelada";
+export type TipoJac = "Barrio" | "Vereda";
 export type RolAfiliado =
   | "Presidente" | "Vicepresidente" | "Secretario"
-  | "Tesorero"   | "Fiscal"         | "Afiliado";
+  | "Tesorero" | "Fiscal" | "Afiliado";
 
 // ── Respuestas del microservicio ──────────────────────────────────────────────
 
@@ -26,9 +24,7 @@ export interface JacItem {
   municipio: string;
   barrio: string;
   afiliados: number;
-  documental: EstadoDocumental;
-  organizativo: EstadoOrganizativo;
-  aprobacion: EstadoAprobacion;
+  estado: EstadoOrganizativo;
   /** Tipo de territorio que cubre la JAC (Barrio urbano / Vereda rural). */
   tipo: TipoJac;
   /** Mínimo legal de afiliados para sostener la JAC activa según su tipo. */
@@ -36,6 +32,7 @@ export interface JacItem {
   /** `true` cuando la JAC está activa pero no alcanza el mínimo legal. */
   enRiesgo: boolean;
   miembros: AfiliadoItem[];
+  numeroRUC: string | null;
 }
 
 // ── DTOs de entrada ───────────────────────────────────────────────────────────
@@ -69,6 +66,5 @@ export interface JACFilters {
   busqueda: string;
   municipio: string;
   estado: string;
-  documental: string;
   minAfiliados: string;
 }

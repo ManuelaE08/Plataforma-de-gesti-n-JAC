@@ -3,7 +3,7 @@ import { JACService } from "../modules/jac/services/jacService";
 import type { JacItem, EstadoDocumental, EstadoOrganizativo } from "../modules/jac/types";
 
 // ── Tipos re-exportados desde el módulo para que las páginas no cambien sus imports ──
-export type { EstadoDocumental, EstadoOrganizativo, EstadoAprobacion, RolAfiliado, AfiliadoItem, JacItem } from "../modules/jac/types";
+export type { EstadoDocumental, EstadoOrganizativo, RolAfiliado, AfiliadoItem, JacItem } from "../modules/jac/types";
 
 // ── Tipos de filtros ──────────────────────────────────────────────────────────
 
@@ -11,30 +11,23 @@ interface JacFilters {
   busqueda: string;
   municipio: string;
   estado: EstadoOrganizativo | "";
-  documental: EstadoDocumental | "";
   minAfiliados: string;
   limite: number;
 }
 
 const initialFilters: JacFilters = {
-  busqueda: "", municipio: "", estado: "", documental: "", minAfiliados: "", limite: 100,
+  busqueda: "", municipio: "", estado: "", minAfiliados: "", limite: 100,
 };
 
 // ── Constantes de UI ──────────────────────────────────────────────────────────
 
 export const columns: string[] = [
   "Nombre de la JAC", "Municipio", "Barrio/Vereda", "Afiliados",
-  "Estado documental", "Estado organizativo", "Opciones",
+  "Número RUC", "Estado de la JAC", "Opciones",
 ];
 
-export const docVariant: Record<string, "green" | "red" | "amber"> = {
-  Vigente: "green", Vencida: "red", "Por vencer": "amber",
-};
-export const orgVariant: Record<string, "green" | "gray"> = {
-  Activa: "green", Inactiva: "gray",
-};
-export const aprobVariant: Record<string, "green" | "amber" | "red"> = {
-  Activo: "green", Pendiente: "amber", Rechazado: "red",
+export const orgVariant: Record<string, "green" | "gray" | "red"> = {
+  Activa: "green", Inactiva: "gray", Cancelada: "red"
 };
 export const rolVariant: Record<string, "green" | "blue" | "amber" | "gray"> = {
   Presidente: "green", Vicepresidente: "blue", Secretario: "blue",
@@ -44,10 +37,10 @@ export const rolVariant: Record<string, "green" | "blue" | "amber" | "gray"> = {
 // ── Hook principal ────────────────────────────────────────────────────────────
 
 export function useJac() {
-  const [jacData,  setJacData]  = useState<JacItem[]>([]);
-  const [loading,  setLoading]  = useState(true);
-  const [error,    setError]    = useState<string | null>(null);
-  const [filters,  setFilters]  = useState<JacFilters>(initialFilters);
+  const [jacData, setJacData] = useState<JacItem[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
+  const [filters, setFilters] = useState<JacFilters>(initialFilters);
   const [debouncedBusqueda, setDebouncedBusqueda] = useState("");
   const debounceRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 
@@ -62,11 +55,11 @@ export function useJac() {
       const hasSearch = Boolean(nombre || municipio || estado);
       const data = hasSearch
         ? await JACService.search({
-            nombre: nombre || undefined,
-            municipio: municipio || undefined,
-            estado,
-            limite: filters.limite,
-          })
+          nombre: nombre || undefined,
+          municipio: municipio || undefined,
+          estado,
+          limite: filters.limite,
+        })
         : await JACService.findAll(filters.limite);
       setJacData(data);
     } catch (err) {
@@ -96,9 +89,8 @@ export function useJac() {
 
   // Filtrado local para campos no cubiertos por la busqueda del backend
   const filtered = jacData.filter((j) => {
-    const matchDocumental = !filters.documental   || j.documental === filters.documental;
-    const matchAfiliados  = !filters.minAfiliados || j.afiliados  >= Number(filters.minAfiliados);
-    return matchDocumental && matchAfiliados;
+    const matchAfiliados = !filters.minAfiliados || j.afiliados >= Number(filters.minAfiliados);
+    return matchAfiliados;
   });
 
   const getJacById = (id: number) => jacData.find((item) => item.id === id) ?? null;
@@ -116,11 +108,10 @@ export function useJac() {
     getJacById,
     // setters de filtros
     filters,
-    setBusqueda:     (v: string) => setFilters((p) => ({ ...p, busqueda: v })),
-    setMunicipio:    (v: string) => setFilters((p) => ({ ...p, municipio: v })),
-    setEstado:       (v: EstadoOrganizativo | "") => setFilters((p) => ({ ...p, estado: v })),
-    setDocumental:   (v: EstadoDocumental | "") => setFilters((p) => ({ ...p, documental: v })),
+    setBusqueda: (v: string) => setFilters((p) => ({ ...p, busqueda: v })),
+    setMunicipio: (v: string) => setFilters((p) => ({ ...p, municipio: v })),
+    setEstado: (v: EstadoOrganizativo | "") => setFilters((p) => ({ ...p, estado: v })),
     setMinAfiliados: (v: string) => setFilters((p) => ({ ...p, minAfiliados: v })),
-    setLimite:       (v: number) => setFilters((p) => ({ ...p, limite: v })),
+    setLimite: (v: number) => setFilters((p) => ({ ...p, limite: v })),
   };
 }

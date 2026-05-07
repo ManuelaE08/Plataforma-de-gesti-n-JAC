@@ -6,17 +6,17 @@ import PageHeader from "../components/ui/PageHeader";
 import SearchBar from "../components/ui/SearchBar";
 import EmptyState from "../components/ui/EmptyState";
 import { ModalCrearJac } from "../components/ui/ModalCrearJac";
-import { useJac, columns, docVariant, orgVariant, aprobVariant, type EstadoDocumental, type EstadoOrganizativo } from "../hooks/useJac";
+import { useJac, columns, orgVariant, type EstadoOrganizativo } from "../hooks/useJac";
 import { useAuth } from "../context/AuthContext";
 
-const card      = "bg-white dark:bg-gray-800 rounded-xl border border-gray-100 dark:border-gray-700 shadow-sm";
+const card = "bg-white dark:bg-gray-800 rounded-xl border border-gray-100 dark:border-gray-700 shadow-sm";
 const selectCls = "appearance-none w-full bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-600 text-sm text-gray-600 dark:text-gray-300 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-[#1B7F4B]/30 focus:border-[#1B7F4B] transition-all cursor-pointer";
-const inputCls  = "w-full bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-600 text-sm text-gray-600 dark:text-gray-300 placeholder:text-gray-400 dark:placeholder:text-gray-500 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-[#1B7F4B]/30 focus:border-[#1B7F4B] transition-all";
+const inputCls = "w-full bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-600 text-sm text-gray-600 dark:text-gray-300 placeholder:text-gray-400 dark:placeholder:text-gray-500 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-[#1B7F4B]/30 focus:border-[#1B7F4B] transition-all";
 
 function Jac() {
   const {
     filters, filtered, loading, error, refetch, handleClear, totalLoaded,
-    setBusqueda, setMunicipio, setEstado, setDocumental, setMinAfiliados, setLimite,
+    setBusqueda, setMunicipio, setEstado, setMinAfiliados, setLimite,
   } = useJac();
 
   const navigate = useNavigate();
@@ -24,8 +24,8 @@ function Jac() {
   const [showModal, setShowModal] = useState(false);
 
   const canViewAfiliados = user?.rol === "admin" || user?.rol === "operador";
-  const canDelete        = user?.rol === "admin";
-  const canCreate        = user?.rol === "admin";
+  const canDelete = user?.rol === "admin";
+  const canCreate = user?.rol === "admin";
 
   const visibleColumns = canViewAfiliados
     ? columns
@@ -78,12 +78,7 @@ function Jac() {
             <option value="">Todos los estados</option>
             <option value="Activa">Activa</option>
             <option value="Inactiva">Inactiva</option>
-          </select>
-          <select value={filters.documental} onChange={(e) => setDocumental(e.target.value as EstadoDocumental | "")} className={selectCls}>
-            <option value="">Todos los estados documentales</option>
-            <option value="Vigente">Vigente</option>
-            <option value="Por vencer">Por vencer</option>
-            <option value="Vencida">Vencida</option>
+            <option value="Cancelada">Cancelada</option>
           </select>
           <input
             type="number"
@@ -118,21 +113,20 @@ function Jac() {
       {/* Alerta de cantidad cargada */}
       {!loading && !error && (
         <div
-          className={`rounded-lg px-4 py-2.5 text-sm font-medium mb-4 border ${
-            totalLoaded <= 100
+          className={`rounded-lg px-4 py-2.5 text-sm font-medium mb-4 border ${totalLoaded <= 100
               ? "bg-green-50 text-green-700 border-green-200 dark:bg-green-900/20 dark:text-green-400 dark:border-green-800"
               : totalLoaded <= 500
-              ? "bg-orange-50 text-orange-700 border-orange-200 dark:bg-orange-900/20 dark:text-orange-400 dark:border-orange-800"
-              : "bg-red-50 text-red-700 border-red-200 dark:bg-red-900/20 dark:text-red-400 dark:border-red-800"
-          }`}
+                ? "bg-orange-50 text-orange-700 border-orange-200 dark:bg-orange-900/20 dark:text-orange-400 dark:border-orange-800"
+                : "bg-red-50 text-red-700 border-red-200 dark:bg-red-900/20 dark:text-red-400 dark:border-red-800"
+            }`}
         >
           {totalLoaded === 0
             ? "No se encontraron JAC con los criterios seleccionados."
             : totalLoaded <= 100
-            ? `Se cargaron ${totalLoaded} JAC correctamente.`
-            : totalLoaded <= 500
-            ? `Se cargaron ${totalLoaded} JAC. Considere aplicar filtros para reducir la cantidad de registros.`
-            : `Se cargaron ${totalLoaded} JAC. Se recomienda limitar la cantidad de JAC cargadas para mejorar el rendimiento.`}
+              ? `Se cargaron ${totalLoaded} JAC correctamente.`
+              : totalLoaded <= 500
+                ? `Se cargaron ${totalLoaded} JAC. Considere aplicar filtros para reducir la cantidad de registros.`
+                : `Se cargaron ${totalLoaded} JAC. Se recomienda limitar la cantidad de JAC cargadas para mejorar el rendimiento.`}
         </div>
       )}
 
@@ -174,9 +168,11 @@ function Jac() {
                     <td className="px-4 py-3 text-gray-600 dark:text-gray-300">{jac.municipio}</td>
                     <td className="px-4 py-3 text-gray-600 dark:text-gray-300">{jac.barrio}</td>
                     <td className="px-4 py-3 text-gray-700 dark:text-gray-200 tabular-nums font-medium">{jac.afiliados}</td>
-                    <td className="px-4 py-3"><Badge label={jac.documental}   variant={docVariant[jac.documental]} /></td>
-                    <td className="px-4 py-3"><Badge label={jac.organizativo} variant={orgVariant[jac.organizativo]} /></td>
-                    
+                    <td className="px-4 py-3 text-gray-700 dark:text-gray-200 font-medium">
+                      {jac.numeroRUC || <span className="text-gray-400 italic font-normal">No tiene RUC</span>}
+                    </td>
+                    <td className="px-4 py-3"><Badge label={jac.estado} variant={orgVariant[jac.estado]} /></td>
+
                     {canViewAfiliados && (
                       <td className="px-4 py-3">
                         <div className="flex items-center gap-2">
@@ -185,9 +181,9 @@ function Jac() {
                             className="p-1.5 rounded-lg hover:bg-[#1B7F4B]/10 dark:hover:bg-[#1B7F4B]/20 text-gray-500 dark:text-gray-400 hover:text-[#1B7F4B] dark:hover:text-emerald-400 transition-colors"
                             title="Ver detalle"
                           >
-                            
+
                             <Ellipsis size={20} />
-                            
+
                           </button>
                           {canDelete && (
                             <button
