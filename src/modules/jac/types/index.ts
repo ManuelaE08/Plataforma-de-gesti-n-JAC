@@ -36,6 +36,7 @@ export interface JacItem {
   /** `true` cuando la JAC está activa pero no alcanza el mínimo legal. */
   enRiesgo: boolean;
   miembros: AfiliadoItem[];
+  asocomunalId?: number | null;
 }
 
 // ── DTOs de entrada ───────────────────────────────────────────────────────────
