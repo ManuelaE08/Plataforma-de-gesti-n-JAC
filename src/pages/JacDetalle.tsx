@@ -1,4 +1,4 @@
-import { ArrowLeft, Users, MapPin, FileText, ShieldCheck, RotateCcw } from "lucide-react";
+import { ArrowLeft, Users, MapPin, FileText, ShieldCheck, RotateCcw, AlertTriangle } from "lucide-react";
 import { useMemo, useState, useEffect, useRef } from "react";
 import { useNavigate, useParams } from "react-router-dom";
 import Badge from "../components/ui/Badge";
@@ -6,7 +6,9 @@ import PageHeader from "../components/ui/PageHeader";
 import SearchBar from "../components/ui/SearchBar";
 import EmptyState from "../components/ui/EmptyState";
 import { useAuth } from "../context/AuthContext";
-import { jacData, docVariant, orgVariant, aprobVariant, rolVariant } from "../hooks/useJac";
+import { docVariant, orgVariant, aprobVariant, rolVariant } from "../hooks/useJac";
+import { JACService } from "../modules/jac/services/jacService";
+import type { JacItem } from "../modules/jac/types";
 
 const card      = "bg-white dark:bg-gray-800 rounded-xl border border-gray-100 dark:border-gray-700 shadow-sm";
 const label     = "text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wider mb-1";
@@ -18,7 +20,19 @@ function JacDetalle() {
   const { user }   = useAuth();
   const canViewAfiliados = user?.rol === "admin" || user?.rol === "operador";
 
-  const jac = useMemo(() => jacData.find((item) => item.id === Number(id)) ?? null, [id]);
+  const [jac,     setJac]     = useState<JacItem | null>(null);
+  const [loading, setLoading] = useState(true);
+  const [error,   setError]   = useState<string | null>(null);
+
+  useEffect(() => {
+    if (!id) return;
+    setLoading(true);
+    setError(null);
+    JACService.findOne(Number(id))
+      .then(setJac)
+      .catch((err: Error) => setError(err.message))
+      .finally(() => setLoading(false));
+  }, [id]);
 
   const [busqueda,          setBusqueda]          = useState("");
   const [filtroRol,         setFiltroRol]         = useState("");
@@ -42,7 +56,22 @@ function JacDetalle() {
     });
   }, [jac, debouncedBusqueda, filtroRol]);
 
-  if (!jac) {
+  if (loading) {
+    return (
+      <div>
+        <PageHeader title="Detalle de JAC" subtitle="Información detallada" description="Cargando información de la junta...">
+          <button onClick={() => navigate("/jac")} className="flex items-center gap-2 bg-white dark:bg-gray-800 hover:bg-gray-50 dark:hover:bg-gray-700 text-gray-700 dark:text-gray-200 text-sm font-semibold px-4 py-2.5 rounded-lg border border-gray-200 dark:border-gray-600 transition-colors">
+            <ArrowLeft size={16} /> Volver
+          </button>
+        </PageHeader>
+        <div className={`${card} p-8 flex items-center justify-center`}>
+          <p className="text-sm text-gray-400 dark:text-gray-500">Cargando...</p>
+        </div>
+      </div>
+    );
+  }
+
+  if (error || !jac) {
     return (
       <div>
         <PageHeader title="Detalle de JAC" subtitle="Información detallada" description="No se encontró la JAC solicitada">
@@ -51,7 +80,7 @@ function JacDetalle() {
           </button>
         </PageHeader>
         <div className={card}>
-          <EmptyState message="La JAC que intenta consultar no existe o no está disponible" inTable={false} />
+          <EmptyState message={error ?? "La JAC que intenta consultar no existe o no está disponible"} inTable={false} />
         </div>
       </div>
     );
@@ -68,6 +97,22 @@ function JacDetalle() {
           <ArrowLeft size={16} /> Volver al listado
         </button>
       </PageHeader>
+
+      {/* Alerta de riesgo: solo JACs activas que no alcanzan el mínimo legal de afiliados */}
+      {jac.enRiesgo && (
+        <div className="rounded-lg px-4 py-3 mb-4 border bg-amber-50 text-amber-800 border-amber-200 dark:bg-amber-900/20 dark:text-amber-300 dark:border-amber-800">
+          <div className="flex items-start gap-3">
+            <AlertTriangle size={20} className="shrink-0 mt-0.5" />
+            <div className="text-sm">
+              <p className="font-semibold">JAC en riesgo de inactivación</p>
+              <p className="mt-0.5">
+                Esta junta cuenta con <span className="font-semibold tabular-nums">{jac.afiliados}</span> afiliado{jac.afiliados === 1 ? "" : "s"}, por debajo del mínimo legal de <span className="font-semibold tabular-nums">{jac.minimoAfiliados}</span> requerido para una JAC de tipo <span className="font-semibold">{jac.tipo}</span> (Ley 2166 de 2021, Art. 11).
+                Si no se incrementa el número de afiliados activos, la junta podría perder su condición de activa.
+              </p>
+            </div>
+          </div>
+        </div>
+      )}
 
       {/* KPI cards */}
       <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-4 gap-4 mb-4">

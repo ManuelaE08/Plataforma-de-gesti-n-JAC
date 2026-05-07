@@ -109,7 +109,7 @@ function Login() {
 
       {/* ── Contenido principal ───────────────────────────────────────────── */}
       <main className="flex-1 flex items-center justify-center p-6">
-        <div className="w-full max-w-4xl flex rounded-2xl shadow-lg overflow-hidden border border-[#E2E8F0] dark:border-[#334155]">
+        <div className="w-full max-w-4xl flex rounded-md shadow-lg overflow-hidden border border-[#E2E8F0] dark:border-[#334155]">
 
           {/* Panel izquierdo decorativo */}
           <div

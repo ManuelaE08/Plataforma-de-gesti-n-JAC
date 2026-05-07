@@ -1,13 +1,12 @@
-import { Plus, ChevronDown, ChevronUp } from "lucide-react";
+import { ChevronDown, ChevronUp } from "lucide-react";
 import { useState } from "react";
 import Badge from "../../../components/ui/Badge";
 import PageHeader from "../../../components/ui/PageHeader";
 import EmptyState from "../../../components/ui/EmptyState";
-import { ModalCrearSolicitud } from "../../../components/ui/ModalCrearSolicitud";
 import { useSolicitudes, estadoVariant, type CambioCampo, type SolicitudItem } from "../hooks/useSolicitudes";
 import { useAuth } from "../../../context/AuthContext";
 
-const card   = "bg-white dark:bg-gray-800 rounded-xl border border-gray-100 dark:border-gray-700 shadow-sm";
+const card = "bg-white dark:bg-gray-800 rounded-xl border border-gray-100 dark:border-gray-700 shadow-sm";
 const select = "appearance-none border border-gray-200 dark:border-gray-600 bg-white dark:bg-gray-900 text-sm text-gray-600 dark:text-gray-300 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-[#1B7F4B]/30 focus:border-[#1B7F4B] transition-all cursor-pointer";
 
 function TablaCambios({ cambios, tipo }: { cambios: CambioCampo[]; tipo: SolicitudItem["tipo"] }) {
@@ -36,44 +35,45 @@ function TablaCambios({ cambios, tipo }: { cambios: CambioCampo[]; tipo: Solicit
 
 function MisSolicitudes() {
   const { user } = useAuth();
-  const { filtered, crearSolicitud } = useSolicitudes(true);
+  const { filtered } = useSolicitudes(true);
 
-  const [showModal,    setShowModal]    = useState(false);
-  const [expandidoId,  setExpandidoId]  = useState<number | null>(null);
+  const [expandidoId, setExpandidoId] = useState<number | null>(null);
   const [filtroEstado, setFiltroEstado] = useState("");
 
   const filtradas = filtroEstado ? filtered.filter((s) => s.estado === filtroEstado) : filtered;
   const toggle = (id: number) => setExpandidoId((prev) => (prev === id ? null : id));
 
+  // Contadores para orientar al operador
+  const pendientesCount = filtered.filter(s => s.estado === "Pendiente").length;
+  const aprobadosCount = filtered.filter(s => s.estado === "Aprobada").length;
+  const rechazadosCount = filtered.filter(s => s.estado === "Rechazada").length;
+
   return (
     <div>
       <PageHeader
         title="Mis Solicitudes"
-        subtitle="Seguimiento de solicitudes de cambio"
-        description="Envíe y consulte el estado de sus solicitudes propuestas al administrador"
+        subtitle="Seguimiento de cambios propuestos"
+        description="Consulte el estado de sus propuestas enviadas al administrador desde la vista de Asocomunales"
       >
-        <button
-          onClick={() => setShowModal(true)}
-          className="flex items-center gap-2 bg-[#1B7F4B] hover:bg-[#166340] text-white text-sm font-semibold px-4 py-2.5 rounded-lg transition-colors shrink-0"
-        >
-          <Plus size={16} /> Nueva solicitud
-        </button>
+        {/* Resumen rápido de estados */}
+        <div className="flex items-center gap-2">
+          {pendientesCount > 0 && (
+            <span className="inline-flex items-center gap-1 bg-amber-50 dark:bg-amber-900/20 text-amber-700 dark:text-amber-400 border border-amber-200 dark:border-amber-700/40 text-xs font-semibold px-2.5 py-1 rounded-full">
+              {pendientesCount} pendiente{pendientesCount > 1 ? "s" : ""}
+            </span>
+          )}
+          {aprobadosCount > 0 && (
+            <span className="inline-flex items-center gap-1 bg-green-50 dark:bg-green-900/20 text-green-700 dark:text-green-400 border border-green-200 dark:border-green-700/40 text-xs font-semibold px-2.5 py-1 rounded-full">
+              {aprobadosCount} aprobada{aprobadosCount > 1 ? "s" : ""}
+            </span>
+          )}
+          {rechazadosCount > 0 && (
+            <span className="inline-flex items-center gap-1 bg-red-50 dark:bg-red-900/20 text-red-700 dark:text-red-400 border border-red-200 dark:border-red-700/40 text-xs font-semibold px-2.5 py-1 rounded-full">
+              {rechazadosCount} rechazada{rechazadosCount > 1 ? "s" : ""}
+            </span>
+          )}
+        </div>
       </PageHeader>
-
-      {showModal && (
-        <ModalCrearSolicitud
-          onClose={() => setShowModal(false)}
-          onSave={(datos) => {
-            const tipoAccionBack = datos.tipo.startsWith("Crear") ? "CREAR" : datos.tipo.startsWith("Editar") ? "EDITAR" : "ELIMINAR";
-            const entidadAfectadaBack = datos.entidad.toUpperCase();
-            const payload: any = {};
-            datos.cambios.forEach(c => payload[c.campo] = c.valorNuevo);
-            
-            crearSolicitud(entidadAfectadaBack, tipoAccionBack, payload);
-            setShowModal(false);
-          }}
-        />
-      )}
 
       {/* Filtro */}
       <div className={`${card} p-4 mb-4`}>
@@ -89,7 +89,7 @@ function MisSolicitudes() {
       <div className="flex flex-col gap-3">
         {filtradas.length === 0 ? (
           <div className={`${card} py-16 flex flex-col items-center text-center`}>
-            <EmptyState message="No tienes solicitudes registradas aún" />
+            <EmptyState message="No tienes solicitudes registradas. Crea o edita una Asocomunal para proponer cambios." />
           </div>
         ) : (
           filtradas.map((s) => {
@@ -102,11 +102,10 @@ function MisSolicitudes() {
                   <div>
                     <div className="flex items-center gap-2 flex-wrap">
                       <span className="text-sm font-semibold text-gray-800 dark:text-gray-100">{s.descripcion}</span>
-                      <span className={`inline-flex items-center px-2 py-0.5 rounded-full text-[10px] font-bold ${
-                        badgeTipo === "Nuevo Registro" ? "bg-green-100 dark:bg-green-900/30 text-green-700 dark:text-green-400"
-                        : badgeTipo === "Modificación" ? "bg-blue-100 dark:bg-blue-900/30 text-blue-700 dark:text-blue-400"
-                        : "bg-red-100 dark:bg-red-900/30 text-red-600 dark:text-red-400"
-                      }`}>
+                      <span className={`inline-flex items-center px-2 py-0.5 rounded-full text-[10px] font-bold ${badgeTipo === "Nuevo Registro" ? "bg-green-100 dark:bg-green-900/30 text-green-700 dark:text-green-400"
+                          : badgeTipo === "Modificación" ? "bg-blue-100 dark:bg-blue-900/30 text-blue-700 dark:text-blue-400"
+                            : "bg-red-100 dark:bg-red-900/30 text-red-600 dark:text-red-400"
+                        }`}>
                         {badgeTipo}
                       </span>
                       <span className="inline-flex items-center px-2 py-0.5 rounded-full text-[10px] font-semibold bg-gray-100 dark:bg-gray-700 text-gray-600 dark:text-gray-300">

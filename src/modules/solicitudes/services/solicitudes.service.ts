@@ -76,4 +76,20 @@ export class SolicitudesService {
     if (!response.ok) throw new Error(`Error al rechazar: ${response.statusText}`);
     return await response.json();
   }
+
+  /**
+   * Registra una acción directa del Admin como log de auditoría.
+   * El admin ya aplicó el cambio directo; este método solo deja el registro.
+   * POST /solicitudes/accion-directa
+   */
+  static async registrarAccionAdmin(dto: any): Promise<any> {
+    const response = await fetch(`${baseEndpoint}/solicitudes/accion-directa`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(dto),
+      credentials: "include",
+    });
+    if (!response.ok) throw new Error(`Error al registrar log de auditoría: ${response.statusText}`);
+    return await response.json();
+  }
 }

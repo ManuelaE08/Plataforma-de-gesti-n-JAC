@@ -6,6 +6,7 @@ import { roleInitials, roleLabels } from "../config/currentUser";
 import { useAuth } from "../context/AuthContext";
 import { useTema } from "../context/TemaContext";
 import { useNotificaciones } from "../hooks/useNotificaciones";
+import { useJac } from "../hooks/useJac";
 import {
   LayoutDashboard, Building2, Users, BarChart2, AlertTriangle,
   FileText, GitPullRequest, Upload, UserCog, Settings,
@@ -80,7 +81,8 @@ function Layout({ children }: LayoutProps) {
   const displayName = user?.nombre ?? "Invitado";
   const menu = menuByRole[activeRole];
 
-  const { notifs } = useNotificaciones(activeRole, user?.id);
+  const { jacData } = useJac();
+  const { notifs } = useNotificaciones(activeRole, user?.id, jacData);
 
   const [leidas, setLeidas] = useState<Set<string>>(new Set());
   const [eliminadas, setEliminadas] = useState<Set<string>>(new Set());

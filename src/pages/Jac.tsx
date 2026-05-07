@@ -1,4 +1,4 @@
-import { Plus, RotateCcw, UserRound, Trash2 } from "lucide-react";
+import { Plus, RotateCcw, Ellipsis, CircleEllipsis, Trash2 } from "lucide-react";
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import Badge from "../components/ui/Badge";
@@ -6,7 +6,7 @@ import PageHeader from "../components/ui/PageHeader";
 import SearchBar from "../components/ui/SearchBar";
 import EmptyState from "../components/ui/EmptyState";
 import { ModalCrearJac } from "../components/ui/ModalCrearJac";
-import { useJac, columns, docVariant, orgVariant, aprobVariant } from "../hooks/useJac";
+import { useJac, columns, docVariant, orgVariant, aprobVariant, type EstadoDocumental, type EstadoOrganizativo } from "../hooks/useJac";
 import { useAuth } from "../context/AuthContext";
 
 const card      = "bg-white dark:bg-gray-800 rounded-xl border border-gray-100 dark:border-gray-700 shadow-sm";
@@ -15,8 +15,8 @@ const inputCls  = "w-full bg-white dark:bg-gray-900 border border-gray-200 dark:
 
 function Jac() {
   const {
-    filters, filtered, handleClear,
-    setBusqueda, setMunicipio, setEstado, setDocumental, setMinAfiliados,
+    filters, filtered, loading, error, refetch, handleClear, totalLoaded,
+    setBusqueda, setMunicipio, setEstado, setDocumental, setMinAfiliados, setLimite,
   } = useJac();
 
   const navigate = useNavigate();
@@ -74,12 +74,12 @@ function Jac() {
             <option value="Timbío">Timbío</option>
             <option value="Piendamó">Piendamó</option>
           </select>
-          <select value={filters.estado} onChange={(e) => setEstado(e.target.value)} className={selectCls}>
+          <select value={filters.estado} onChange={(e) => setEstado(e.target.value as EstadoOrganizativo | "")} className={selectCls}>
             <option value="">Todos los estados</option>
             <option value="Activa">Activa</option>
             <option value="Inactiva">Inactiva</option>
           </select>
-          <select value={filters.documental} onChange={(e) => setDocumental(e.target.value)} className={selectCls}>
+          <select value={filters.documental} onChange={(e) => setDocumental(e.target.value as EstadoDocumental | "")} className={selectCls}>
             <option value="">Todos los estados documentales</option>
             <option value="Vigente">Vigente</option>
             <option value="Por vencer">Por vencer</option>
@@ -92,6 +92,18 @@ function Jac() {
             onChange={(e) => setMinAfiliados(e.target.value)}
             className={inputCls}
           />
+          <select
+            value={filters.limite}
+            onChange={(e) => setLimite(Number(e.target.value))}
+            className={selectCls}
+            title="Cantidad máxima de JAC a cargar"
+          >
+            <option value={50}>Cargar hasta 50 JAC</option>
+            <option value={100}>Cargar hasta 100 JAC</option>
+            <option value={200}>Cargar hasta 200 JAC</option>
+            <option value={500}>Cargar hasta 500 JAC</option>
+            <option value={1000}>Cargar hasta 1 000 JAC</option>
+          </select>
         </div>
         <div className="flex items-center gap-3 mt-4">
           <button
@@ -102,6 +114,27 @@ function Jac() {
           </button>
         </div>
       </div>
+
+      {/* Alerta de cantidad cargada */}
+      {!loading && !error && (
+        <div
+          className={`rounded-lg px-4 py-2.5 text-sm font-medium mb-4 border ${
+            totalLoaded <= 100
+              ? "bg-green-50 text-green-700 border-green-200 dark:bg-green-900/20 dark:text-green-400 dark:border-green-800"
+              : totalLoaded <= 500
+              ? "bg-orange-50 text-orange-700 border-orange-200 dark:bg-orange-900/20 dark:text-orange-400 dark:border-orange-800"
+              : "bg-red-50 text-red-700 border-red-200 dark:bg-red-900/20 dark:text-red-400 dark:border-red-800"
+          }`}
+        >
+          {totalLoaded === 0
+            ? "No se encontraron JAC con los criterios seleccionados."
+            : totalLoaded <= 100
+            ? `Se cargaron ${totalLoaded} JAC correctamente.`
+            : totalLoaded <= 500
+            ? `Se cargaron ${totalLoaded} JAC. Considere aplicar filtros para reducir la cantidad de registros.`
+            : `Se cargaron ${totalLoaded} JAC. Se recomienda limitar la cantidad de JAC cargadas para mejorar el rendimiento.`}
+        </div>
+      )}
 
       {/* Tabla */}
       <div className={`${card} overflow-hidden`}>
@@ -117,7 +150,11 @@ function Jac() {
               </tr>
             </thead>
             <tbody>
-              {filtered.length === 0 ? (
+              {loading ? (
+                <tr><td colSpan={visibleColumns.length} className="px-4 py-8 text-center text-sm text-gray-400">Cargando JAC...</td></tr>
+              ) : error ? (
+                <tr><td colSpan={visibleColumns.length} className="px-4 py-8 text-center text-sm text-red-500">{error} — <button onClick={refetch} className="underline">Reintentar</button></td></tr>
+              ) : filtered.length === 0 ? (
                 <EmptyState message="No se encontraron JAC con los criterios seleccionados" />
               ) : (
                 filtered.map((jac) => (
@@ -139,7 +176,7 @@ function Jac() {
                     <td className="px-4 py-3 text-gray-700 dark:text-gray-200 tabular-nums font-medium">{jac.afiliados}</td>
                     <td className="px-4 py-3"><Badge label={jac.documental}   variant={docVariant[jac.documental]} /></td>
                     <td className="px-4 py-3"><Badge label={jac.organizativo} variant={orgVariant[jac.organizativo]} /></td>
-                    <td className="px-4 py-3"><Badge label={jac.aprobacion}   variant={aprobVariant[jac.aprobacion]} /></td>
+                    
                     {canViewAfiliados && (
                       <td className="px-4 py-3">
                         <div className="flex items-center gap-2">
@@ -148,14 +185,16 @@ function Jac() {
                             className="p-1.5 rounded-lg hover:bg-[#1B7F4B]/10 dark:hover:bg-[#1B7F4B]/20 text-gray-500 dark:text-gray-400 hover:text-[#1B7F4B] dark:hover:text-emerald-400 transition-colors"
                             title="Ver detalle"
                           >
-                            <UserRound size={15} />
+                            
+                            <Ellipsis size={20} />
+                            
                           </button>
                           {canDelete && (
                             <button
                               className="p-1.5 rounded-lg hover:bg-red-50 dark:hover:bg-red-900/20 text-gray-400 dark:text-gray-500 hover:text-red-500 dark:hover:text-red-400 transition-colors"
                               title="Eliminar"
                             >
-                              <Trash2 size={15} />
+                              <Trash2 size={20} />
                             </button>
                           )}
                         </div>
