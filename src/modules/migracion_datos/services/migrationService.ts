@@ -8,9 +8,7 @@ export class MigrationService {
     if (!file) throw new Error("No file provided");
     const formData = new FormData();
     formData.append("file", file);
-
-    // Suponiendo endpoints como /asocomunal/import o /jac/import basados en el backend (ej. NestJS).
-    // Si tienes un endpoint global /migracion, cámbialo aquí.
+    
     const endpointPath = entity === "asocomunales" ? "/asocomunal/import-file" : "/jac/import";
     const base = entity === "asocomunales" ? asocomunalesEndpoint : jacEndpoint;
 
