@@ -6,7 +6,7 @@ import PageHeader from "../components/ui/PageHeader";
 import SearchBar from "../components/ui/SearchBar";
 import EmptyState from "../components/ui/EmptyState";
 import { useAuth } from "../context/AuthContext";
-import { docVariant, orgVariant, aprobVariant, rolVariant } from "../hooks/useJac";
+import { orgVariant, rolVariant } from "../hooks/useJac";
 import { JACService } from "../modules/jac/services/jacService";
 import type { JacItem } from "../modules/jac/types";
 
@@ -137,9 +137,11 @@ function JacDetalle() {
         <div className={`${card} p-4`}>
           <div className="flex items-center gap-2 mb-2 text-gray-500 dark:text-gray-400">
             <FileText size={16} />
-            <span className="text-xs font-semibold uppercase tracking-wider">Estado documental</span>
+            <span className="text-xs font-semibold uppercase tracking-wider">RUC</span>
           </div>
-          <Badge label={jac.documental} variant={docVariant[jac.documental]} />
+          <p className="text-sm font-semibold text-gray-800 dark:text-gray-100 tabular-nums break-all">
+            {jac.numeroRuc ?? <span className="italic text-gray-400 dark:text-gray-500 font-normal">Inexistente</span>}
+          </p>
         </div>
 
         <div className={`${card} p-4`}>
@@ -149,7 +151,6 @@ function JacDetalle() {
           </div>
           <div className="flex flex-wrap gap-2">
             <Badge label={jac.organizativo} variant={orgVariant[jac.organizativo]} />
-            <Badge label={jac.aprobacion}   variant={aprobVariant[jac.aprobacion]} />
           </div>
         </div>
       </div>
@@ -162,6 +163,8 @@ function JacDetalle() {
             { label: "Nombre",          value: jac.nombre },
             { label: "Municipio",       value: jac.municipio },
             { label: "Barrio / Vereda", value: jac.barrio },
+            { label: "Tipo",            value: jac.tipo },
+            { label: "RUC",             value: jac.numeroRuc ?? "Inexistente" },
             { label: "Total afiliados", value: String(jac.afiliados) },
           ].map(({ label: l, value }) => (
             <div key={l}>
