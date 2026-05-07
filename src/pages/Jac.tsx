@@ -20,7 +20,7 @@ const inputCls = "w-full bg-white dark:bg-gray-900 border border-gray-200 dark:b
 function Jac() {
   const {
     filters, filtered, loading, error, refetch, handleClear, totalLoaded,
-    setBusqueda, setMunicipio, setEstado, setMinAfiliados, setLimite,
+    setBusqueda, setMunicipio, setEstado, setMinAfiliados, setLimite, setDocumental,
   } = useJac();
 
   const navigate = useNavigate();

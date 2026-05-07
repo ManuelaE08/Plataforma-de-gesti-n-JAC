@@ -112,6 +112,7 @@ export function useJac() {
     setBusqueda: (v: string) => setFilters((p) => ({ ...p, busqueda: v })),
     setMunicipio: (v: string) => setFilters((p) => ({ ...p, municipio: v })),
     setEstado: (v: EstadoOrganizativo | "") => setFilters((p) => ({ ...p, estado: v })),
+    setDocumental: (v: EstadoDocumental | "") => setFilters((p) => ({ ...p, documental: v })),
     setMinAfiliados: (v: string) => setFilters((p) => ({ ...p, minAfiliados: v })),
     setLimite: (v: number) => setFilters((p) => ({ ...p, limite: v })),
   };
