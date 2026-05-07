@@ -1,4 +1,4 @@
-import { Plus, RotateCcw, Ellipsis, CircleEllipsis, Trash2 } from "lucide-react";
+import { Plus, RotateCcw, Ellipsis, CircleEllipsis, Trash2, Pencil } from "lucide-react";
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import Badge from "../components/ui/Badge";
@@ -8,6 +8,9 @@ import EmptyState from "../components/ui/EmptyState";
 import { ModalCrearJac } from "../components/ui/ModalCrearJac";
 import { useJac, columns, docVariant, orgVariant, aprobVariant, type EstadoDocumental, type EstadoOrganizativo } from "../hooks/useJac";
 import { useAuth } from "../context/AuthContext";
+import { JACService } from "../modules/jac/services/jacService";
+import Swal from "sweetalert2";
+import "sweetalert2/dist/sweetalert2.min.css";
 
 const card      = "bg-white dark:bg-gray-800 rounded-xl border border-gray-100 dark:border-gray-700 shadow-sm";
 const selectCls = "appearance-none w-full bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-600 text-sm text-gray-600 dark:text-gray-300 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-[#1B7F4B]/30 focus:border-[#1B7F4B] transition-all cursor-pointer";
@@ -22,6 +25,7 @@ function Jac() {
   const navigate = useNavigate();
   const { user } = useAuth();
   const [showModal, setShowModal] = useState(false);
+  const [jacAEditar, setJacAEditar] = useState<any>(null);
 
   const canViewAfiliados = user?.rol === "admin" || user?.rol === "operador";
   const canDelete        = user?.rol === "admin";
@@ -40,7 +44,10 @@ function Jac() {
       >
         {canCreate && (
           <button
-            onClick={() => setShowModal(true)}
+            onClick={() => {
+              setJacAEditar(null);
+              setShowModal(true);
+            }}
             className="flex items-center gap-2 bg-[#1B7F4B] hover:bg-[#166340] text-white text-sm font-semibold px-4 py-2.5 rounded-lg transition-colors shrink-0"
           >
             <Plus size={16} /> Crear nueva JAC
@@ -50,8 +57,52 @@ function Jac() {
 
       {showModal && (
         <ModalCrearJac
-          onClose={() => setShowModal(false)}
-          onSave={(nueva) => { console.log("Nueva JAC:", nueva); }}
+          initialData={jacAEditar}
+          onClose={() => {
+            setShowModal(false);
+            setJacAEditar(null);
+          }}
+          onSave={async (nueva) => {
+            try {
+              if (user?.rol === "admin") {
+                const dto = {
+                  nombreCompleto: nueva.nombre,
+                  nombreCorto:    nueva.barrio,
+                  asocomunalId:   nueva.asocomunalId,
+                };
+
+                if (jacAEditar) {
+                  await JACService.update(jacAEditar.id, dto);
+                  await Swal.fire({
+                    icon: "success",
+                    title: "¡Actualizado!",
+                    text: "La JAC ha sido actualizada correctamente.",
+                    timer: 2000
+                  });
+                } else {
+                  await JACService.create(dto);
+                  await Swal.fire({
+                    icon: "success",
+                    title: "¡Creado!",
+                    text: "La JAC ha sido creada correctamente.",
+                    timer: 2000
+                  });
+                }
+                refetch();
+              } else {
+                await Swal.fire({
+                  icon: "info",
+                  title: "Modo Operador",
+                  text: "La funcionalidad de propuestas para JACs se implementará en el siguiente paso.",
+                });
+              }
+              setShowModal(false);
+              setJacAEditar(null);
+            } catch (err: any) {
+              console.error("Error al procesar JAC:", err);
+              await Swal.fire({ icon: "error", title: "Error", text: "No se pudo completar la operación." });
+            }
+          }}
         />
       )}
 
@@ -181,13 +232,22 @@ function Jac() {
                       <td className="px-4 py-3">
                         <div className="flex items-center gap-2">
                           <button
+                            onClick={() => {
+                              setJacAEditar(jac);
+                              setShowModal(true);
+                            }}
+                            className="p-1.5 rounded-lg hover:bg-blue-50 dark:hover:bg-blue-900/20 text-gray-500 dark:text-gray-400 hover:text-blue-600 dark:hover:text-blue-400 transition-colors"
+                            title="Editar"
+                          >
+                            <Pencil size={20} />
+                          </button>
+
+                          <button
                             onClick={() => navigate(`/jac/${jac.id}`)}
                             className="p-1.5 rounded-lg hover:bg-[#1B7F4B]/10 dark:hover:bg-[#1B7F4B]/20 text-gray-500 dark:text-gray-400 hover:text-[#1B7F4B] dark:hover:text-emerald-400 transition-colors"
                             title="Ver detalle"
                           >
-                            
                             <Ellipsis size={20} />
-                            
                           </button>
                           {canDelete && (
                             <button

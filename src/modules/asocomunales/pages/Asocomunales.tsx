@@ -85,20 +85,52 @@ function Asocomunales() {
     });
     if (result.isConfirmed) {
       try {
-        await toggleAsocomunalStatus(id, !currentStatus);
-        // Log fire-and-forget en auditoría solo si es admin
         if (user?.rol === "admin") {
+          await toggleAsocomunalStatus(id, !currentStatus);
+          // Log fire-and-forget en auditoría solo si es admin
           SolicitudesService.registrarAccionAdmin({
             entidadAfectada: "ASOCOMUNAL",
             tipoAccion: currentStatus ? "DESACTIVAR" : "ACTIVAR",
             entidadId: String(id),
             payloadDeseado: { estado: !currentStatus },
           }).catch(err => console.warn("[Auditoría] No se pudo registrar el log:", err));
+
+          await Swal.fire({
+            title: "¡Éxito!",
+            text: `La asocomunal fue ${currentStatus ? "desactivada" : "activada"} correctamente.`,
+            icon: "success",
+            confirmButtonColor: "#1B7F4B",
+            timer: 2000,
+            timerProgressBar: true
+          });
+        } else {
+          // Si es operador, propone el cambio
+          const currentAsoc = data.find(a => a.id === id);
+          const tipoAccion = currentStatus ? "DESACTIVAR" : "ACTIVAR";
+          
+          await proponerCambio(
+            "ASOCOMUNAL",
+            tipoAccion as any,
+            { estado: !currentStatus },
+            currentAsoc,
+            String(id)
+          );
+
+          await Swal.fire({
+            icon: "info",
+            title: "Solicitud enviada",
+            text: `Tu solicitud para ${actionText} esta asocomunal ha sido enviada para revisión.`,
+            confirmButtonColor: "#1B7F4B"
+          });
         }
-        await Swal.fire({ title: "¡Éxito!", text: `La asocomunal fue ${currentStatus ? "desactivada" : "activada"} correctamente.`, icon: "success", confirmButtonColor: "#1B7F4B", timer: 2000, timerProgressBar: true });
       } catch (err: unknown) {
         console.error(`Error al ${actionText} la asocomunal:`, err);
-        await Swal.fire({ title: "Error", text: `Hubo un problema al intentar ${actionText} la asocomunal.`, icon: "error", confirmButtonColor: "#1B7F4B" });
+        await Swal.fire({
+          title: "Error",
+          text: `Hubo un problema al intentar ${actionText} la asocomunal.`,
+          icon: "error",
+          confirmButtonColor: "#1B7F4B"
+        });
       }
     }
   };

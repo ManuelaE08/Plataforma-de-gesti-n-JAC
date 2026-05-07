@@ -110,4 +110,15 @@ export class JACService {
     });
     return handleResponse<{ message: string }>(res);
   }
+
+  /** GET /asocomunal — Obtiene la réplica de asocomunales desde el MS de JACs. */
+  static async getAsocomunalesReplica(): Promise<any[]> {
+    const endpoint = `${baseEndpoint}/asocomunal`;
+    const res = await fetch(endpoint, {
+      method: "GET",
+      headers: defaultHeaders,
+      credentials: "include",
+    });
+    return handleResponse<any[]>(res);
+  }
 }
