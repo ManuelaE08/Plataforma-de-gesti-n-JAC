@@ -7,7 +7,7 @@ import Badge from "../components/ui/Badge";
 import EmptyState from "../components/ui/EmptyState";
 import { ModalCrearJac } from "../components/ui/ModalCrearJac";
 import MunicipioCombobox from "../components/ui/MunicipioCombobox";
-import { useJac, columns, orgVariant,type EstadoDocumental, type EstadoOrganizativo } from "../hooks/useJac";
+import { useJac, columns, orgVariant, type EstadoDocumental, type EstadoOrganizativo } from "../hooks/useJac";
 import { useAuth } from "../context/AuthContext";
 import { JACService } from "../modules/jac/services/jacService";
 import Swal from "sweetalert2";
@@ -64,8 +64,8 @@ function Jac() {
               if (user?.rol === "admin") {
                 const dto = {
                   nombreCompleto: nueva.nombre,
-                  nombreCorto:    nueva.barrio,
-                  asocomunalId:   nueva.asocomunalId,
+                  nombreCorto: nueva.barrio,
+                  asocomunalId: nueva.asocomunalId,
                 };
 
                 await JACService.create(dto);
@@ -150,19 +150,19 @@ function Jac() {
       {!loading && !error && (
         <div
           className={`rounded-lg px-4 py-2.5 text-sm font-medium mb-4 border ${totalLoaded <= 100
-              ? "bg-green-50 text-green-700 border-green-200 dark:bg-green-900/20 dark:text-green-400 dark:border-green-800"
-              : totalLoaded <= 500
-                ? "bg-orange-50 text-orange-700 border-orange-200 dark:bg-orange-900/20 dark:text-orange-400 dark:border-orange-800"
-                : "bg-red-50 text-red-700 border-red-200 dark:bg-red-900/20 dark:text-red-400 dark:border-red-800"
+            ? "bg-green-50 text-green-700 border-green-200 dark:bg-green-900/20 dark:text-green-400 dark:border-green-800"
+            : totalLoaded <= 500
+              ? "bg-orange-50 text-orange-700 border-orange-200 dark:bg-orange-900/20 dark:text-orange-400 dark:border-orange-800"
+              : "bg-red-50 text-red-700 border-red-200 dark:bg-red-900/20 dark:text-red-400 dark:border-red-800"
             }`}
         >
           {totalLoaded === 0
             ? "No se encontraron JAC con los criterios seleccionados."
             : totalLoaded <= 100
-            ? `Se Mostraron ${totalLoaded} JAC correctamente.`
-            : totalLoaded <= 500
-            ? `Se Mostraron ${totalLoaded} JAC. Considere aplicar filtros para reducir la cantidad de registros.`
-            : `Se Mostraron ${totalLoaded} JAC. Se recomienda limitar la cantidad de JAC cargadas para mejorar el rendimiento.`}
+              ? `Se Mostraron ${totalLoaded} JAC correctamente.`
+              : totalLoaded <= 500
+                ? `Se Mostraron ${totalLoaded} JAC. Considere aplicar filtros para reducir la cantidad de registros.`
+                : `Se Mostraron ${totalLoaded} JAC. Se recomienda limitar la cantidad de JAC cargadas para mejorar el rendimiento.`}
         </div>
       )}
 

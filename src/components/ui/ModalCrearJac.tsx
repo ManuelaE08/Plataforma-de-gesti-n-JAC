@@ -22,13 +22,13 @@ const selectCls = "appearance-none w-full border border-gray-200 dark:border-gra
 
 export function ModalCrearJac({ onClose, onSave }: ModalCrearJacProps) {
   const [form, setForm] = useState({
-    nombre:       "",
-    municipio:    "",
-    barrio:       "",
-    afiliados:    0,
+    nombre: "",
+    municipio: "",
+    barrio: "",
+    afiliados: 0,
     asocomunalId: "" as string | number,
-    documental:   "Vigente"   as EstadoDocumental,
-    organizativo: "Activa"    as EstadoOrganizativo,
+    documental: "Vigente" as EstadoDocumental,
+    organizativo: "Activa" as EstadoOrganizativo,
   });
   const [errors, setErrors] = useState<Record<string, string>>({});
   const [asocomunales, setAsocomunales] = useState<any[]>([]);
@@ -43,8 +43,8 @@ export function ModalCrearJac({ onClose, onSave }: ModalCrearJacProps) {
 
   const validate = () => {
     const e: Record<string, string> = {};
-    if (!form.nombre.trim())    e.nombre    = "El nombre es obligatorio";
-    if (!form.barrio.trim())    e.barrio    = "El barrio o vereda es obligatorio";
+    if (!form.nombre.trim()) e.nombre = "El nombre es obligatorio";
+    if (!form.barrio.trim()) e.barrio = "El barrio o vereda es obligatorio";
     return e;
   };
 
@@ -52,7 +52,7 @@ export function ModalCrearJac({ onClose, onSave }: ModalCrearJacProps) {
     e.preventDefault();
     const newErrors = validate();
     if (Object.keys(newErrors).length > 0) { setErrors(newErrors); return; }
-    
+
     // Convertir asocomunalId a número o null antes de enviar
     const payload = {
       ...form,
