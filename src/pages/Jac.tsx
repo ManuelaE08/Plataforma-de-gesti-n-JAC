@@ -10,6 +10,7 @@ import MunicipioCombobox from "../components/ui/MunicipioCombobox";
 import { useJac, columns, orgVariant, type EstadoDocumental, type EstadoOrganizativo } from "../hooks/useJac";
 import { useAuth } from "../context/AuthContext";
 import { JACService } from "../modules/jac/services/jacService";
+import { SolicitudesService } from "../modules/solicitudes/services/solicitudes.service";
 import Swal from "sweetalert2";
 import "sweetalert2/dist/sweetalert2.min.css";
 
@@ -29,7 +30,7 @@ function Jac() {
 
   const canViewAfiliados = user?.rol === "admin" || user?.rol === "operador";
   const canDelete = user?.rol === "admin";
-  const canCreate = user?.rol === "admin";
+  const canCreate = user?.rol === "admin" || user?.rol === "operador";
 
   const visibleColumns = canViewAfiliados
     ? columns
@@ -61,33 +62,52 @@ function Jac() {
           }}
           onSave={async (nueva) => {
             try {
-              if (user?.rol === "admin") {
-                const dto = {
-                  nombreCompleto: nueva.nombre,
-                  nombreCorto: nueva.barrio,
-                  asocomunalId: nueva.asocomunalId,
-                };
+              const dto = {
+                nombreCompleto: nueva.nombre,
+                nombreCorto:    nueva.barrio,
+                asocomunalId:   Number(nueva.asocomunalId),
+                tipo:           nueva.tipo.toLowerCase(),
+              };
 
+              if (user?.rol === "admin") {
+                // El Admin crea directamente y registra en auditoría para el log
                 await JACService.create(dto);
+                
+                await SolicitudesService.registrarAccionAdmin({
+                  entidadAfectada: "JAC",
+                  tipoAccion: "CREAR",
+                  payloadDeseado: dto,
+                });
+
                 await Swal.fire({
                   icon: "success",
                   title: "¡Creado!",
                   text: "La JAC ha sido creada correctamente.",
                   timer: 2000
                 });
-
                 refetch();
-              } else {
+              } else if (user?.rol === "operador") {
+                // El Operador solo propone la creación
+                await SolicitudesService.crear({
+                  entidadAfectada: "JAC",
+                  tipoAccion: "CREAR",
+                  payloadDeseado: dto,
+                });
+
                 await Swal.fire({
-                  icon: "info",
-                  title: "Modo Operador",
-                  text: "La funcionalidad de propuestas para JACs se implementará en el siguiente paso.",
+                  icon: "success",
+                  title: "¡Propuesta enviada!",
+                  text: "Su solicitud ha sido enviada para revisión del administrador.",
                 });
               }
               setShowModal(false);
             } catch (err: any) {
               console.error("Error al procesar JAC:", err);
-              await Swal.fire({ icon: "error", title: "Error", text: "No se pudo completar la operación." });
+              await Swal.fire({ 
+                icon: "error", 
+                title: "Error", 
+                text: err.message || "No se pudo completar la operación." 
+              });
             }
           }}
         />

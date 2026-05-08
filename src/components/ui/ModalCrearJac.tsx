@@ -29,6 +29,7 @@ export function ModalCrearJac({ onClose, onSave }: ModalCrearJacProps) {
     asocomunalId: "" as string | number,
     documental: "Vigente" as EstadoDocumental,
     organizativo: "Activa" as EstadoOrganizativo,
+    tipo: "Barrio" as "Barrio" | "Vereda",
   });
   const [errors, setErrors] = useState<Record<string, string>>({});
   const [asocomunales, setAsocomunales] = useState<any[]>([]);
@@ -45,6 +46,7 @@ export function ModalCrearJac({ onClose, onSave }: ModalCrearJacProps) {
     const e: Record<string, string> = {};
     if (!form.nombre.trim()) e.nombre = "El nombre es obligatorio";
     if (!form.barrio.trim()) e.barrio = "El barrio o vereda es obligatorio";
+    if (!form.asocomunalId) e.asocomunalId = "Debe seleccionar una Asocomunal";
     return e;
   };
 
@@ -114,7 +116,22 @@ export function ModalCrearJac({ onClose, onSave }: ModalCrearJacProps) {
           </div>
 
           {field("Nombre completo de la JAC", "nombre")}
-          {field("Barrio / Vereda / Sector", "barrio")}
+          
+          <div className="grid grid-cols-2 gap-4">
+            <div className="flex flex-col gap-1">
+              <label className="text-xs font-medium text-gray-600 dark:text-gray-400">Tipo de JAC</label>
+              <select
+                value={form.tipo}
+                onChange={(e) => setForm(prev => ({ ...prev, tipo: e.target.value as any }))}
+                className={selectCls}
+              >
+                <option value="Barrio">Barrio</option>
+                <option value="Vereda">Vereda</option>
+              </select>
+            </div>
+            {field("Barrio / Vereda / Sector", "barrio")}
+          </div>
+
           {field("Número de afiliados iniciales", "afiliados", "number")}
 
           <div className="flex items-center justify-end gap-3 pt-2 border-t border-gray-100 dark:border-gray-700 mt-1">
