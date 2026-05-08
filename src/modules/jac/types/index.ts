@@ -2,7 +2,13 @@
 
 export type EstadoDocumental = "Vigente" | "Vencida" | "Por vencer";
 export type EstadoOrganizativo = "Activa" | "Inactiva";
-export type TipoJac = "Barrio" | "Vereda";
+export type TipoJac           = "Barrio" | "Vereda";
+
+/**
+ * Valores aceptados por el backend para el campo `tipo` al crear/actualizar
+ * una JAC. Coinciden con el enum `TipoJAC` en `jac.entity.ts`.
+ */
+export type TipoJacEnum = "barrio" | "vereda";
 export type RolAfiliado =
   | "Presidente" | "Vicepresidente" | "Secretario"
   | "Tesorero" | "Fiscal" | "Afiliado";
@@ -40,11 +46,12 @@ export interface JacItem {
   municipio: string;
   barrio: string;
   afiliados: number;
-  organizativo: EstadoOrganizativo;
+  documental: EstadoDocumental;
+  estado: EstadoOrganizativo;
   /** Tipo de territorio que cubre la JAC (Barrio urbano / Vereda rural). */
   tipo: TipoJac;
   /** Número de RUC tal como está en BD; `null` cuando no está registrado. */
-  numeroRuc: string | null;
+  numeroRUC: string | null;
   /** Mínimo legal de afiliados para sostener la JAC activa según su tipo. */
   minimoAfiliados: number;
   /** `true` cuando la JAC está activa pero no alcanza el mínimo legal. */
@@ -55,17 +62,27 @@ export interface JacItem {
 
 // ── DTOs de entrada ───────────────────────────────────────────────────────────
 
+/**
+ * Datos para crear una JAC.
+ *
+ * @remarks
+ * - `asocomunalId` y `tipo` son obligatorios.
+ * - El backend siempre crea la JAC con estado `inactiva`,
+ *   por lo que el campo no se envía desde el frontend.
+ * - `nombreCorto` y `numeroRUC` son opcionales.
+ */
 export interface CreateJACDto {
-  asocomunalId?: number;
-  estado?: EstadoOrganizativo;
-  nombreCorto?: string;
+  asocomunalId: number;
+  tipo: TipoJacEnum;
   nombreCompleto: string;
+  nombreCorto?: string;
   numeroRUC?: string;
 }
 
 export interface UpdateJACDto {
   asocomunalId?: number;
-  estado?: EstadoOrganizativo;
+  /** El backend acepta los valores del enum en minúscula: 'activa' | 'inactiva' | 'cancelada' */
+  estado?: "activa" | "inactiva" | "cancelada";
   nombreCorto?: string;
   nombreCompleto?: string;
   numeroRUC?: string;

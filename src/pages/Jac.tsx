@@ -9,10 +9,6 @@ import { ModalCrearJac } from "../components/ui/ModalCrearJac";
 import MunicipioCombobox from "../components/ui/MunicipioCombobox";
 import { useJac, columns, orgVariant, type EstadoDocumental, type EstadoOrganizativo } from "../hooks/useJac";
 import { useAuth } from "../context/AuthContext";
-import { JACService } from "../modules/jac/services/jacService";
-import { SolicitudesService } from "../modules/solicitudes/services/solicitudes.service";
-import Swal from "sweetalert2";
-import "sweetalert2/dist/sweetalert2.min.css";
 
 const card = "bg-white dark:bg-gray-800 rounded-xl border border-gray-100 dark:border-gray-700 shadow-sm";
 const selectCls = "appearance-none w-full bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-600 text-sm text-gray-600 dark:text-gray-300 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-[#1B7F4B]/30 focus:border-[#1B7F4B] transition-all cursor-pointer";
@@ -57,59 +53,8 @@ function Jac() {
 
       {showModal && (
         <ModalCrearJac
-          onClose={() => {
-            setShowModal(false);
-          }}
-          onSave={async (nueva) => {
-            try {
-              const dto = {
-                nombreCompleto: nueva.nombre,
-                nombreCorto:    nueva.barrio,
-                asocomunalId:   Number(nueva.asocomunalId),
-                tipo:           nueva.tipo.toLowerCase(),
-              };
-
-              if (user?.rol === "admin") {
-                // El Admin crea directamente y registra en auditoría para el log
-                await JACService.create(dto);
-                
-                await SolicitudesService.registrarAccionAdmin({
-                  entidadAfectada: "JAC",
-                  tipoAccion: "CREAR",
-                  payloadDeseado: dto,
-                });
-
-                await Swal.fire({
-                  icon: "success",
-                  title: "¡Creado!",
-                  text: "La JAC ha sido creada correctamente.",
-                  timer: 2000
-                });
-                refetch();
-              } else if (user?.rol === "operador") {
-                // El Operador solo propone la creación
-                await SolicitudesService.crear({
-                  entidadAfectada: "JAC",
-                  tipoAccion: "CREAR",
-                  payloadDeseado: dto,
-                });
-
-                await Swal.fire({
-                  icon: "success",
-                  title: "¡Propuesta enviada!",
-                  text: "Su solicitud ha sido enviada para revisión del administrador.",
-                });
-              }
-              setShowModal(false);
-            } catch (err: any) {
-              console.error("Error al procesar JAC:", err);
-              await Swal.fire({ 
-                icon: "error", 
-                title: "Error", 
-                text: err.message || "No se pudo completar la operación." 
-              });
-            }
-          }}
+          onClose={() => setShowModal(false)}
+          onSave={() => refetch()}
         />
       )}
 
@@ -224,7 +169,17 @@ function Jac() {
                     <td className="px-4 py-3 text-gray-600 dark:text-gray-300">{jac.municipio}</td>
                     <td className="px-4 py-3 text-gray-600 dark:text-gray-300">{jac.barrio}</td>
                     <td className="px-4 py-3 text-gray-700 dark:text-gray-200 tabular-nums font-medium">{jac.afiliados}</td>
-                    <td className="px-4 py-3"><Badge label={jac.organizativo} variant={orgVariant[jac.organizativo]} /></td>
+                    <td className="px-4 py-3 font-medium text-gray-700 dark:text-gray-200">
+                      <div className="flex items-center gap-2">
+                        <span className={`w-2 h-2 rounded-full ${
+                          jac.organizativo === "Activa" ? "bg-green-500 shadow-[0_0_8px_rgba(34,197,94,0.6)]" :
+                          jac.organizativo === "Inactiva" ? "bg-red-500 shadow-[0_0_8px_rgba(239,68,68,0.6)]" :
+                          jac.organizativo === "Cancelada" ? "bg-gray-400 shadow-[0_0_8px_rgba(156,163,175,0.6)]" :
+                          "bg-gray-300"
+                        }`}></span>
+                        {jac.organizativo || "Desconocido"}
+                      </div>
+                    </td>
 
                     {canViewAfiliados && (
                       <td className="px-4 py-3">
