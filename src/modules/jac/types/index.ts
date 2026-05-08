@@ -1,6 +1,6 @@
 // ── Enums / literales ────────────────────────────────────────────────────────
 
-export type EstadoDocumental  = "Vigente" | "Vencida" | "Por vencer";
+export type EstadoDocumental = "Vigente" | "Vencida" | "Por vencer";
 export type EstadoOrganizativo = "Activa" | "Inactiva";
 export type TipoJac           = "Barrio" | "Vereda";
 
@@ -57,6 +57,7 @@ export interface JacItem {
   /** `true` cuando la JAC está activa pero no alcanza el mínimo legal. */
   enRiesgo: boolean;
   miembros: AfiliadoItem[];
+  asocomunalId?: number | null;
 }
 
 // ── DTOs de entrada ───────────────────────────────────────────────────────────

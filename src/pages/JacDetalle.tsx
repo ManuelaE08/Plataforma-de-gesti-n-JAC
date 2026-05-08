@@ -8,6 +8,7 @@ import EmptyState from "../components/ui/EmptyState";
 import { useAuth } from "../context/AuthContext";
 import { orgVariant, rolVariant } from "../hooks/useJac";
 import { JACService } from "../modules/jac/services/jacService";
+import { SolicitudesService } from "../modules/solicitudes/services/solicitudes.service";
 import type { JacItem } from "../modules/jac/types";
 
 const card = "bg-white dark:bg-gray-800 rounded-xl border border-gray-100 dark:border-gray-700 shadow-sm";
@@ -68,13 +69,42 @@ function JacDetalle() {
       if (editingField === "estado") dto.estado = tempValue.toLowerCase();
       if (editingField === "tipo") dto.tipo = tempValue.toLowerCase();
 
-      const updated = await JACService.update(jac.id, dto);
-      setJac(updated);
+      const fieldNames: Record<string, string> = { ruc: "Número RUC", estado: "Estado", tipo: "Tipo" };
+
+      if (user?.rol === "admin") {
+        // Admin edita directamente
+        const updated = await JACService.update(jac.id, dto);
+        setJac(updated);
+
+        // Registrar en auditoría (log)
+        try {
+          await SolicitudesService.registrarAccionAdmin({
+            entidadAfectada: "JAC",
+            entidadId: String(jac.id),
+            tipoAccion: "EDITAR",
+            payloadAnterior: { [editingField]: editingField === "ruc" ? jac.numeroRUC : editingField === "estado" ? jac.estado : jac.tipo },
+            payloadDeseado: dto,
+          });
+        } catch {
+          console.warn("No se pudo registrar la acción en auditoría");
+        }
+
+        setSuccessMessage(`${fieldNames[editingField] || "Campo"} actualizado correctamente`);
+      } else if (user?.rol === "operador") {
+        // Operador propone el cambio
+        await SolicitudesService.crear({
+          entidadAfectada: "JAC",
+          entidadId: String(jac.id),
+          tipoAccion: "EDITAR",
+          payloadAnterior: { [editingField]: editingField === "ruc" ? jac.numeroRUC : editingField === "estado" ? jac.estado : jac.tipo },
+          payloadDeseado: dto,
+        });
+
+        setSuccessMessage(`Propuesta de cambio de ${fieldNames[editingField] || "campo"} enviada para revisión`);
+      }
+
       setEditingField(null);
       setTempValue("");
-
-      const fieldNames: Record<string, string> = { ruc: "Número RUC", estado: "Estado", tipo: "Tipo" };
-      setSuccessMessage(`${fieldNames[editingField] || "Campo"} actualizado correctamente`);
       setTimeout(() => setSuccessMessage(null), 3000);
     } catch (err) {
       alert(err instanceof Error ? err.message : "Error al actualizar");
