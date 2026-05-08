@@ -2,6 +2,10 @@ import { X, Loader2 } from "lucide-react";
 import { useState, useEffect } from "react";
 import Swal from "sweetalert2";
 import { JACService } from "../../modules/jac/services/jacService";
+
+//Importaciones neuvas para registrar la auditoria
+import { SolicitudesService } from "../../modules/solicitudes/services/solicitudes.service";
+import { useAuth } from "../../context/AuthContext";
 import type { CreateJACDto, TipoJacEnum } from "../../modules/jac/types";
 
 interface ModalCrearJacProps {
@@ -49,11 +53,12 @@ const initialForm: FormState = {
 };
 
 export function ModalCrearJac({ onClose, onSave }: ModalCrearJacProps) {
-  const [form, setForm]                 = useState<FormState>(initialForm);
-  const [errors, setErrors]             = useState<Record<string, string>>({});
+  const { user } = useAuth();
+  const [form, setForm] = useState<FormState>(initialForm);
+  const [errors, setErrors] = useState<Record<string, string>>({});
   const [asocomunales, setAsocomunales] = useState<AsocomunalOption[]>([]);
-  const [loadingAso, setLoadingAso]     = useState(true);
-  const [submitting, setSubmitting]     = useState(false);
+  const [loadingAso, setLoadingAso] = useState(true);
+  const [submitting, setSubmitting] = useState(false);
 
   useEffect(() => {
     JACService.getAsocomunalesReplica()
@@ -64,9 +69,9 @@ export function ModalCrearJac({ onClose, onSave }: ModalCrearJacProps) {
 
   function validate(): Record<string, string> {
     const e: Record<string, string> = {};
-    if (!form.asocomunalId)            e.asocomunalId   = "La Asocomunal responsable es obligatoria";
-    if (!form.tipo)                    e.tipo           = "Seleccione el tipo (barrio o vereda)";
-    if (!form.nombreCompleto.trim())   e.nombreCompleto = "El nombre completo es obligatorio";
+    if (!form.asocomunalId) e.asocomunalId = "La Asocomunal responsable es obligatoria";
+    if (!form.tipo) e.tipo = "Seleccione el tipo (barrio o vereda)";
+    if (!form.nombreCompleto.trim()) e.nombreCompleto = "El nombre completo es obligatorio";
     else if (form.nombreCompleto.trim().length < 3)
       e.nombreCompleto = "El nombre completo debe tener al menos 3 caracteres";
     return e;
@@ -93,7 +98,7 @@ export function ModalCrearJac({ onClose, onSave }: ModalCrearJacProps) {
             <li><b>Tipo:</b> ${tipoLabel}</li>
             <li><b>Asocomunal:</b> ${escapeHtml(aso?.nombre ?? "—")}${aso?.municipioNombre ? ` (${escapeHtml(aso.municipioNombre)})` : ""}</li>
             ${form.nombreCorto.trim() ? `<li><b>Nombre corto:</b> ${escapeHtml(form.nombreCorto.trim())}</li>` : ""}
-            ${form.numeroRUC.trim()   ? `<li><b>Número RUC:</b> ${escapeHtml(form.numeroRUC.trim())}</li>` : "<li><b>Número RUC:</b> <i>no registrado</i></li>"}
+            ${form.numeroRUC.trim() ? `<li><b>Número RUC:</b> ${escapeHtml(form.numeroRUC.trim())}</li>` : "<li><b>Número RUC:</b> <i>no registrado</i></li>"}
           </ul>
           <p style="margin-top:12px; color:#92400e;">
             La JAC se creará con estado <b>Inactiva</b>. Pasará a <b>Activa</b>
@@ -117,20 +122,56 @@ export function ModalCrearJac({ onClose, onSave }: ModalCrearJacProps) {
       tipo: form.tipo as TipoJacEnum,
       nombreCompleto: form.nombreCompleto.trim(),
       ...(form.nombreCorto.trim() ? { nombreCorto: form.nombreCorto.trim() } : {}),
-      ...(form.numeroRUC.trim()   ? { numeroRUC:   form.numeroRUC.trim()   } : {}),
+      ...(form.numeroRUC.trim() ? { numeroRUC: form.numeroRUC.trim() } : {}),
     };
+
+    //Nueva cambio para que el admin use auditoria
 
     try {
       setSubmitting(true);
-      await JACService.create(payload);
-      await Swal.fire({
-        title: "JAC creada",
-        text: "La JAC quedó registrada con estado Inactiva.",
-        icon: "success",
-        confirmButtonColor: "#1B7F4B",
-        timer: 2200,
-        timerProgressBar: true,
-      });
+
+      if (user?.rol === "admin") {
+        // Admin crea directamente y registra en auditoría
+        await JACService.create(payload);
+
+        // Registrar la acción en auditoría (log)
+        try {
+          await SolicitudesService.registrarAccionAdmin({
+            entidadAfectada: "JAC",
+            tipoAccion: "CREAR",
+            payloadDeseado: payload,
+          });
+        } catch {
+          // Si falla el log de auditoría, no bloquear la operación
+          console.warn("No se pudo registrar la acción en auditoría");
+        }
+
+        await Swal.fire({
+          title: "JAC creada",
+          text: "La JAC quedó registrada con estado Inactiva.",
+          icon: "success",
+          confirmButtonColor: "#1B7F4B",
+          timer: 2200,
+          timerProgressBar: true,
+        });
+
+        //Nuevo cambio, el operador solo puede proponer, no crear directamente
+      } else if (user?.rol === "operador") {
+        // Operador propone la creación vía Maker-Checker
+        await SolicitudesService.crear({
+          entidadAfectada: "JAC",
+          tipoAccion: "CREAR",
+          payloadDeseado: payload,
+        });
+
+        await Swal.fire({
+          title: "¡Propuesta enviada!",
+          text: "Su solicitud ha sido enviada para revisión del administrador.",
+          icon: "success",
+          confirmButtonColor: "#1B7F4B",
+        });
+      }
+
       onSave();
       onClose();
     } catch (err) {
