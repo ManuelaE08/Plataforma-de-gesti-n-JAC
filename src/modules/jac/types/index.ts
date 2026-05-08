@@ -80,7 +80,8 @@ export interface CreateJACDto {
 
 export interface UpdateJACDto {
   asocomunalId?: number;
-  estado?: EstadoOrganizativo;
+  /** El backend acepta los valores del enum en minúscula: 'activa' | 'inactiva' | 'cancelada' */
+  estado?: "activa" | "inactiva" | "cancelada";
   nombreCorto?: string;
   nombreCompleto?: string;
   numeroRUC?: string;
