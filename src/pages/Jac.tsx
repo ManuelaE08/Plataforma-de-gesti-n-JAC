@@ -9,9 +9,6 @@ import { ModalCrearJac } from "../components/ui/ModalCrearJac";
 import MunicipioCombobox from "../components/ui/MunicipioCombobox";
 import { useJac, columns, orgVariant,type EstadoDocumental, type EstadoOrganizativo } from "../hooks/useJac";
 import { useAuth } from "../context/AuthContext";
-import { JACService } from "../modules/jac/services/jacService";
-import Swal from "sweetalert2";
-import "sweetalert2/dist/sweetalert2.min.css";
 
 const card = "bg-white dark:bg-gray-800 rounded-xl border border-gray-100 dark:border-gray-700 shadow-sm";
 const selectCls = "appearance-none w-full bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-600 text-sm text-gray-600 dark:text-gray-300 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-[#1B7F4B]/30 focus:border-[#1B7F4B] transition-all cursor-pointer";
@@ -56,40 +53,8 @@ function Jac() {
 
       {showModal && (
         <ModalCrearJac
-          onClose={() => {
-            setShowModal(false);
-          }}
-          onSave={async (nueva) => {
-            try {
-              if (user?.rol === "admin") {
-                const dto = {
-                  nombreCompleto: nueva.nombre,
-                  nombreCorto:    nueva.barrio,
-                  asocomunalId:   nueva.asocomunalId,
-                };
-
-                await JACService.create(dto);
-                await Swal.fire({
-                  icon: "success",
-                  title: "¡Creado!",
-                  text: "La JAC ha sido creada correctamente.",
-                  timer: 2000
-                });
-
-                refetch();
-              } else {
-                await Swal.fire({
-                  icon: "info",
-                  title: "Modo Operador",
-                  text: "La funcionalidad de propuestas para JACs se implementará en el siguiente paso.",
-                });
-              }
-              setShowModal(false);
-            } catch (err: any) {
-              console.error("Error al procesar JAC:", err);
-              await Swal.fire({ icon: "error", title: "Error", text: "No se pudo completar la operación." });
-            }
-          }}
+          onClose={() => setShowModal(false)}
+          onSave={() => refetch()}
         />
       )}
 
