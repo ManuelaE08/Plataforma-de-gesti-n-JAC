@@ -140,7 +140,7 @@ function JacDetalle() {
             <span className="text-xs font-semibold uppercase tracking-wider">Número RUC</span>
           </div>
           <p className="text-lg font-semibold text-gray-800 dark:text-gray-100">
-            {jac.numeroRUC || <span className="text-sm font-normal text-gray-400 italic">No tiene RUC</span>}
+            {jac.numeroRuc || <span className="text-sm font-normal text-gray-400 italic">No tiene RUC</span>}
           </p>
           <button className="absolute bottom-3 right-3 p-1.5 text-gray-400 hover:text-[#1B7F4B] hover:bg-green-50 dark:hover:bg-[#1B7F4B]/20 rounded-lg transition-colors opacity-0 group-hover:opacity-100" title="Editar Número RUC">
             <Pencil size={14} />
@@ -153,7 +153,7 @@ function JacDetalle() {
             <span className="text-xs font-semibold uppercase tracking-wider">Estado de la JAC</span>
           </div>
           <div className="flex flex-wrap gap-2 mt-1">
-            <Badge label={jac.estado} variant={orgVariant[jac.estado]} />
+            <Badge label={jac.organizativo} variant={orgVariant[jac.organizativo]} />
           </div>
           <button className="absolute bottom-3 right-3 p-1.5 text-gray-400 hover:text-[#1B7F4B] hover:bg-green-50 dark:hover:bg-[#1B7F4B]/20 rounded-lg transition-colors opacity-0 group-hover:opacity-100" title="Editar Estado de la JAC">
             <Pencil size={14} />

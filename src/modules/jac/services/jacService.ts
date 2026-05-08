@@ -1,4 +1,4 @@
-import type { JacItem, CreateJACDto, UpdateJACDto, SearchJACDto } from "../types";
+import type { JacItem, JacListItem, CreateJACDto, UpdateJACDto, SearchJACDto } from "../types";
 import { JACAdapter } from "../adapters/jac.adapter";
 
 const baseEndpoint = import.meta.env.VITE_JAC_ENDPOINT?.replace(/\/$/, "");
@@ -38,23 +38,24 @@ async function handleResponse<T>(res: Response): Promise<T> {
  */
 export class JACService {
   /** GET /jac?limite=N — Lista todas las JAC con un límite de registros. */
-  static async findAll(limite: number = 100): Promise<JacItem[]> {
+  static async findAll(limite: number = 100): Promise<JacListItem[]> {
     const res = await fetch(`${base()}?limite=${limite}`, {
       method: "GET",
       headers: defaultHeaders,
       credentials: "include",
     });
-    const data = await handleResponse<JacItem[]>(res);
+    const data = await handleResponse<JacListItem[]>(res);
     return JACAdapter.mapJACs(data);
   }
 
-  /** GET /jac/buscar?nombre=&municipio=&estado=&limite= — Búsqueda con filtros del backend. */
-  static async search(filters: SearchJACDto): Promise<JacItem[]> {
+  /** GET /jac/buscar?nombre=&municipio=&estado=&documental=&limite= — Búsqueda con filtros del backend. */
+  static async search(filters: SearchJACDto): Promise<JacListItem[]> {
     const params = new URLSearchParams();
-    if (filters.nombre)    params.set("nombre",    filters.nombre.toLowerCase());
-    if (filters.municipio) params.set("municipio", filters.municipio.toLowerCase());
-    if (filters.estado)    params.set("estado",    filters.estado.toLowerCase());
-    if (filters.limite)    params.set("limite",    String(filters.limite));
+    if (filters.nombre)     params.set("nombre",     filters.nombre.toLowerCase());
+    if (filters.municipio)  params.set("municipio",  filters.municipio.toLowerCase());
+    if (filters.estado)     params.set("estado",     filters.estado.toLowerCase());
+    if (filters.documental) params.set("documental", filters.documental);
+    if (filters.limite)     params.set("limite",     String(filters.limite));
 
     const qs  = params.size ? `?${params.toString()}` : "";
     const res = await fetch(`${base()}/buscar${qs}`, {
@@ -62,7 +63,7 @@ export class JACService {
       headers: defaultHeaders,
       credentials: "include",
     });
-    const data = await handleResponse<JacItem[]>(res);
+    const data = await handleResponse<JacListItem[]>(res);
     return JACAdapter.mapJACs(data);
   }
 
@@ -109,5 +110,16 @@ export class JACService {
       credentials: "include",
     });
     return handleResponse<{ message: string }>(res);
+  }
+
+  /** GET /asocomunal — Obtiene la réplica de asocomunales desde el MS de JACs. */
+  static async getAsocomunalesReplica(): Promise<any[]> {
+    const endpoint = `${baseEndpoint}/asocomunal`;
+    const res = await fetch(endpoint, {
+      method: "GET",
+      headers: defaultHeaders,
+      credentials: "include",
+    });
+    return handleResponse<any[]>(res);
   }
 }
