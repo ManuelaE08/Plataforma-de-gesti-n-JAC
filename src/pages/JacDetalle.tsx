@@ -1,4 +1,4 @@
-import { ArrowLeft, Users, MapPin, FileText, ShieldCheck, RotateCcw, AlertTriangle, Pencil, Tags } from "lucide-react";
+import { ArrowLeft, Users, MapPin, FileText, ShieldCheck, RotateCcw, AlertTriangle, Pencil, Tags, Check, X, CheckCircle2 } from "lucide-react";
 import { useMemo, useState, useEffect, useRef } from "react";
 import { useNavigate, useParams } from "react-router-dom";
 import Badge from "../components/ui/Badge";
@@ -45,12 +45,48 @@ function JacDetalle() {
     return () => { if (debounceRef.current) clearTimeout(debounceRef.current); };
   }, [busqueda]);
 
+  const [editingField, setEditingField] = useState<string | null>(null);
+  const [tempValue, setTempValue] = useState("");
+  const [successMessage, setSuccessMessage] = useState<string | null>(null);
+
+  const startEditing = (field: string, value: string) => {
+    setEditingField(field);
+    setTempValue(value);
+  };
+
+  const handleCancel = () => {
+    setEditingField(null);
+    setTempValue("");
+  };
+
+  const handleSave = async () => {
+    if (!jac || !editingField) return;
+
+    try {
+      const dto: any = {};
+      if (editingField === "ruc") dto.numeroRUC = tempValue;
+      if (editingField === "estado") dto.estado = tempValue.toLowerCase();
+      if (editingField === "tipo") dto.tipo = tempValue.toLowerCase();
+
+      const updated = await JACService.update(jac.id, dto);
+      setJac(updated);
+      setEditingField(null);
+      setTempValue("");
+
+      const fieldNames: Record<string, string> = { ruc: "Número RUC", estado: "Estado", tipo: "Tipo" };
+      setSuccessMessage(`${fieldNames[editingField] || "Campo"} actualizado correctamente`);
+      setTimeout(() => setSuccessMessage(null), 3000);
+    } catch (err) {
+      alert(err instanceof Error ? err.message : "Error al actualizar");
+    }
+  };
+
   const handleClearAfiliados = () => { setBusqueda(""); setFiltroRol(""); setDebouncedBusqueda(""); };
 
   const miembrosFiltrados = useMemo(() => {
-    if (!jac) return [];
+    if (!jac || !jac.miembros) return [];
     return jac.miembros.filter((m) => {
-      const matchNombre = !debouncedBusqueda || [m.nombre, m.documento].some((v) => v.toLowerCase().includes(debouncedBusqueda.toLowerCase()));
+      const matchNombre = !debouncedBusqueda || [m.nombre, m.documento].some((v) => v?.toLowerCase().includes(debouncedBusqueda.toLowerCase()));
       const matchRol = !filtroRol || m.rol === filtroRol;
       return matchNombre && matchRol;
     });
@@ -98,6 +134,16 @@ function JacDetalle() {
         </button>
       </PageHeader>
 
+      {/* Alerta de éxito */}
+      {successMessage && (
+        <div className="animate-in fade-in slide-in-from-top-2 rounded-lg px-4 py-3 mb-4 border bg-green-50 text-green-800 border-green-200 dark:bg-green-900/20 dark:text-green-300 dark:border-green-800">
+          <div className="flex items-center gap-3">
+            <CheckCircle2 size={18} className="shrink-0" />
+            <p className="text-sm font-medium">{successMessage}</p>
+          </div>
+        </div>
+      )}
+
       {/* Alerta de riesgo: solo JACs activas que no alcanzan el mínimo legal de afiliados */}
       {jac.enRiesgo && (
         <div className="rounded-lg px-4 py-3 mb-4 border bg-amber-50 text-amber-800 border-amber-200 dark:bg-amber-900/20 dark:text-amber-300 dark:border-amber-800">
@@ -106,7 +152,7 @@ function JacDetalle() {
             <div className="text-sm">
               <p className="font-semibold">JAC en riesgo de inactivación</p>
               <p className="mt-0.5">
-                Esta junta cuenta con <span className="font-semibold tabular-nums">{jac.afiliados}</span> afiliado{jac.afiliados === 1 ? "" : "s"}, por debajo del mínimo legal de <span className="font-semibold tabular-nums">{jac.minimoAfiliados}</span> requerido para una JAC de tipo <span className="font-semibold">{jac.tipo}</span> (Ley 2166 de 2021, Art. 11).
+                Esta junta cuenta con <span className="font-semibold tabular-nums">{jac.afiliados || 0}</span> afiliado{(jac.afiliados || 0) === 1 ? "" : "s"}, por debajo del mínimo legal de <span className="font-semibold tabular-nums">{jac.minimoAfiliados || 0}</span> requerido para una JAC de tipo <span className="font-semibold">{jac.tipo || "desconocido"}</span> (Ley 2166 de 2021, Art. 11).
                 Si no se incrementa el número de afiliados activos, la junta podría perder su condición de activa.
               </p>
             </div>
@@ -130,7 +176,7 @@ function JacDetalle() {
             <Users size={16} />
             <span className="text-xs font-semibold uppercase tracking-wider">Afiliados</span>
           </div>
-          <p className="text-2xl font-bold text-gray-800 dark:text-gray-100">{jac.afiliados}</p>
+          <p className="text-2xl font-bold text-gray-800 dark:text-gray-100">{jac.afiliados || 0}</p>
           <p className="text-xs text-gray-400 dark:text-gray-500">Registrados en la junta</p>
         </div>
 
@@ -139,12 +185,32 @@ function JacDetalle() {
             <FileText size={16} />
             <span className="text-xs font-semibold uppercase tracking-wider">Número RUC</span>
           </div>
-          <p className="text-lg font-semibold text-gray-800 dark:text-gray-100">
-            {jac.numeroRuc || <span className="text-sm font-normal text-gray-400 italic">No tiene RUC</span>}
-          </p>
-          <button className="absolute bottom-3 right-3 p-1.5 text-gray-400 hover:text-[#1B7F4B] hover:bg-green-50 dark:hover:bg-[#1B7F4B]/20 rounded-lg transition-colors opacity-0 group-hover:opacity-100" title="Editar Número RUC">
-            <Pencil size={14} />
-          </button>
+          {editingField === "ruc" ? (
+            <div className="flex items-center gap-2">
+              <input
+                autoFocus
+                value={tempValue}
+                onChange={(e) => setTempValue(e.target.value)}
+                className="w-full bg-gray-50 dark:bg-gray-900 border border-gray-200 dark:border-gray-700 rounded px-2 py-1 text-sm focus:outline-none focus:ring-1 focus:ring-[#1B7F4B]"
+                placeholder="Ingrese RUC..."
+              />
+              <button onClick={handleSave} className="p-1 text-green-600 hover:bg-green-50 dark:hover:bg-green-900/20 rounded transition-colors" title="Guardar">
+                <Check size={16} />
+              </button>
+              <button onClick={handleCancel} className="p-1 text-red-600 hover:bg-red-50 dark:hover:bg-red-900/20 rounded transition-colors" title="Cancelar">
+                <X size={16} />
+              </button>
+            </div>
+          ) : (
+            <>
+              <p className="text-lg font-semibold text-gray-800 dark:text-gray-100">
+                {jac.numeroRUC || <span className="text-sm font-normal text-gray-400 italic">No tiene RUC</span>}
+              </p>
+              <button onClick={() => startEditing("ruc", jac.numeroRUC || "")} className="absolute bottom-3 right-3 p-1.5 text-gray-400 hover:text-[#1B7F4B] hover:bg-green-50 dark:hover:bg-[#1B7F4B]/20 rounded-lg transition-colors opacity-0 group-hover:opacity-100" title="Editar Número RUC">
+                <Pencil size={14} />
+              </button>
+            </>
+          )}
         </div>
 
         <div className={`${card} p-4 relative group`}>
@@ -152,12 +218,42 @@ function JacDetalle() {
             <ShieldCheck size={16} />
             <span className="text-xs font-semibold uppercase tracking-wider">Estado de la JAC</span>
           </div>
-          <div className="flex flex-wrap gap-2 mt-1">
-            <Badge label={jac.organizativo} variant={orgVariant[jac.organizativo]} />
-          </div>
-          <button className="absolute bottom-3 right-3 p-1.5 text-gray-400 hover:text-[#1B7F4B] hover:bg-green-50 dark:hover:bg-[#1B7F4B]/20 rounded-lg transition-colors opacity-0 group-hover:opacity-100" title="Editar Estado de la JAC">
-            <Pencil size={14} />
-          </button>
+          {editingField === "estado" ? (
+            <div className="flex items-center gap-2">
+              <select
+                autoFocus
+                value={tempValue}
+                onChange={(e) => setTempValue(e.target.value)}
+                className="w-full bg-gray-50 dark:bg-gray-900 border border-gray-200 dark:border-gray-700 rounded px-2 py-1 text-sm focus:outline-none focus:ring-1 focus:ring-[#1B7F4B]"
+              >
+                <option value="Activa">Activa</option>
+                <option value="Inactiva">Inactiva</option>
+                <option value="Cancelada">Cancelada</option>
+              </select>
+              <button onClick={handleSave} className="p-1 text-green-600 hover:bg-green-50 dark:hover:bg-green-900/20 rounded transition-colors">
+                <Check size={16} />
+              </button>
+              <button onClick={handleCancel} className="p-1 text-red-600 hover:bg-red-50 dark:hover:bg-red-900/20 rounded transition-colors">
+                <X size={16} />
+              </button>
+            </div>
+          ) : (
+            <>
+              <div className="flex items-center gap-2">
+                <span className={`w-2 h-2 rounded-full ${jac.estado === "Activa" ? "bg-green-500 shadow-[0_0_8px_rgba(34,197,94,0.6)]" :
+                  jac.estado === "Inactiva" ? "bg-red-500 shadow-[0_0_8px_rgba(239,68,68,0.6)]" :
+                    jac.estado === "Cancelada" ? "bg-gray-400 shadow-[0_0_8px_rgba(156,163,175,0.6)]" :
+                      "bg-gray-300"
+                  }`}></span>
+                <p className="text-lg font-semibold text-gray-800 dark:text-gray-100">
+                  {jac.estado || "Desconocido"}
+                </p>
+              </div>
+              <button onClick={() => startEditing("estado", jac.estado || "Activa")} className="absolute bottom-3 right-3 p-1.5 text-gray-400 hover:text-[#1B7F4B] hover:bg-green-50 dark:hover:bg-[#1B7F4B]/20 rounded-lg transition-colors opacity-0 group-hover:opacity-100" title="Editar Estado de la JAC">
+                <Pencil size={14} />
+              </button>
+            </>
+          )}
         </div>
 
         <div className={`${card} p-4 relative group`}>
@@ -165,12 +261,34 @@ function JacDetalle() {
             <Tags size={16} />
             <span className="text-xs font-semibold uppercase tracking-wider">Tipo JAC</span>
           </div>
-          <p className="text-lg font-semibold text-gray-800 dark:text-gray-100">
-            {jac.tipo}
-          </p>
-          <button className="absolute bottom-3 right-3 p-1.5 text-gray-400 hover:text-[#1B7F4B] hover:bg-green-50 dark:hover:bg-[#1B7F4B]/20 rounded-lg transition-colors opacity-0 group-hover:opacity-100" title="Editar Tipo JAC">
-            <Pencil size={14} />
-          </button>
+          {editingField === "tipo" ? (
+            <div className="flex items-center gap-2">
+              <select
+                autoFocus
+                value={tempValue}
+                onChange={(e) => setTempValue(e.target.value)}
+                className="w-full bg-gray-50 dark:bg-gray-900 border border-gray-200 dark:border-gray-700 rounded px-2 py-1 text-sm focus:outline-none focus:ring-1 focus:ring-[#1B7F4B]"
+              >
+                <option value="Barrio">Barrio</option>
+                <option value="Vereda">Vereda</option>
+              </select>
+              <button onClick={handleSave} className="p-1 text-green-600 hover:bg-green-50 dark:hover:bg-green-900/20 rounded transition-colors">
+                <Check size={16} />
+              </button>
+              <button onClick={handleCancel} className="p-1 text-red-600 hover:bg-red-50 dark:hover:bg-red-900/20 rounded transition-colors">
+                <X size={16} />
+              </button>
+            </div>
+          ) : (
+            <>
+              <p className="text-lg font-semibold text-gray-800 dark:text-gray-100">
+                {jac.tipo || "No definido"}
+              </p>
+              <button onClick={() => startEditing("tipo", jac.tipo || "Barrio")} className="absolute bottom-3 right-3 p-1.5 text-gray-400 hover:text-[#1B7F4B] hover:bg-green-50 dark:hover:bg-[#1B7F4B]/20 rounded-lg transition-colors opacity-0 group-hover:opacity-100" title="Editar Tipo JAC">
+                <Pencil size={14} />
+              </button>
+            </>
+          )}
         </div>
       </div>
 
@@ -220,7 +338,7 @@ function JacDetalle() {
                 </button>
               )}
               <span className="text-xs text-gray-400 dark:text-gray-500 shrink-0">
-                {miembrosFiltrados.length} de {jac.miembros.length}
+                {miembrosFiltrados.length} de {(jac.miembros || []).length}
               </span>
             </div>
           </div>

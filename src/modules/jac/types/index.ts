@@ -47,11 +47,11 @@ export interface JacItem {
   barrio: string;
   afiliados: number;
   documental: EstadoDocumental;
-  organizativo: EstadoOrganizativo;
+  estado: EstadoOrganizativo;
   /** Tipo de territorio que cubre la JAC (Barrio urbano / Vereda rural). */
   tipo: TipoJac;
   /** Número de RUC tal como está en BD; `null` cuando no está registrado. */
-  numeroRuc: string | null;
+  numeroRUC: string | null;
   /** Mínimo legal de afiliados para sostener la JAC activa según su tipo. */
   minimoAfiliados: number;
   /** `true` cuando la JAC está activa pero no alcanza el mínimo legal. */
