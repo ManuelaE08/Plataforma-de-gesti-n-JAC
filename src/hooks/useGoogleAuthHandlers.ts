@@ -22,12 +22,12 @@ export function useGoogleAuthHandlers({
 
     const ok = await loginWithGoogle(credentialResponse.credential);
 
-    if (ok) {
+    if (ok.success) {
       navigate(navigateTo);
       return;
     }
 
-    onFailure?.("Error validando el acceso con Google");
+    onFailure?.(ok.message || "Error validando el acceso con Google");
   };
 
   const handleGoogleError = () => {

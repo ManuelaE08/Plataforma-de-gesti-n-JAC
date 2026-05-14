@@ -13,6 +13,11 @@ interface AuthBackendResponse extends AuthBackendPayload {
   user?: AuthBackendPayload;
 }
 
+export interface AuthWithGoogleResponse {
+  message?: string;
+  success?: boolean;
+}
+
 const baseEndpoint = import.meta.env.VITE_AUTH?.replace(/\/$/, "");
 const authEndpoint = baseEndpoint?.replace(/\/auth$/, "");
 
@@ -102,14 +107,14 @@ export function AuthProvider({ children }: AuthProviderProps) {
     };
   }, []);
 
-  const loginWithGoogle = async (credential: string): Promise<boolean> => {
+  const loginWithGoogle = async (credential: string): Promise<AuthWithGoogleResponse> => {
     try {
       if (!credential) {
         throw new Error("No se recibió la credencial de Google");
       }
 
       if (!authEndpoint) {
-        throw new Error("VITE_AUTH no está configurado");
+        throw new Error("Variables de entorno mal configuradas");
       }
 
       const response = await fetch(authEndpoint + "/auth/google", {
@@ -120,13 +125,19 @@ export function AuthProvider({ children }: AuthProviderProps) {
       });
 
       if (!response.ok) {
-        const errorBody = await response.text();
-        throw new Error(
-          "Error autenticando con Google (" +
-            response.status +
-            "): " +
-            (errorBody || response.statusText)
-        );
+        const errorText = await response.text();
+        let errorMessage = "Error en la autenticación con Google";
+
+        if (errorText) {
+          try {
+            const parsed = JSON.parse(errorText) as { message?: string };
+            errorMessage = parsed.message || errorText;
+          } catch {
+            errorMessage = errorText;
+          }
+        }
+
+        throw new Error(errorMessage);
       }
 
       let nextUser: User | null = null;
@@ -150,10 +161,14 @@ export function AuthProvider({ children }: AuthProviderProps) {
       }
 
       setUser(nextUser);
-      return true;
+      return { success: true, message: "Autenticación exitosa" };
     } catch (error) {
       console.error("Error en login de Google:", error);
-      return false;
+
+      return {
+        success: false,
+        message: error instanceof Error && error.message ? error.message : "Error en la autenticación con Google",
+      };
     }
   };
 
