@@ -14,7 +14,7 @@ export interface Municipio {
 
 // Jac (referencia básica para mostrar en asocomunal)
 export interface JacItem {
-  estado: any;
+  estado: 'activa' | 'inactiva' | 'cancelada';
   id: number;
   nombre: string;
   barrio?: string;
