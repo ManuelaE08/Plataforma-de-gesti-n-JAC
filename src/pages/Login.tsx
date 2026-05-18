@@ -1,11 +1,9 @@
-import { GoogleLogin } from "@react-oauth/google";
-import { Shield, ArrowRight, MapPin, Users, FileText, Sun, Moon } from "lucide-react";
+import { Shield, ArrowRight, MapPin, Users, FileText, Sun, Moon, LogIn } from "lucide-react";
 import { useNavigate } from "react-router-dom";
-import { useGoogleAuthHandlers } from "../hooks/useGoogleAuthHandlers";
 import { useState, useEffect } from "react";
 import logoGobernacion from "../assets/logo-gobernacion.png";
+import { useAuth } from "../context/AuthContext";
 
-// ── Utilidades de tema ──────────────────────────────────────────────────────
 function getInitialTheme(): boolean {
   const saved = localStorage.getItem("login-theme");
   if (saved) return saved === "dark";
@@ -17,7 +15,6 @@ function applyTheme(isDark: boolean) {
   localStorage.setItem("login-theme", isDark ? "dark" : "light");
 }
 
-// ── Datos del panel lateral ─────────────────────────────────────────────────
 const FEATURES = [
   {
     icon: Users,
@@ -36,18 +33,11 @@ const FEATURES = [
   },
 ];
 
-// ── Componente principal ────────────────────────────────────────────────────
 function Login() {
-  const [error, setError] = useState<string>("");
   const [isDark, setIsDark] = useState<boolean>(getInitialTheme);
-
+  const { login } = useAuth();
   const navigate = useNavigate();
-  const { handleGoogleSuccess, handleGoogleError } = useGoogleAuthHandlers({
-    onFailure: setError,
-    navigateTo: "/",
-  });
 
-  // Aplicar clase dark al <html> cada vez que cambia el estado
   useEffect(() => {
     applyTheme(isDark);
   }, [isDark]);
@@ -60,7 +50,6 @@ function Login() {
       {/* ── Barra superior institucional ──────────────────────────────────── */}
       <header className="w-full bg-white dark:bg-[#1E293B] border-b border-[#E2E8F0] dark:border-[#334155] px-6 py-3 flex items-center justify-between shadow-sm transition-colors duration-300">
 
-        {/* Izquierda: logo + identidad */}
         <div className="flex items-center gap-3">
           <img
             src={logoGobernacion}
@@ -77,9 +66,7 @@ function Login() {
           </div>
         </div>
 
-        {/* Derecha: toggle tema + ir al inicio */}
         <div className="flex items-center gap-2">
-          {/* Botón dark/light */}
           <button
             onClick={toggleTheme}
             aria-label={isDark ? "Cambiar a tema claro" : "Cambiar a tema oscuro"}
@@ -93,7 +80,6 @@ function Login() {
             {isDark ? <Sun size={16} /> : <Moon size={16} />}
           </button>
 
-          {/* Ir al inicio */}
           <button
             onClick={() => navigate("/")}
             className="flex items-center gap-1.5 text-sm text-[#1B7F4B] font-medium
@@ -118,14 +104,11 @@ function Login() {
                         dark:from-[#0D3B22] dark:via-[#145F38] dark:to-[#1B7F4B]
                         text-white relative overflow-hidden transition-colors duration-300"
           >
-            {/* Círculos decorativos */}
             <div className="absolute -top-16 -left-16 w-56 h-56 rounded-full bg-white/5" />
             <div className="absolute -bottom-20 -right-12 w-72 h-72 rounded-full bg-white/5" />
             <div className="absolute top-1/2 left-1/3 w-32 h-32 rounded-full bg-white/5" />
 
-            {/* Encabezado + logo del escudo */}
             <div className="relative z-10">
-              {/* Logo gobernación en el panel lateral */}
               <div className="flex items-center gap-4 mb-8">
                 <div className="w-14 h-14 rounded-xl bg-white/90 flex items-center justify-center p-1.5 shadow-md">
                   <img
@@ -150,7 +133,6 @@ function Login() {
               </p>
             </div>
 
-            {/* Características */}
             <div className="relative z-10 flex flex-col gap-4 mt-8">
               {FEATURES.map(({ icon: Icon, title, desc }) => (
                 <div key={title} className="flex items-start gap-3">
@@ -185,7 +167,7 @@ function Login() {
               </span>
             </div>
 
-            {/* Encabezado del formulario */}
+            {/* Encabezado */}
             <div className="mb-8">
               <div className="w-11 h-11 rounded-xl bg-[#E8F5EE] dark:bg-[#0D3B22] flex items-center justify-center mb-4">
                 <span className="text-[#1B7F4B] dark:text-[#4ADE80] font-bold text-base">
@@ -209,26 +191,20 @@ function Login() {
               <div className="flex-1 h-px bg-[#E2E8F0] dark:bg-[#334155]" />
             </div>
 
-            {/* Botón Google */}
+            {/* Botón Keycloak */}
             <div className="flex justify-center mb-6">
-              <GoogleLogin
-                onSuccess={handleGoogleSuccess}
-                onError={handleGoogleError}
-                useOneTap
-                shape="rectangular"
-                theme={isDark ? "filled_black" : "outline"}
-                text="signin_with"
-                size="large"
-              />
+              <button
+                onClick={login}
+                className="flex items-center gap-3 px-6 py-3 rounded-lg
+                           bg-[#1B7F4B] hover:bg-[#145F38]
+                           text-white font-medium text-sm
+                           shadow-sm hover:shadow-md
+                           transition-all duration-200 w-full max-w-xs justify-center"
+              >
+                <LogIn size={18} />
+                Iniciar sesión institucional
+              </button>
             </div>
-
-            {/* Mensaje de error */}
-            {error && (
-              <div className="flex items-start gap-2 bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800 rounded-lg px-4 py-3 mb-4">
-                <span className="text-red-500 text-xs mt-0.5">⚠</span>
-                <p className="text-red-600 dark:text-red-400 text-xs">{error}</p>
-              </div>
-            )}
 
             {/* Aviso acceso restringido */}
             <div className="mt-6 pt-6 border-t border-[#E2E8F0] dark:border-[#334155]">

@@ -1,5 +1,3 @@
-import type { AuthWithGoogleResponse } from "../context/AuthContext";
-
 export type UserRole = "admin" | "operador" | "usuario";
 
 export interface User {
@@ -15,6 +13,6 @@ export interface User {
 export interface AuthContextType {
   user: User | null;
   isAuthLoading: boolean;
-  loginWithGoogle: (credential: string) => Promise<AuthWithGoogleResponse>;
+  login: () => void;
   logout: () => void;
 }

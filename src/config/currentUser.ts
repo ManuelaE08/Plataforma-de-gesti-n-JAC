@@ -3,7 +3,7 @@ import type { UserRole } from "../types/auth";
 export const roleLabels: Record<UserRole, string> = {
   usuario: "Usuario",
   operador: "Operador",
-  admin: "Administrador/Auditor",
+  admin: "Administrador",
 };
 
 export const roleInitials: Record<UserRole, string> = {
