@@ -1,4 +1,4 @@
-const baseEndpoint = import.meta.env.VITE_AUDITORIA?.replace(/\/$/, "") || "http://localhost:3002";
+const baseEndpoint = import.meta.env.VITE_API_BASE_URL?.replace(/\/$/, "");
 
 export class SolicitudesService {
   /**

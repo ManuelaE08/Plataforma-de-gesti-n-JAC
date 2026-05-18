@@ -1,7 +1,6 @@
 import { MigrationOptions, MigrationResponse } from "../types";
 
-const asocomunalesEndpoint = import.meta.env.VITE_ASOCOMUNALES_ENDPOINT?.replace(/\/$/, "") || "http://localhost:3001";
-const jacEndpoint = import.meta.env.VITE_JAC_ENDPOINT?.replace(/\/$/, "") || "http://localhost:3002";
+const baseEndpoint = import.meta.env.VITE_API_BASE_URL?.replace(/\/$/, "");
 
 export class MigrationService {
   static async uploadExcel({ file, entity }: MigrationOptions): Promise<MigrationResponse> {
@@ -9,10 +8,11 @@ export class MigrationService {
     const formData = new FormData();
     formData.append("file", file);
     
-    const endpointPath = entity === "asocomunales" ? "/asocomunal/import-file" : "/jac/import";
-    const base = entity === "asocomunales" ? asocomunalesEndpoint : jacEndpoint;
+    const endpoint = entity === "asocomunales" 
+      ? `${baseEndpoint}/asocomunales/import-file` 
+      : `${baseEndpoint}/jacs/import`;
 
-    const response = await fetch(`${base}${endpointPath}`, {
+    const response = await fetch(endpoint, {
       method: "POST",
       body: formData,
       credentials: "include",
@@ -29,10 +29,11 @@ export class MigrationService {
   static async uploadJSON({ data, entity }: MigrationOptions): Promise<MigrationResponse> {
     if (!data) throw new Error("No data provided");
 
-    const endpointPath = entity === "asocomunales" ? "/asocomunal/import" : "/jac/import";
-    const base = entity === "asocomunales" ? asocomunalesEndpoint : jacEndpoint;
+    const endpoint = entity === "asocomunales" 
+      ? `${baseEndpoint}/asocomunales/import` 
+      : `${baseEndpoint}/jacs/import`;
 
-    const response = await fetch(`${base}${endpointPath}`, {
+    const response = await fetch(endpoint, {
       method: "POST",
       headers: {
         "Content-Type": "application/json",

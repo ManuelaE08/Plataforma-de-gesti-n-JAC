@@ -1,6 +1,7 @@
 import type { Municipio } from "../types";
 
-const baseEndpoint = import.meta.env.VITE_ENDPOINT?.replace(/\/$/, "");
+const apiBase = import.meta.env.VITE_API_BASE_URL?.replace(/\/$/, "");
+const baseEndpoint = `${apiBase}/asocomunales/municipios`;
 
 /**
  * Servicio para interactuar con el microservicio de municipios.
@@ -18,7 +19,7 @@ export class MunicipiosService {
       throw new Error("VITE_ENDPOINT no está configurado");
     }
 
-    const response = await fetch(`${baseEndpoint}/municipio`, {
+    const response = await fetch(`${baseEndpoint}`, {
       method: "GET",
       headers: {
         "Content-Type": "application/json",
@@ -41,7 +42,7 @@ export class MunicipiosService {
       throw new Error("VITE_ENDPOINT no está configurado");
     }
 
-    const response = await fetch(`${baseEndpoint}/municipio/${id}`, {
+    const response = await fetch(`${baseEndpoint}/${id}`, {
       method: "GET",
       headers: {
         "Content-Type": "application/json",

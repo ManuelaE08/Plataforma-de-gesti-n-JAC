@@ -1,0 +1,232 @@
+export interface JAC {
+  id: string;
+  nombre: string;
+  municipio: string;
+  tipoZona: "Urbana" | "Rural";
+  estado: "Activa" | "Inactiva";
+}
+
+export interface Asocomunal {
+  id: string;
+  nombre: string;
+  municipio: string;
+  jacsAfiliadas: string[];
+}
+
+export interface MunicipioPosition {
+  nombre: string;
+  x: number;
+  y: number;
+  importance: number;
+}
+
+export const MUNICIPIOS_CAUCA: string[] = [
+  "Popayán",
+  "Santander de Quilichao",
+  "Puerto Tejada",
+  "El Bordo",
+  "Piendamó",
+  "Silvia",
+  "Timbío",
+  "Cajibío",
+  "Caldono",
+  "Corinto",
+  "Miranda",
+  "Padilla",
+  "Villa Rica",
+  "Buenos Aires",
+  "Caloto",
+  "Guachené",
+  "Jambaló",
+  "Toribío",
+  "Suárez",
+  "López de Micay",
+  "Timbiquí",
+  "Guapi",
+  "Argelia",
+  "Balboa",
+  "Bolívar",
+  "Florencia",
+  "La Vega",
+  "Mercaderes",
+  "Patía",
+  "Piamonte",
+  "Rosas",
+  "San Sebastián",
+  "Sotará",
+  "Sucre",
+  "Almaguer",
+  "Inzá",
+  "Páez",
+  "Puracé",
+  "Santa Rosa",
+  "Morales",
+  "Totóró",
+  "El Tambo",
+];
+
+export const MUNICIPIOS_MAP_POSITIONS: MunicipioPosition[] = [
+  { nombre: "Popayán", x: 210, y: 80, importance: 5 },
+  { nombre: "Santander de Quilichao", x: 80, y: 80, importance: 4 },
+  { nombre: "Puerto Tejada", x: 70, y: 120, importance: 3 },
+  { nombre: "El Bordo", x: 130, y: 120, importance: 2 },
+  { nombre: "Piendamó", x: 160, y: 150, importance: 3 },
+  { nombre: "Silvia", x: 240, y: 150, importance: 3 },
+  { nombre: "Timbío", x: 230, y: 190, importance: 2 },
+  { nombre: "Cajibío", x: 190, y: 230, importance: 2 },
+  { nombre: "Caldono", x: 150, y: 210, importance: 2 },
+  { nombre: "Corinto", x: 100, y: 160, importance: 2 },
+  { nombre: "Miranda", x: 180, y: 120, importance: 2 },
+  { nombre: "Padilla", x: 120, y: 240, importance: 2 },
+  { nombre: "Villa Rica", x: 80, y: 190, importance: 2 },
+  { nombre: "Buenos Aires", x: 45, y: 220, importance: 2 },
+  { nombre: "Caloto", x: 60, y: 150, importance: 2 },
+  { nombre: "Guachené", x: 55, y: 180, importance: 2 },
+  { nombre: "Jambaló", x: 170, y: 70, importance: 1 },
+  { nombre: "Toribío", x: 220, y: 50, importance: 1 },
+  { nombre: "Suárez", x: 280, y: 220, importance: 1 },
+  { nombre: "López de Micay", x: 320, y: 270, importance: 1 },
+  { nombre: "Timbiquí", x: 350, y: 240, importance: 1 },
+  { nombre: "Guapi", x: 360, y: 290, importance: 1 },
+  { nombre: "Argelia", x: 260, y: 250, importance: 1 },
+  { nombre: "Balboa", x: 260, y: 140, importance: 1 },
+  { nombre: "Bolívar", x: 130, y: 80, importance: 1 },
+  { nombre: "Florencia", x: 310, y: 170, importance: 1 },
+  { nombre: "La Vega", x: 200, y: 40, importance: 1 },
+  { nombre: "Mercaderes", x: 120, y: 270, importance: 1 },
+  { nombre: "Patía", x: 350, y: 130, importance: 1 },
+  { nombre: "Piamonte", x: 290, y: 80, importance: 1 },
+  { nombre: "Rosas", x: 230, y: 90, importance: 1 },
+  { nombre: "San Sebastián", x: 15, y: 140, importance: 1 },
+  { nombre: "Sotará", x: 190, y: 40, importance: 1 },
+  { nombre: "Sucre", x: 170, y: 270, importance: 1 },
+  { nombre: "Almaguer", x: 100, y: 60, importance: 1 },
+  { nombre: "Inzá", x: 310, y: 60, importance: 1 },
+  { nombre: "Páez", x: 200, y: 240, importance: 1 },
+  { nombre: "Puracé", x: 250, y: 190, importance: 1 },
+  { nombre: "Santa Rosa", x: 270, y: 310, importance: 1 },
+  { nombre: "Morales", x: 120, y: 300, importance: 1 },
+  { nombre: "Totóró", x: 170, y: 300, importance: 1 },
+  { nombre: "El Tambo", x: 240, y: 300, importance: 1 },
+];
+
+export const JACS_MOCK: JAC[] = [
+  { id: "jac-01", nombre: "JAC San Francisco", municipio: "Popayán", tipoZona: "Urbana", estado: "Activa" },
+  { id: "jac-02", nombre: "JAC Nueva Esperanza", municipio: "Popayán", tipoZona: "Urbana", estado: "Activa" },
+  { id: "jac-03", nombre: "JAC Loma Verde", municipio: "Popayán", tipoZona: "Urbana", estado: "Activa" },
+  { id: "jac-04", nombre: "JAC La Colina", municipio: "Popayán", tipoZona: "Rural", estado: "Activa" },
+  { id: "jac-05", nombre: "JAC Ciudadela Cauca", municipio: "Popayán", tipoZona: "Urbana", estado: "Activa" },
+  { id: "jac-06", nombre: "JAC San José", municipio: "Popayán", tipoZona: "Urbana", estado: "Activa" },
+  { id: "jac-07", nombre: "JAC Unión Campesina", municipio: "Popayán", tipoZona: "Rural", estado: "Activa" },
+  { id: "jac-08", nombre: "JAC La Paz", municipio: "Santander de Quilichao", tipoZona: "Urbana", estado: "Activa" },
+  { id: "jac-09", nombre: "JAC Brisas del Cauca", municipio: "Santander de Quilichao", tipoZona: "Urbana", estado: "Activa" },
+  { id: "jac-10", nombre: "JAC Nuevo Horizonte", municipio: "Santander de Quilichao", tipoZona: "Rural", estado: "Activa" },
+  { id: "jac-11", nombre: "JAC Villa del Sol", municipio: "Santander de Quilichao", tipoZona: "Urbana", estado: "Activa" },
+  { id: "jac-12", nombre: "JAC Monte Bello", municipio: "Santander de Quilichao", tipoZona: "Rural", estado: "Inactiva" },
+  { id: "jac-13", nombre: "JAC El Progreso", municipio: "Puerto Tejada", tipoZona: "Urbana", estado: "Activa" },
+  { id: "jac-14", nombre: "JAC San Martín", municipio: "Puerto Tejada", tipoZona: "Urbana", estado: "Activa" },
+  { id: "jac-15", nombre: "JAC La Estrella", municipio: "Puerto Tejada", tipoZona: "Rural", estado: "Activa" },
+  { id: "jac-16", nombre: "JAC Santa Clara", municipio: "Puerto Tejada", tipoZona: "Rural", estado: "Activa" },
+  { id: "jac-17", nombre: "JAC El Mirador", municipio: "Silvia", tipoZona: "Rural", estado: "Activa" },
+  { id: "jac-18", nombre: "JAC La Esperanza", municipio: "Silvia", tipoZona: "Urbana", estado: "Activa" },
+  { id: "jac-19", nombre: "JAC Brisas de Silvia", municipio: "Silvia", tipoZona: "Urbana", estado: "Activa" },
+  { id: "jac-20", nombre: "JAC Unión del Valle", municipio: "Silvia", tipoZona: "Rural", estado: "Activa" },
+  { id: "jac-21", nombre: "JAC El Bosque", municipio: "El Bordo", tipoZona: "Rural", estado: "Activa" },
+  { id: "jac-22", nombre: "JAC San Rafael", municipio: "El Bordo", tipoZona: "Rural", estado: "Activa" },
+  { id: "jac-23", nombre: "JAC La Fortuna", municipio: "Piendamó", tipoZona: "Rural", estado: "Activa" },
+  { id: "jac-24", nombre: "JAC Nuevo Amanecer", municipio: "Piendamó", tipoZona: "Urbana", estado: "Activa" },
+  { id: "jac-25", nombre: "JAC La Trinidad", municipio: "Timbío", tipoZona: "Rural", estado: "Activa" },
+  { id: "jac-26", nombre: "JAC Vista Hermosa", municipio: "Timbío", tipoZona: "Urbana", estado: "Activa" },
+  { id: "jac-27", nombre: "JAC El Ocaso", municipio: "Cajibío", tipoZona: "Rural", estado: "Activa" },
+  { id: "jac-28", nombre: "JAC San Antonio", municipio: "Cajibío", tipoZona: "Rural", estado: "Activa" },
+  { id: "jac-29", nombre: "JAC La Esperanza", municipio: "Caldono", tipoZona: "Rural", estado: "Activa" },
+  { id: "jac-30", nombre: "JAC Nuevo Oriente", municipio: "Caldono", tipoZona: "Rural", estado: "Activa" },
+  { id: "jac-31", nombre: "JAC La Amistad", municipio: "Corinto", tipoZona: "Urbana", estado: "Activa" },
+  { id: "jac-32", nombre: "JAC El Paraíso", municipio: "Corinto", tipoZona: "Rural", estado: "Activa" },
+  { id: "jac-33", nombre: "JAC San Jorge", municipio: "Miranda", tipoZona: "Rural", estado: "Activa" },
+  { id: "jac-34", nombre: "JAC Los Pinos", municipio: "Miranda", tipoZona: "Urbana", estado: "Activa" },
+  { id: "jac-35", nombre: "JAC Las Brisas", municipio: "Padilla", tipoZona: "Urbana", estado: "Activa" },
+  { id: "jac-36", nombre: "JAC El Carmen", municipio: "Padilla", tipoZona: "Rural", estado: "Activa" },
+  { id: "jac-37", nombre: "JAC El Sueño", municipio: "Villa Rica", tipoZona: "Rural", estado: "Activa" },
+  { id: "jac-38", nombre: "JAC San Miguel", municipio: "Buenos Aires", tipoZona: "Rural", estado: "Activa" },
+  { id: "jac-39", nombre: "JAC Corazón del Cauca", municipio: "Caloto", tipoZona: "Urbana", estado: "Activa" },
+  { id: "jac-40", nombre: "JAC Santa Rita", municipio: "Guachené", tipoZona: "Urbana", estado: "Activa" },
+  { id: "jac-41", nombre: "JAC La Soledad", municipio: "Jambaló", tipoZona: "Rural", estado: "Activa" },
+  { id: "jac-42", nombre: "JAC San Vicente", municipio: "Toribío", tipoZona: "Rural", estado: "Activa" },
+  { id: "jac-43", nombre: "JAC Esperanza Viva", municipio: "Suárez", tipoZona: "Rural", estado: "Activa" },
+  { id: "jac-44", nombre: "JAC Buenavista", municipio: "López de Micay", tipoZona: "Rural", estado: "Activa" },
+  { id: "jac-45", nombre: "JAC Los Naranjos", municipio: "Timbiquí", tipoZona: "Rural", estado: "Activa" },
+  { id: "jac-46", nombre: "JAC Brisas del Mar", municipio: "Guapi", tipoZona: "Rural", estado: "Activa" },
+  { id: "jac-47", nombre: "JAC Monteverde", municipio: "Argelia", tipoZona: "Rural", estado: "Activa" },
+  { id: "jac-48", nombre: "JAC San Rafael", municipio: "Balboa", tipoZona: "Rural", estado: "Activa" },
+  { id: "jac-49", nombre: "JAC Corazón Verde", municipio: "Bolívar", tipoZona: "Rural", estado: "Activa" },
+  { id: "jac-50", nombre: "JAC Oasis", municipio: "Florencia", tipoZona: "Rural", estado: "Activa" },
+];
+
+export const ASOCOMUNALES_MOCK: Asocomunal[] = [
+  {
+    id: "asocomunal-01",
+    nombre: "Asocomunal Popayán Central",
+    municipio: "Popayán",
+    jacsAfiliadas: [
+      "JAC San Francisco",
+      "JAC Nueva Esperanza",
+      "JAC Loma Verde",
+      "JAC La Colina",
+      "JAC Ciudadela Cauca",
+    ],
+  },
+  {
+    id: "asocomunal-02",
+    nombre: "Asocomunal Norte Quilichao",
+    municipio: "Santander de Quilichao",
+    jacsAfiliadas: [
+      "JAC La Paz",
+      "JAC Brisas del Cauca",
+      "JAC Nuevo Horizonte",
+      "JAC Villa del Sol",
+    ],
+  },
+  {
+    id: "asocomunal-03",
+    nombre: "Asocomunal Costa Pacífica",
+    municipio: "Puerto Tejada",
+    jacsAfiliadas: [
+      "JAC El Progreso",
+      "JAC San Martín",
+      "JAC La Estrella",
+      "JAC Santa Clara",
+    ],
+  },
+  {
+    id: "asocomunal-04",
+    nombre: "Asocomunal Sud Cauca",
+    municipio: "Silvia",
+    jacsAfiliadas: [
+      "JAC El Mirador",
+      "JAC La Esperanza",
+      "JAC Brisas de Silvia",
+      "JAC Unión del Valle",
+    ],
+  },
+  {
+    id: "asocomunal-05",
+    nombre: "Asocomunal Norte Valle",
+    municipio: "El Bordo",
+    jacsAfiliadas: [
+      "JAC El Bosque",
+      "JAC San Rafael",
+      "JAC La Fortuna",
+    ],
+  },
+  {
+    id: "asocomunal-06",
+    nombre: "Asocomunal Central Cauca",
+    municipio: "Piendamó",
+    jacsAfiliadas: [
+      "JAC Nuevo Amanecer",
+      "JAC La Trinidad",
+      "JAC San Jorge",
+    ],
+  },
+];

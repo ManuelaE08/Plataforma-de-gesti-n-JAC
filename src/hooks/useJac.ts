@@ -1,4 +1,6 @@
 import { useState, useEffect, useRef, useCallback } from "react";
+import { useAuth } from "../context/AuthContext";
+import { isPrivilegedUser } from "../utils/roles";
 import { JACService } from "../modules/jac/services/jacService";
 import type { JacListItem, EstadoDocumental, EstadoOrganizativo } from "../modules/jac/types";
 
@@ -37,6 +39,9 @@ export const rolVariant: Record<string, "green" | "blue" | "amber" | "gray"> = {
 // ── Hook principal ────────────────────────────────────────────────────────────
 
 export function useJac() {
+  const { user, isAuthLoading } = useAuth();
+  const privileged = isPrivilegedUser(user);
+
   const [jacData,  setJacData]  = useState<JacListItem[]>([]);
   const [loading,  setLoading]  = useState(true);
   const [error,    setError]    = useState<string | null>(null);
@@ -44,8 +49,9 @@ export function useJac() {
   const [debouncedBusqueda, setDebouncedBusqueda] = useState("");
   const debounceRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 
-  // Carga inicial y busqueda desde el microservicio
   const fetchJacs = useCallback(async () => {
+    if (isAuthLoading) return;
+
     setLoading(true);
     setError(null);
     try {
@@ -54,22 +60,27 @@ export function useJac() {
       const estado = filters.estado ? filters.estado : undefined;
       const documental = filters.documental ? filters.documental : undefined;
       const hasSearch = Boolean(nombre || municipio || estado || documental);
-      const data = hasSearch
-        ? await JACService.search({
-            nombre: nombre || undefined,
-            municipio: municipio || undefined,
-            estado,
-            documental,
-            limite: filters.limite,
-          })
-        : await JACService.findAll(filters.limite);
+      const searchFilters = {
+        nombre: nombre || undefined,
+        municipio: municipio || undefined,
+        estado,
+        documental,
+        limite: filters.limite,
+      };
+      const data = privileged
+        ? hasSearch
+          ? await JACService.search(searchFilters)
+          : await JACService.findAll(filters.limite)
+        : hasSearch
+          ? await JACService.searchPublic(searchFilters)
+          : await JACService.findAllPublic(filters.limite);
       setJacData(data);
     } catch (err) {
       setError(err instanceof Error ? err.message : "Error al cargar las JAC");
     } finally {
       setLoading(false);
     }
-  }, [debouncedBusqueda, filters.estado, filters.municipio, filters.documental, filters.limite]);
+  }, [debouncedBusqueda, filters.estado, filters.municipio, filters.documental, filters.limite, privileged, isAuthLoading]);
 
   useEffect(() => {
     fetchJacs();

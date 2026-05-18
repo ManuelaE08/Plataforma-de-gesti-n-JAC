@@ -6,6 +6,7 @@ import PageHeader from "../components/ui/PageHeader";
 import SearchBar from "../components/ui/SearchBar";
 import EmptyState from "../components/ui/EmptyState";
 import { useAuth } from "../context/AuthContext";
+import { isPrivilegedUser } from "../utils/roles";
 import { orgVariant, rolVariant } from "../hooks/useJac";
 import { JACService } from "../modules/jac/services/jacService";
 import { SolicitudesService } from "../modules/solicitudes/services/solicitudes.service";
@@ -18,22 +19,41 @@ const selectCls = "appearance-none bg-white dark:bg-gray-900 border border-gray-
 function JacDetalle() {
   const { id } = useParams();
   const navigate = useNavigate();
-  const { user } = useAuth();
-  const canViewAfiliados = user?.rol === "admin" || user?.rol === "operador";
+  const { user, isAuthLoading } = useAuth();
+  const privileged = isPrivilegedUser(user);
+  const canViewAfiliados = privileged;
+  const canViewConfidential = privileged;
 
   const [jac, setJac] = useState<JacItem | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
-    if (!id) return;
+    if (!id || isAuthLoading) return;
+
+    let cancelled = false;
     setLoading(true);
     setError(null);
-    JACService.findOne(Number(id))
-      .then(setJac)
-      .catch((err: Error) => setError(err.message))
-      .finally(() => setLoading(false));
-  }, [id]);
+
+    const load = privileged
+      ? JACService.findOne(Number(id))
+      : JACService.findOnePublic(Number(id));
+
+    load
+      .then((data) => {
+        if (!cancelled) setJac(data);
+      })
+      .catch((err: Error) => {
+        if (!cancelled) setError(err.message);
+      })
+      .finally(() => {
+        if (!cancelled) setLoading(false);
+      });
+
+    return () => {
+      cancelled = true;
+    };
+  }, [id, privileged, isAuthLoading]);
 
   const [busqueda, setBusqueda] = useState("");
   const [filtroRol, setFiltroRol] = useState("");
@@ -191,7 +211,7 @@ function JacDetalle() {
       )}
 
       {/* KPI cards */}
-      <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-5 gap-4 mb-4">
+      <div className={`grid grid-cols-1 md:grid-cols-2 gap-4 mb-4 ${canViewConfidential ? "xl:grid-cols-5" : "xl:grid-cols-4"}`}>
         <div className={`${card} p-4`}>
           <div className="flex items-center gap-2 mb-2 text-gray-500 dark:text-gray-400">
             <MapPin size={16} />
@@ -210,6 +230,7 @@ function JacDetalle() {
           <p className="text-xs text-gray-400 dark:text-gray-500">Registrados en la junta</p>
         </div>
 
+        {canViewConfidential && (
         <div className={`${card} p-4 relative group`}>
           <div className="flex items-center gap-2 mb-2 text-gray-500 dark:text-gray-400">
             <FileText size={16} />
@@ -236,12 +257,15 @@ function JacDetalle() {
               <p className="text-lg font-semibold text-gray-800 dark:text-gray-100">
                 {jac.numeroRUC || <span className="text-sm font-normal text-gray-400 italic">No tiene RUC</span>}
               </p>
-              <button onClick={() => startEditing("ruc", jac.numeroRUC || "")} className="absolute bottom-3 right-3 p-1.5 text-gray-400 hover:text-[#1B7F4B] hover:bg-green-50 dark:hover:bg-[#1B7F4B]/20 rounded-lg transition-colors opacity-0 group-hover:opacity-100" title="Editar Número RUC">
-                <Pencil size={14} />
-              </button>
+              {canViewAfiliados && (
+                <button onClick={() => startEditing("ruc", jac.numeroRUC || "")} className="absolute bottom-3 right-3 p-1.5 text-gray-400 hover:text-[#1B7F4B] hover:bg-green-50 dark:hover:bg-[#1B7F4B]/20 rounded-lg transition-colors opacity-0 group-hover:opacity-100" title="Editar Número RUC">
+                  <Pencil size={14} />
+                </button>
+              )}
             </>
           )}
         </div>
+        )}
 
         <div className={`${card} p-4 relative group`}>
           <div className="flex items-center gap-2 mb-2 text-gray-500 dark:text-gray-400">
@@ -279,9 +303,11 @@ function JacDetalle() {
                   {jac.estado || "Desconocido"}
                 </p>
               </div>
-              <button onClick={() => startEditing("estado", jac.estado || "Activa")} className="absolute bottom-3 right-3 p-1.5 text-gray-400 hover:text-[#1B7F4B] hover:bg-green-50 dark:hover:bg-[#1B7F4B]/20 rounded-lg transition-colors opacity-0 group-hover:opacity-100" title="Editar Estado de la JAC">
-                <Pencil size={14} />
-              </button>
+              {canViewAfiliados && (
+                <button onClick={() => startEditing("estado", jac.estado || "Activa")} className="absolute bottom-3 right-3 p-1.5 text-gray-400 hover:text-[#1B7F4B] hover:bg-green-50 dark:hover:bg-[#1B7F4B]/20 rounded-lg transition-colors opacity-0 group-hover:opacity-100" title="Editar Estado de la JAC">
+                  <Pencil size={14} />
+                </button>
+              )}
             </>
           )}
         </div>
@@ -314,9 +340,11 @@ function JacDetalle() {
               <p className="text-lg font-semibold text-gray-800 dark:text-gray-100">
                 {jac.tipo || "No definido"}
               </p>
-              <button onClick={() => startEditing("tipo", jac.tipo || "Barrio")} className="absolute bottom-3 right-3 p-1.5 text-gray-400 hover:text-[#1B7F4B] hover:bg-green-50 dark:hover:bg-[#1B7F4B]/20 rounded-lg transition-colors opacity-0 group-hover:opacity-100" title="Editar Tipo JAC">
-                <Pencil size={14} />
-              </button>
+              {canViewAfiliados && (
+                <button onClick={() => startEditing("tipo", jac.tipo || "Barrio")} className="absolute bottom-3 right-3 p-1.5 text-gray-400 hover:text-[#1B7F4B] hover:bg-green-50 dark:hover:bg-[#1B7F4B]/20 rounded-lg transition-colors opacity-0 group-hover:opacity-100" title="Editar Tipo JAC">
+                  <Pencil size={14} />
+                </button>
+              )}
             </>
           )}
         </div>

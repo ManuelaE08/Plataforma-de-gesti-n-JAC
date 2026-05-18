@@ -1,4 +1,4 @@
-import type { JacItem, JacListItem } from "../types";
+import type { JacItem, JacListItem, JacPublicItem } from "../types";
 
 /**
  * Adapter para JAC.
@@ -16,5 +16,15 @@ export class JACAdapter {
 
   static mapJACs(raw: JacListItem[]): JacListItem[] {
     return raw;
+  }
+
+  /** Convierte detalle público al shape de JacItem para reutilizar la UI sin miembros ni RUC. */
+  static mapPublicToJacItem(raw: JacPublicItem): JacItem {
+    return {
+      ...raw,
+      documental: "Vigente",
+      numeroRUC: null,
+      miembros: [],
+    };
   }
 }
