@@ -6,7 +6,7 @@ import keycloak, { initKeycloak, persistRefreshToken, clearPersistedSession } fr
 const AuthContext = createContext<AuthContextType | null>(null);
 
 function isValidRole(rol: unknown): rol is UserRole {
-  return rol === "admin" || rol === "operador";
+  return rol === "superadmin" || rol === "admin" || rol === "operador";
 }
 
 function buildUserFromToken(): User | null {
@@ -17,7 +17,10 @@ function buildUserFromToken(): User | null {
     ? ((parsed as Record<string, { roles?: unknown[] }>).realm_access?.roles ?? [])
     : [];
 
-  const rol = realmRoles.find(isValidRole);
+  // Si tiene varios roles del sistema, gana el de mayor privilegio.
+  const rolesValidos = realmRoles.filter(isValidRole);
+  const prioridad: UserRole[] = ["superadmin", "admin", "operador"];
+  const rol = prioridad.find((r) => rolesValidos.includes(r));
   if (!rol) return null;
 
   const nombre =
@@ -65,7 +68,7 @@ export function AuthProvider({ children }: AuthProviderProps) {
 
           if (!sessionUser) {
             clearPersistedSession();
-            void keycloak.logout({ redirectUri: window.location.origin + "/login" });
+            void keycloak.logout({ redirectUri: window.location.origin });
             setUser(null);
           } else {
             persistRefreshToken();
@@ -95,7 +98,7 @@ export function AuthProvider({ children }: AuthProviderProps) {
   const logout = () => {
     setUser(null);
     clearPersistedSession();
-    void keycloak.logout({ redirectUri: window.location.origin + "/login" });
+    void keycloak.logout({ redirectUri: window.location.origin });
   };
 
   return (

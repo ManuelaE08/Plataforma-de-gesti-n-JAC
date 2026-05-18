@@ -45,7 +45,7 @@ function AsocomunalDetalle() {
     fetchAsocomunal();
   }, [id]);
 
-  const canViewJacs = user?.rol === "admin" || user?.rol === "operador";
+  const canViewJacs = user?.rol === "admin" || user?.rol === "superadmin" || user?.rol === "operador";
   const jacsFiltradas = asoc?.jacs.filter((j) =>
     !debouncedBusqueda || j.nombre.toLowerCase().includes(debouncedBusqueda.toLowerCase())
   ) || [];

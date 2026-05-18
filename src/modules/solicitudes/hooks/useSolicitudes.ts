@@ -127,7 +127,7 @@ export function useSolicitudes(isOperadorView?: boolean, skipFetch = false) {
   const fetchSolicitudes = async () => {
     // Si skipFetch es true o si intentamos ver "todas" sin ser admin, abortamos
     if (skipFetch) return;
-    if (!isOperadorView && user?.rol !== "admin") return;
+    if (!isOperadorView && user?.rol !== "admin" && user?.rol !== "superadmin") return;
 
     setLoading(true);
     try {

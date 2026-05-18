@@ -19,7 +19,8 @@ function JacDetalle() {
   const { id } = useParams();
   const navigate = useNavigate();
   const { user } = useAuth();
-  const canViewAfiliados = user?.rol === "admin" || user?.rol === "operador";
+  const esAdmin = user?.rol === "admin" || user?.rol === "superadmin";
+  const canViewAfiliados = esAdmin || user?.rol === "operador";
 
   const [jac, setJac] = useState<JacItem | null>(null);
   const [loading, setLoading] = useState(true);
@@ -71,7 +72,7 @@ function JacDetalle() {
 
       const fieldNames: Record<string, string> = { ruc: "Número RUC", estado: "Estado", tipo: "Tipo" };
 
-      if (user?.rol === "admin") {
+      if (esAdmin) {
         // Admin edita directamente
         const updated = await JACService.update(jac.id, dto);
         setJac(updated);

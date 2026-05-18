@@ -24,9 +24,10 @@ function Jac() {
   const { user } = useAuth();
   const [showModal, setShowModal] = useState(false);
 
-  const canViewAfiliados = user?.rol === "admin" || user?.rol === "operador";
-  const canDelete = user?.rol === "admin";
-  const canCreate = user?.rol === "admin" || user?.rol === "operador";
+  const esAdmin = user?.rol === "admin" || user?.rol === "superadmin";
+  const canViewAfiliados = esAdmin || user?.rol === "operador";
+  const canDelete = esAdmin;
+  const canCreate = esAdmin || user?.rol === "operador";
 
   const visibleColumns = canViewAfiliados
     ? columns
