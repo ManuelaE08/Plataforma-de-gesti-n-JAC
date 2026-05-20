@@ -3,7 +3,7 @@ import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import Swal from "sweetalert2";
 import "sweetalert2/dist/sweetalert2.min.css";
-import Badge from "../../../components/ui/Badge";
+import { OrganizativoStatus } from "../../../components/ui/OrganizativoStatus";
 import PageHeader from "../../../components/ui/PageHeader";
 import SearchBar from "../../../components/ui/SearchBar";
 import EmptyState from "../../../components/ui/EmptyState";
@@ -142,6 +142,12 @@ function Asocomunales() {
     }
   };
 
+  const canViewConfidential = user?.rol === "admin" || user?.rol === "operador";
+
+  const headers = canViewConfidential
+    ? ["Nombre", "Municipio", "Presidente", "Contacto", "Estado", ...(canViewActions ? ["Acciones"] : [])]
+    : ["Nombre", "Municipio", "Estado"];
+
   return (
     <div>
       <PageHeader
@@ -238,8 +244,8 @@ function Asocomunales() {
             className={selectCls}
           >
             <option value="">Todos los estados</option>
-            <option value="true">Activo</option>
-            <option value="false">Inactivo</option>
+            <option value="true">Activa</option>
+            <option value="false">Inactiva</option>
           </select>
         </div>
         <div className="flex items-center gap-3 mt-4">
@@ -255,7 +261,7 @@ function Asocomunales() {
           <table className="w-full text-sm">
             <thead>
               <tr className="border-b border-gray-100 dark:border-gray-700 bg-gray-50 dark:bg-gray-900/50">
-                {["Nombre", "Municipio", "Presidente", "Estado", ...(canViewActions ? ["Acciones"] : [])].map((col) => (
+                {headers.map((col) => (
                   <th key={col} className="text-left text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wider px-4 py-3">{col}</th>
                 ))}
               </tr>
@@ -268,9 +274,18 @@ function Asocomunales() {
                   <tr key={item.id} className="border-b border-gray-50 dark:border-gray-700 hover:bg-gray-50 dark:hover:bg-gray-700/40 transition-colors">
                     <td className="px-4 py-3 font-medium text-gray-800 dark:text-gray-100">{item.nombre}</td>
                     <td className="px-4 py-3 text-gray-600 dark:text-gray-300">{item.municipio.nombre}</td>
-                    <td className="px-4 py-3 text-gray-600 dark:text-gray-300">{item.presidente || "—"}</td>
+                    {canViewConfidential && (
+                      <>
+                        <td className="px-4 py-3 text-gray-600 dark:text-gray-300">{item.presidente || "—"}</td>
+                        <td className="px-4 py-3 text-gray-600 dark:text-gray-300">
+                          {item.telefono
+                            ? <button className="text-[#1B7F4B] dark:text-emerald-400 hover:underline">{item.telefono}</button>
+                            : "—"}
+                        </td>
+                      </>
+                    )}
                     <td className="px-4 py-3">
-                      <Badge label={item.estado ? "Activo" : "Inactivo"} variant={item.estado ? "green" : "gray"} />
+                      <OrganizativoStatus estado={item.estado} />
                     </td>
                     {canViewActions && (
                       <td className="px-4 py-3">

@@ -1,11 +1,11 @@
-import type { JacItem, JacListItem, CreateJACDto, UpdateJACDto, SearchJACDto } from "../types";
+import type { JacItem, JacListItem, JacPublicItem, CreateJACDto, UpdateJACDto, SearchJACDto } from "../types";
 import { JACAdapter } from "../adapters/jac.adapter";
 
-const baseEndpoint = import.meta.env.VITE_JAC_ENDPOINT?.replace(/\/$/, "");
+const baseEndpoint = import.meta.env.VITE_API_BASE_URL?.replace(/\/$/, "");
 
 function base(): string {
-  if (!baseEndpoint) throw new Error("VITE_JAC_ENDPOINT no está configurado");
-  return `${baseEndpoint}/jac`;
+  if (!baseEndpoint) throw new Error("VITE_API_BASE_URL no está configurado");
+  return `${baseEndpoint}/jacs`;
 }
 
 const defaultHeaders = { "Content-Type": "application/json" };
@@ -67,6 +67,44 @@ export class JACService {
     return JACAdapter.mapJACs(data);
   }
 
+  /** GET /jac/public?limite=N — Lista JACs sin autenticación. */
+  static async findAllPublic(limite: number = 100): Promise<JacListItem[]> {
+    const res = await fetch(`${base()}/public?limite=${limite}`, {
+      method: "GET",
+      headers: defaultHeaders,
+    });
+    const data = await handleResponse<JacListItem[]>(res);
+    return JACAdapter.mapJACs(data);
+  }
+
+  /** GET /jac/public/buscar — Búsqueda pública sin PII. */
+  static async searchPublic(filters: SearchJACDto): Promise<JacListItem[]> {
+    const params = new URLSearchParams();
+    if (filters.nombre)     params.set("nombre",     filters.nombre.toLowerCase());
+    if (filters.municipio)  params.set("municipio",  filters.municipio.toLowerCase());
+    if (filters.estado)     params.set("estado",     filters.estado.toLowerCase());
+    if (filters.documental) params.set("documental", filters.documental);
+    if (filters.limite)     params.set("limite",     String(filters.limite));
+
+    const qs  = params.size ? `?${params.toString()}` : "";
+    const res = await fetch(`${base()}/public/buscar${qs}`, {
+      method: "GET",
+      headers: defaultHeaders,
+    });
+    const data = await handleResponse<JacListItem[]>(res);
+    return JACAdapter.mapJACs(data);
+  }
+
+  /** GET /jac/public/:id — Detalle público sin miembros ni RUC. */
+  static async findOnePublic(id: number): Promise<JacItem> {
+    const res = await fetch(`${base()}/public/${id}`, {
+      method: "GET",
+      headers: defaultHeaders,
+    });
+    const data = await handleResponse<JacPublicItem>(res);
+    return JACAdapter.mapPublicToJacItem(data);
+  }
+
   /** GET /jac/:id — Una JAC por ID con sus miembros. */
   static async findOne(id: number): Promise<JacItem> {
     const res = await fetch(`${base()}/${id}`, {
@@ -112,9 +150,9 @@ export class JACService {
     return handleResponse<{ message: string }>(res);
   }
 
-  /** GET /asocomunal — Obtiene la réplica de asocomunales desde el MS de JACs. */
+  /** GET /asocomunales — Obtiene la réplica de asocomunales desde el MS de JACs. */
   static async getAsocomunalesReplica(): Promise<any[]> {
-    const endpoint = `${baseEndpoint}/asocomunal`;
+    const endpoint = `${base()}/asocomunales`;
     const res = await fetch(endpoint, {
       method: "GET",
       headers: defaultHeaders,
@@ -122,4 +160,24 @@ export class JACService {
     });
     return handleResponse<any[]>(res);
   }
+
+  /** GET /jacs/public/stats — Obtiene las estadísticas consolidadas públicas del Dashboard. */
+  static async getPublicStats(): Promise<PublicStats> {
+    const res = await fetch(`${base()}/public/stats`, {
+      method: "GET",
+      headers: defaultHeaders,
+      credentials: "include",
+    });
+    return handleResponse<PublicStats>(res);
+  }
+}
+
+export interface PublicStats {
+  activeJacsCount: number;
+  totalJACS: number;
+  rucCount: number;
+  urbanCount: number;
+  ruralCount: number;
+  totalAsocomunales: number;
+  topMunicipios: Array<{ municipio: string; count: number }>;
 }

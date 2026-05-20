@@ -1,7 +1,7 @@
 import { ArrowLeft, MapPin, Users, Phone, Mail, RotateCcw } from "lucide-react";
 import { useState, useEffect } from "react";
 import { useNavigate, useParams } from "react-router-dom";
-import Badge from "../../../components/ui/Badge";
+import { OrganizativoStatus } from "../../../components/ui/OrganizativoStatus";
 import PageHeader from "../../../components/ui/PageHeader";
 import SearchBar from "../../../components/ui/SearchBar";
 import EmptyState from "../../../components/ui/EmptyState";
@@ -18,7 +18,31 @@ function AsocomunalDetalle() {
   const navigate = useNavigate();
   const { user } = useAuth();
 
-  const [asoc, setAsoc] = useState<Asocomunal | null>(null);
+  const canViewConfidential = user?.rol === "admin" || user?.rol === "operador";
+
+  if (!canViewConfidential) {
+    return (
+      <div>
+        <PageHeader
+          title="Acceso Denegado"
+          subtitle="Detalle de Asociación Comunal"
+          description="No tienes permisos para consultar los datos confidenciales de esta organización."
+        >
+          <button onClick={() => navigate("/asocomunales")} className={btnBack}>
+            <ArrowLeft size={16} /> Volver al listado
+          </button>
+        </PageHeader>
+        <div className={`${card} p-8 text-center border-red-200 dark:border-red-900/50 bg-red-50/10 dark:bg-red-950/5 rounded-xl`}>
+          <p className="text-base font-semibold text-red-600 dark:text-red-400">Acceso no autorizado</p>
+          <p className="mt-2 text-sm text-gray-500 dark:text-gray-400">
+            Esta sección contiene información de contacto privada de los directores. Por favor, inicia sesión con una cuenta autorizada de la Gobernación.
+          </p>
+        </div>
+      </div>
+    );
+  }
+
+  const [asoc,    setAsoc]    = useState<Asocomunal | null>(null);
   const [loading, setLoading] = useState(true);
   const [isRefreshing, setIsRefreshing] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -125,7 +149,7 @@ function AsocomunalDetalle() {
           <div className="flex items-center gap-2 mb-2 text-gray-500 dark:text-gray-400">
             <span className="text-xs font-semibold uppercase tracking-wider">Estado</span>
           </div>
-          <Badge label={asoc.estado ? "Activo" : "Inactivo"} variant={asoc.estado ? "green" : "gray"} />
+          <OrganizativoStatus estado={asoc.estado} className="text-lg" />
         </div>
 
         <div className={`${card} p-4`}>
@@ -242,21 +266,7 @@ function AsocomunalDetalle() {
                     <tr key={jac.id} className="border-b border-gray-50 dark:border-gray-700 hover:bg-gray-50 dark:hover:bg-gray-700/40 transition-colors">
                       <td className="px-4 py-3 font-medium text-gray-800 dark:text-gray-100">{jac.nombre}</td>
                       <td className="px-4 py-3">
-                        <div className="flex items-center gap-2">
-                          <span className={`w-2 h-2 rounded-full ${jac.estado === 'activa' ? 'bg-green-500 shadow-[0_0_8px_rgba(34,197,94,0.6)]' :
-                            jac.estado === 'inactiva' ? 'bg-red-500 shadow-[0_0_8px_rgba(239,68,68,0.6)]' :
-                              jac.estado === 'cancelada' ? 'bg-gray-400 shadow-[0_0_8px_rgba(156,163,175,0.6)]' :
-                                'bg-gray-300'
-                            }`}></span>
-                          <span className={`inline-flex px-2 py-1 text-xs font-medium rounded-full ${jac.estado === 'activa'
-                            ? "bg-green-100 dark:bg-green-900/30 text-green-800 dark:text-green-400"
-                            : jac.estado === 'inactiva'
-                              ? "bg-red-100 dark:bg-red-900/30 text-red-800 dark:text-red-400"
-                              : "bg-gray-100 dark:bg-gray-700 text-gray-800 dark:text-gray-300"
-                            }`}>
-                            {jac.estado === 'activa' ? "Activa" : jac.estado === 'cancelada' ? "Cancelada" : "Inactiva"}
-                          </span>
-                        </div>
+                        <OrganizativoStatus estado={jac.estado} />
                       </td>
                     </tr>
                   ))}
