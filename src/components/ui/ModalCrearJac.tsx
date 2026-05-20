@@ -130,7 +130,7 @@ export function ModalCrearJac({ onClose, onSave }: ModalCrearJacProps) {
     try {
       setSubmitting(true);
 
-      if (user?.rol === "admin") {
+      if (user?.rol === "admin" || user?.rol === "superadmin") {
         // Admin crea directamente y registra en auditoría
         await JACService.create(payload);
 

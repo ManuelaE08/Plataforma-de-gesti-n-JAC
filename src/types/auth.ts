@@ -1,4 +1,4 @@
-export type UserRole = "admin" | "operador" | "usuario";
+export type UserRole = "superadmin" | "admin" | "operador" | "usuario";
 
 export interface User {
   id?: number;
@@ -13,6 +13,6 @@ export interface User {
 export interface AuthContextType {
   user: User | null;
   isAuthLoading: boolean;
-  loginWithGoogle: (credential: string) => Promise<boolean>;
+  login: () => void;
   logout: () => void;
 }

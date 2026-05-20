@@ -43,11 +43,12 @@ function Asocomunales() {
   const [editingAsocomunal, setEditingAsocomunal] = useState<Asocomunal | null>(null);
   const [creatingLoading, setCreatingLoading] = useState(false);
 
-  const canViewActions = user?.rol === "admin" || user?.rol === "operador";
+  const esAdmin = user?.rol === "admin" || user?.rol === "superadmin";
+  const canViewActions = esAdmin || user?.rol === "operador";
   //Nuevo cambio, se permite la creacion de asocomunales por parte de los operadores
-  const canCreate = user?.rol === "admin" || user?.rol === "operador";
+  const canCreate = esAdmin || user?.rol === "operador";
 
-  const canDirectEdit = user?.rol === "admin";
+  const canDirectEdit = esAdmin;
 
   const handleSaveEdit = async (id: number, asoc: CreateAsocomunalDto | UpdateAsocomunalDto) => {
     try {
@@ -92,7 +93,7 @@ function Asocomunales() {
     });
     if (result.isConfirmed) {
       try {
-        if (user?.rol === "admin") {
+        if (esAdmin) {
           await toggleAsocomunalStatus(id, !currentStatus);
           // Log fire-and-forget en auditoría solo si es admin
           SolicitudesService.registrarAccionAdmin({
@@ -171,7 +172,7 @@ function Asocomunales() {
           onSave={async (nueva: CreateAsocomunalDto | UpdateAsocomunalDto) => {
             try {
               setCreatingLoading(true);
-              if (user?.rol === "admin") {
+              if (esAdmin) {
                 await createAsocomunal(nueva as CreateAsocomunalDto);
                 // Log fire-and-forget en auditoría
                 SolicitudesService.registrarAccionAdmin({
