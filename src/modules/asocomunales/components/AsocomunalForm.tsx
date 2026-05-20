@@ -64,9 +64,12 @@ export function AsocomunalForm({ municipios, onSubmit, loading = false, initialD
       {field("Nombre", "nombre", "text", "Nombre de la asocomunal")}
       {field("Municipio", "municipioId")}
       {field("Presidente", "presidente", "text", "Nombre del presidente")}
-      {field("Teléfono", "telefono", "tel", "Número de teléfono")}
-      {field("Correo", "correo", "email", "Correo electrónico")}
-
+      {field("Teléfono", "telefono", "text", "Ej: +57-310-123-4567 o 310-123-4567, 320-987-6543")}
+      {field("Correo", "correo", "text", "Ej: contacto@example.com, info@example.com")}
+      
+      <p className="text-xs text-gray-500 dark:text-gray-400 -mt-2">
+        💡 <span className="font-medium">Múltiples contactos:</span> Puedes separar teléfonos y correos con coma (,) o punto y coma (;)
+      </p>
 
       <div className="flex items-center gap-2">
         <input

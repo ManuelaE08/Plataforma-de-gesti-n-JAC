@@ -8,6 +8,8 @@ import EmptyState from "../components/ui/EmptyState";
 import { useAuth } from "../context/AuthContext";
 import { orgVariant, rolVariant } from "../hooks/useJac";
 import { JACService } from "../modules/jac/services/jacService";
+
+//Se agrego SolicitudesService para poder editar las solicitudes
 import { SolicitudesService } from "../modules/solicitudes/services/solicitudes.service";
 import type { JacItem } from "../modules/jac/types";
 
@@ -69,6 +71,7 @@ function JacDetalle() {
       if (editingField === "estado") dto.estado = tempValue.toLowerCase();
       if (editingField === "tipo") dto.tipo = tempValue.toLowerCase();
 
+      //Se agrego para que el auditor modifque directamente y el operador cree una solicitud
       const fieldNames: Record<string, string> = { ruc: "Número RUC", estado: "Estado", tipo: "Tipo" };
 
       if (user?.rol === "admin") {
