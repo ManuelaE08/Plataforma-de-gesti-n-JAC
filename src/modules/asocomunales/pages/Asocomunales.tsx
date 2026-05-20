@@ -1,4 +1,4 @@
-import { Plus, RotateCcw, UserRound, Edit } from "lucide-react";
+import { Plus, RotateCcw, Ellipsis, Edit } from "lucide-react";
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import Swal from "sweetalert2";
@@ -51,6 +51,13 @@ function Asocomunales() {
 
   const handleSaveEdit = async (id: number, asoc: CreateAsocomunalDto | UpdateAsocomunalDto) => {
     try {
+      // Enriquecer el payload con el nombre del municipio para la auditoría
+      const payloadAudit: any = { ...asoc };
+      if (asoc.municipioId) {
+        const muni = municipios.find(m => m.id === asoc.municipioId);
+        if (muni) payloadAudit.municipioId_nombre = muni.nombre;
+      }
+
       if (user?.rol === "admin") {
         const currentAsoc = data.find(a => a.id === id);
         await updateAsocomunal(id, asoc as UpdateAsocomunalDto);
@@ -60,13 +67,13 @@ function Asocomunales() {
           tipoAccion: "EDITAR",
           entidadId: String(id),
           payloadAnterior: currentAsoc,
-          payloadDeseado: asoc,
+          payloadDeseado: payloadAudit,
         }).catch(err => console.warn("[Auditoría] No se pudo registrar el log:", err));
         await Swal.fire({ icon: "success", title: "Asocomunal actualizada", text: "La actualización se guardó correctamente.", confirmButtonColor: "#1B7F4B", timer: 2500, timerProgressBar: true });
       } else {
         // Buscamos la asocomunal actual para enviarla como payloadAnterior
         const currentAsoc = data.find(a => a.id === id);
-        await proponerCambio("ASOCOMUNAL", "EDITAR", asoc, currentAsoc, String(id));
+        await proponerCambio("ASOCOMUNAL", "EDITAR", payloadAudit, currentAsoc, String(id));
         await Swal.fire({ icon: "info", title: "Propuesta enviada", text: "Tu propuesta de edición ha sido enviada para revisión del administrador.", confirmButtonColor: "#1B7F4B" });
       }
       setEditingAsocomunal(null);
@@ -288,7 +295,7 @@ function Asocomunales() {
                             className="p-1.5 rounded-lg hover:bg-[#1B7F4B]/10 dark:hover:bg-[#1B7F4B]/20 text-gray-500 dark:text-gray-400 hover:text-[#1B7F4B] dark:hover:text-emerald-400 transition-colors"
                             title="Ver detalle"
                           >
-                            <UserRound size={15} />
+                            <Ellipsis size={20} />
                           </button>
                           {canCreate && (
                             <button

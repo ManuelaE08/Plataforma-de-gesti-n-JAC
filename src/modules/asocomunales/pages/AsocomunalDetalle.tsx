@@ -9,14 +9,14 @@ import { useAuth } from "../../../context/AuthContext";
 import { AsocomunalesService } from "../services/asocomunalesService";
 import type { Asocomunal } from "../types";
 
-const card    = "bg-white dark:bg-gray-800 rounded-xl border border-gray-100 dark:border-gray-700 shadow-sm";
-const lbl     = "text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wider mb-1";
+const card = "bg-white dark:bg-gray-800 rounded-xl border border-gray-100 dark:border-gray-700 shadow-sm";
+const lbl = "text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wider mb-1";
 const btnBack = "flex items-center gap-2 bg-white dark:bg-gray-800 hover:bg-gray-50 dark:hover:bg-gray-700 text-gray-700 dark:text-gray-200 text-sm font-semibold px-4 py-2.5 rounded-lg border border-gray-200 dark:border-gray-600 transition-colors";
 
 function AsocomunalDetalle() {
-  const { id }     = useParams();
-  const navigate   = useNavigate();
-  const { user }   = useAuth();
+  const { id } = useParams();
+  const navigate = useNavigate();
+  const { user } = useAuth();
 
   const canViewConfidential = user?.rol === "admin" || user?.rol === "operador";
 
@@ -44,9 +44,10 @@ function AsocomunalDetalle() {
 
   const [asoc,    setAsoc]    = useState<Asocomunal | null>(null);
   const [loading, setLoading] = useState(true);
-  const [error,   setError]   = useState<string | null>(null);
+  const [isRefreshing, setIsRefreshing] = useState(false);
+  const [error, setError] = useState<string | null>(null);
 
-  const [busquedaJac,       setBusquedaJac]       = useState("");
+  const [busquedaJac, setBusquedaJac] = useState("");
   const [debouncedBusqueda, setDebouncedBusqueda] = useState("");
 
   useEffect(() => {
@@ -54,20 +55,32 @@ function AsocomunalDetalle() {
     return () => clearTimeout(timer);
   }, [busquedaJac]);
 
-  useEffect(() => {
-    const fetchAsocomunal = async () => {
-      try {
-        setLoading(true);
-        if (id) { const data = await AsocomunalesService.getAsocomunalWithJacs(Number(id)); setAsoc(data); }
-      } catch (err) {
-        console.error("Error cargando asocomunal:", err);
-        setError("No se pudo cargar la asocomunal");
-      } finally {
-        setLoading(false);
+  const fetchAsocomunal = async () => {
+    try {
+      if (id) {
+        const data = await AsocomunalesService.getAsocomunalWithJacs(Number(id));
+        setAsoc(data);
       }
+    } catch (err) {
+      console.error("Error cargando asocomunal:", err);
+      setError("No se pudo cargar la asocomunal");
+    }
+  };
+
+  useEffect(() => {
+    const load = async () => {
+      setLoading(true);
+      await fetchAsocomunal();
+      setLoading(false);
     };
-    fetchAsocomunal();
+    load();
   }, [id]);
+
+  const handleRefresh = async () => {
+    setIsRefreshing(true);
+    await fetchAsocomunal();
+    setIsRefreshing(false);
+  };
 
   const canViewJacs = user?.rol === "admin" || user?.rol === "operador";
   const jacsFiltradas = asoc?.jacs.filter((j) =>
@@ -143,7 +156,7 @@ function AsocomunalDetalle() {
           <div className="flex items-center gap-2 mb-2 text-gray-500 dark:text-gray-400">
             <span className="text-xs font-semibold uppercase tracking-wider">Contacto</span>
           </div>
-          <p className="text-xs text-gray-600 dark:text-gray-300 truncate">{asoc.correo   || "—"}</p>
+          <p className="text-xs text-gray-600 dark:text-gray-300 truncate">{asoc.correo || "—"}</p>
           <p className="text-xs text-gray-600 dark:text-gray-300 truncate">{asoc.telefono || "—"}</p>
         </div>
       </div>
@@ -158,16 +171,40 @@ function AsocomunalDetalle() {
           </div>
           <div>
             <p className={lbl}>Teléfono</p>
-            <div className="flex items-center gap-2">
-              <Phone size={14} className="text-gray-400 dark:text-gray-500" />
-              <p className="text-gray-800 dark:text-gray-200">{asoc.telefono || "No especificado"}</p>
+            <div className="flex items-start gap-2">
+              <Phone size={14} className="text-gray-400 dark:text-gray-500 mt-1 flex-shrink-0" />
+              <div className="text-gray-800 dark:text-gray-200">
+                {asoc.telefono ? (
+                  <div className="space-y-1">
+                    {asoc.telefono.split(/[,;]+/).map((tel, idx) => (
+                      <div key={idx} className="break-all">
+                        {tel.trim()}
+                      </div>
+                    ))}
+                  </div>
+                ) : (
+                  "No especificado"
+                )}
+              </div>
             </div>
           </div>
           <div>
             <p className={lbl}>Correo</p>
-            <div className="flex items-center gap-2">
-              <Mail size={14} className="text-gray-400 dark:text-gray-500" />
-              <p className="text-gray-800 dark:text-gray-200">{asoc.correo || "No especificado"}</p>
+            <div className="flex items-start gap-2">
+              <Mail size={14} className="text-gray-400 dark:text-gray-500 mt-1 flex-shrink-0" />
+              <div className="text-gray-800 dark:text-gray-200">
+                {asoc.correo ? (
+                  <div className="space-y-1">
+                    {asoc.correo.split(/[,;]+/).map((email, idx) => (
+                      <div key={idx} className="break-all">
+                        {email.trim()}
+                      </div>
+                    ))}
+                  </div>
+                ) : (
+                  "No especificado"
+                )}
+              </div>
             </div>
           </div>
           <div>
@@ -199,6 +236,14 @@ function AsocomunalDetalle() {
                   <RotateCcw size={14} /> Limpiar
                 </button>
               )}
+              <button
+                onClick={handleRefresh}
+                disabled={isRefreshing}
+                className="inline-flex items-center gap-1.5 bg-white dark:bg-gray-800 hover:bg-gray-100 dark:hover:bg-gray-700 disabled:opacity-50 disabled:cursor-not-allowed text-blue-600 dark:text-blue-400 text-sm px-3 py-2 rounded-lg border border-gray-200 dark:border-gray-600 transition-colors shrink-0"
+                title="Recargar datos"
+              >
+                <RotateCcw size={14} className={isRefreshing ? 'animate-spin' : ''} /> Recargar
+              </button>
               <span className="text-xs text-gray-400 dark:text-gray-500 shrink-0">
                 {jacsFiltradas.length} de {asoc.jacs.length}
               </span>

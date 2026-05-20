@@ -35,8 +35,8 @@ function TablaCambios({ cambios, tipo }: { cambios: CambioCampo[]; tipo: Solicit
 }
 
 const TIPOS: TipoAccion[] = [
-  "Crear JAC", "Editar JAC", "Eliminar JAC",
-  "Crear Asocomunal", "Editar Asocomunal", "Eliminar Asocomunal",
+  "Crear JAC", "Editar JAC",
+  "Crear Asocomunal", "Editar Asocomunal", "Cambio de estado Asocomunal",
 ];
 
 function SolicitudesAdmin() {
@@ -116,11 +116,11 @@ function SolicitudesAdmin() {
           </div>
         </div>
         <div className="flex items-center gap-3 mt-4">
-          <button onClick={handleSearch} className="inline-flex items-center gap-2 bg-[#1B7F4B] hover:bg-[#166340] text-white text-sm font-semibold px-4 py-2.5 rounded-lg transition-colors">
-            <Search size={16} /> Buscar
-          </button>
-          <button onClick={handleClear} className="inline-flex items-center gap-2 bg-white dark:bg-gray-800 hover:bg-gray-50 dark:hover:bg-gray-700 text-gray-600 dark:text-gray-300 text-sm font-medium px-4 py-2.5 rounded-lg border border-gray-200 dark:border-gray-600 transition-colors">
-            <RotateCcw size={16} /> Limpiar
+          <p className="text-xs text-gray-400 dark:text-gray-500">
+            Los filtros se aplican automáticamente en tiempo real
+          </p>
+          <button onClick={handleClear} className="ml-auto inline-flex items-center gap-2 bg-white dark:bg-gray-800 hover:bg-gray-50 dark:hover:bg-gray-700 text-gray-600 dark:text-gray-300 text-sm font-medium px-4 py-2.5 rounded-lg border border-gray-200 dark:border-gray-600 transition-colors">
+            <RotateCcw size={16} /> Limpiar filtros
           </button>
         </div>
       </div>

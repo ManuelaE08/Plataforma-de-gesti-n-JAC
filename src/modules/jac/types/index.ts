@@ -2,7 +2,7 @@
 
 export type EstadoDocumental = "Vigente" | "Vencida" | "Por vencer";
 export type EstadoOrganizativo = "Activa" | "Inactiva";
-export type TipoJac           = "Barrio" | "Vereda";
+export type TipoJac = "Barrio" | "Vereda";
 
 /**
  * Valores aceptados por el backend para el campo `tipo` al crear/actualizar
