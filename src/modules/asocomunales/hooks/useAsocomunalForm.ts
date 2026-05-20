@@ -65,15 +65,19 @@ export function useAsocomunalForm(initialData?: Partial<Asocomunal>) {
 
     if (key === "telefono") {
       const telefonoValue = value?.toString().trim();
-      if (telefonoValue && !/^[0-9]{7,15}$/.test(telefonoValue)) {
-        return "El teléfono debe contener solo dígitos y tener entre 7 y 15 números";
+      // Permite números, +, -, (), espacios, punto, coma (múltiples teléfonos separados)
+      if (telefonoValue && !/^[0-9+\-\s().,;/]{7,}$/.test(telefonoValue)) {
+        return "El teléfono debe contener números y caracteres como +, -, (), espacios (mínimo 7 caracteres)";
       }
     }
 
     if (key === "correo") {
       const correoValue = value?.toString().trim();
-      if (correoValue && !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(correoValue)) {
-        return "El correo electrónico no es válido";
+      // Permite múltiples correos separados por coma o punto y coma
+      const emails = correoValue.split(/[,;]+/).map(e => e.trim());
+      const invalidEmails = emails.filter(e => e && !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(e));
+      if (invalidEmails.length > 0) {
+        return "Uno o más correos no son válidos. Separa múltiples correos con coma (,) o punto y coma (;)";
       }
     }
 

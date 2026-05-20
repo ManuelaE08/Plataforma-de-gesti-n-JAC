@@ -1,7 +1,8 @@
-import type { Asocomunal, CreateAsocomunalDto, UpdateAsocomunalDto } from "../types";
+import type { Asocomunal, AsocomunalPublicApi, CreateAsocomunalDto, UpdateAsocomunalDto } from "../types";
 import { AsocomunalAdapter } from "../adapters/asocomunal.adapter";
 
-const baseEndpoint = import.meta.env.VITE_ENDPOINT?.replace(/\/$/, "");
+const apiBase = import.meta.env.VITE_API_BASE_URL?.replace(/\/$/, "");
+const baseEndpoint = `${apiBase}/asocomunales`;
 
 /**
  * Servicio para interactuar con el microservicio de asocomunales.
@@ -23,7 +24,7 @@ export class AsocomunalesService {
       throw new Error("VITE_ENDPOINT no está configurado");
     }
 
-    const response = await fetch(`${baseEndpoint}/asocomunal`, {
+    const response = await fetch(`${baseEndpoint}`, {
       method: "GET",
       headers: {
         "Content-Type": "application/json",
@@ -40,6 +41,30 @@ export class AsocomunalesService {
   }
 
   /**
+   * Lista asocomunales con datos públicos (sin PII).
+   * GET /asocomunal/public
+   */
+  static async getAsocomunalesPublic(): Promise<Asocomunal[]> {
+    if (!baseEndpoint) {
+      throw new Error("VITE_ENDPOINT no está configurado");
+    }
+
+    const response = await fetch(`${baseEndpoint}/public`, {
+      method: "GET",
+      headers: {
+        "Content-Type": "application/json",
+      },
+    });
+
+    if (!response.ok) {
+      throw new Error(`Error al obtener asocomunales públicas: ${response.statusText}`);
+    }
+
+    const data: AsocomunalPublicApi[] = await response.json();
+    return AsocomunalAdapter.mapPublicAsocomunales(data);
+  }
+
+  /**
    * Obtiene una asocomunal por ID.
    * GET /asocomunal/:id
    * Aplica el adapter para agregar campos calculados.
@@ -49,7 +74,7 @@ export class AsocomunalesService {
       throw new Error("VITE_ENDPOINT no está configurado");
     }
 
-    const response = await fetch(`${baseEndpoint}/asocomunal/${id}`, {
+    const response = await fetch(`${baseEndpoint}/${id}`, {
       method: "GET",
       headers: {
         "Content-Type": "application/json",
@@ -75,7 +100,7 @@ export class AsocomunalesService {
       throw new Error("VITE_ENDPOINT no está configurado");
     }
 
-    const response = await fetch(`${baseEndpoint}/asocomunal/${id}/jacs`, {
+    const response = await fetch(`${baseEndpoint}/${id}/jacs`, {
       method: "GET",
       headers: {
         "Content-Type": "application/json",
@@ -100,7 +125,7 @@ export class AsocomunalesService {
       throw new Error("VITE_ENDPOINT no está configurado");
     }
 
-    const response = await fetch(`${baseEndpoint}/asocomunal`, {
+    const response = await fetch(`${baseEndpoint}`, {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
@@ -136,7 +161,7 @@ export class AsocomunalesService {
       throw new Error("VITE_ENDPOINT no está configurado");
     }
 
-    const response = await fetch(`${baseEndpoint}/asocomunal/${id}`, {
+    const response = await fetch(`${baseEndpoint}/${id}`, {
       method: "PATCH",
       headers: {
         "Content-Type": "application/json",
@@ -172,7 +197,7 @@ export class AsocomunalesService {
       throw new Error("VITE_ENDPOINT no está configurado");
     }
 
-    const response = await fetch(`${baseEndpoint}/asocomunal/${id}/activate`, {
+    const response = await fetch(`${baseEndpoint}/${id}/activate`, {
       method: "PATCH",
       headers: {
         "Content-Type": "application/json",
@@ -193,7 +218,7 @@ export class AsocomunalesService {
    * PATCH /asocomunal/:id/deactivate
    */
   static async deactivateAsocomunal(id: number): Promise<Asocomunal> {
-    const response = await fetch(`${baseEndpoint}/asocomunal/${id}`, {
+    const response = await fetch(`${baseEndpoint}/${id}`, {
       method: "DELETE",
       credentials: "include",
     });
@@ -217,7 +242,7 @@ export class AsocomunalesService {
       throw new Error("VITE_ENDPOINT no está configurado");
     }
 
-    const response = await fetch(`${baseEndpoint}/asocomunal/${id}`, {
+    const response = await fetch(`${baseEndpoint}/${id}`, {
       method: "DELETE",
       headers: {
         "Content-Type": "application/json",

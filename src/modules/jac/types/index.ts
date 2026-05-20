@@ -2,7 +2,7 @@
 
 export type EstadoDocumental = "Vigente" | "Vencida" | "Por vencer";
 export type EstadoOrganizativo = "Activa" | "Inactiva";
-export type TipoJac           = "Barrio" | "Vereda";
+export type TipoJac = "Barrio" | "Vereda";
 
 /**
  * Valores aceptados por el backend para el campo `tipo` al crear/actualizar
@@ -35,6 +35,19 @@ export interface JacListItem {
   barrio: string;
   afiliados: number;
   organizativo: EstadoOrganizativo;
+}
+
+/** Detalle público de JAC (`GET /jac/public/:id`) — sin PII. */
+export interface JacPublicItem {
+  id: number;
+  nombre: string;
+  municipio: string;
+  barrio: string;
+  afiliados: number;
+  estado: EstadoOrganizativo;
+  tipo: TipoJac;
+  minimoAfiliados: number;
+  enRiesgo: boolean;
 }
 
 /**

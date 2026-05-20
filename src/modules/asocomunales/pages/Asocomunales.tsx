@@ -1,9 +1,9 @@
-import { Plus, RotateCcw, UserRound, Edit } from "lucide-react";
+import { Plus, RotateCcw, Ellipsis, Edit } from "lucide-react";
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import Swal from "sweetalert2";
 import "sweetalert2/dist/sweetalert2.min.css";
-import Badge from "../../../components/ui/Badge";
+import { OrganizativoStatus } from "../../../components/ui/OrganizativoStatus";
 import PageHeader from "../../../components/ui/PageHeader";
 import SearchBar from "../../../components/ui/SearchBar";
 import EmptyState from "../../../components/ui/EmptyState";
@@ -52,7 +52,14 @@ function Asocomunales() {
 
   const handleSaveEdit = async (id: number, asoc: CreateAsocomunalDto | UpdateAsocomunalDto) => {
     try {
-      if (esAdmin) {
+      // Enriquecer el payload con el nombre del municipio para la auditoría
+      const payloadAudit: any = { ...asoc };
+      if (asoc.municipioId) {
+        const muni = municipios.find(m => m.id === asoc.municipioId);
+        if (muni) payloadAudit.municipioId_nombre = muni.nombre;
+      }
+
+      if (user?.rol === "admin") {
         const currentAsoc = data.find(a => a.id === id);
         await updateAsocomunal(id, asoc as UpdateAsocomunalDto);
         // Log fire-and-forget en auditoría (no bloquea la UI)
@@ -61,13 +68,13 @@ function Asocomunales() {
           tipoAccion: "EDITAR",
           entidadId: String(id),
           payloadAnterior: currentAsoc,
-          payloadDeseado: asoc,
+          payloadDeseado: payloadAudit,
         }).catch(err => console.warn("[Auditoría] No se pudo registrar el log:", err));
         await Swal.fire({ icon: "success", title: "Asocomunal actualizada", text: "La actualización se guardó correctamente.", confirmButtonColor: "#1B7F4B", timer: 2500, timerProgressBar: true });
       } else {
         // Buscamos la asocomunal actual para enviarla como payloadAnterior
         const currentAsoc = data.find(a => a.id === id);
-        await proponerCambio("ASOCOMUNAL", "EDITAR", asoc, currentAsoc, String(id));
+        await proponerCambio("ASOCOMUNAL", "EDITAR", payloadAudit, currentAsoc, String(id));
         await Swal.fire({ icon: "info", title: "Propuesta enviada", text: "Tu propuesta de edición ha sido enviada para revisión del administrador.", confirmButtonColor: "#1B7F4B" });
       }
       setEditingAsocomunal(null);
@@ -135,6 +142,12 @@ function Asocomunales() {
       }
     }
   };
+
+  const canViewConfidential = user?.rol === "admin" || user?.rol === "operador";
+
+  const headers = canViewConfidential
+    ? ["Nombre", "Municipio", "Presidente", "Contacto", "Estado", ...(canViewActions ? ["Acciones"] : [])]
+    : ["Nombre", "Municipio", "Estado"];
 
   return (
     <div>
@@ -232,8 +245,8 @@ function Asocomunales() {
             className={selectCls}
           >
             <option value="">Todos los estados</option>
-            <option value="true">Activo</option>
-            <option value="false">Inactivo</option>
+            <option value="true">Activa</option>
+            <option value="false">Inactiva</option>
           </select>
         </div>
         <div className="flex items-center gap-3 mt-4">
@@ -249,7 +262,7 @@ function Asocomunales() {
           <table className="w-full text-sm">
             <thead>
               <tr className="border-b border-gray-100 dark:border-gray-700 bg-gray-50 dark:bg-gray-900/50">
-                {["Nombre", "Municipio", "Presidente", "Contacto", "Estado", ...(canViewActions ? ["Acciones"] : [])].map((col) => (
+                {headers.map((col) => (
                   <th key={col} className="text-left text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wider px-4 py-3">{col}</th>
                 ))}
               </tr>
@@ -262,14 +275,18 @@ function Asocomunales() {
                   <tr key={item.id} className="border-b border-gray-50 dark:border-gray-700 hover:bg-gray-50 dark:hover:bg-gray-700/40 transition-colors">
                     <td className="px-4 py-3 font-medium text-gray-800 dark:text-gray-100">{item.nombre}</td>
                     <td className="px-4 py-3 text-gray-600 dark:text-gray-300">{item.municipio.nombre}</td>
-                    <td className="px-4 py-3 text-gray-600 dark:text-gray-300">{item.presidente || "—"}</td>
-                    <td className="px-4 py-3 text-gray-600 dark:text-gray-300">
-                      {item.telefono
-                        ? <button className="text-[#1B7F4B] dark:text-emerald-400 hover:underline">{item.telefono}</button>
-                        : "—"}
-                    </td>
+                    {canViewConfidential && (
+                      <>
+                        <td className="px-4 py-3 text-gray-600 dark:text-gray-300">{item.presidente || "—"}</td>
+                        <td className="px-4 py-3 text-gray-600 dark:text-gray-300">
+                          {item.telefono
+                            ? <button className="text-[#1B7F4B] dark:text-emerald-400 hover:underline">{item.telefono}</button>
+                            : "—"}
+                        </td>
+                      </>
+                    )}
                     <td className="px-4 py-3">
-                      <Badge label={item.estado ? "Activo" : "Inactivo"} variant={item.estado ? "green" : "gray"} />
+                      <OrganizativoStatus estado={item.estado} />
                     </td>
                     {canViewActions && (
                       <td className="px-4 py-3">
@@ -279,7 +296,7 @@ function Asocomunales() {
                             className="p-1.5 rounded-lg hover:bg-[#1B7F4B]/10 dark:hover:bg-[#1B7F4B]/20 text-gray-500 dark:text-gray-400 hover:text-[#1B7F4B] dark:hover:text-emerald-400 transition-colors"
                             title="Ver detalle"
                           >
-                            <UserRound size={15} />
+                            <Ellipsis size={20} />
                           </button>
                           {canCreate && (
                             <button

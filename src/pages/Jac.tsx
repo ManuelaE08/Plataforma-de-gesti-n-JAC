@@ -3,7 +3,7 @@ import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import PageHeader from "../components/ui/PageHeader";
 import SearchBar from "../components/ui/SearchBar";
-import Badge from "../components/ui/Badge";
+import { OrganizativoStatus } from "../components/ui/OrganizativoStatus";
 import EmptyState from "../components/ui/EmptyState";
 import { ModalCrearJac } from "../components/ui/ModalCrearJac";
 import MunicipioCombobox from "../components/ui/MunicipioCombobox";
@@ -170,16 +170,16 @@ function Jac() {
                     <td className="px-4 py-3 text-gray-600 dark:text-gray-300">{jac.municipio}</td>
                     <td className="px-4 py-3 text-gray-600 dark:text-gray-300">{jac.barrio}</td>
                     <td className="px-4 py-3 text-gray-700 dark:text-gray-200 tabular-nums font-medium">{jac.afiliados}</td>
-                    <td className="px-4 py-3 font-medium text-gray-700 dark:text-gray-200">
-                      <div className="flex items-center gap-2">
-                        <span className={`w-2 h-2 rounded-full ${
-                          jac.organizativo === "Activa" ? "bg-green-500 shadow-[0_0_8px_rgba(34,197,94,0.6)]" :
-                          jac.organizativo === "Inactiva" ? "bg-red-500 shadow-[0_0_8px_rgba(239,68,68,0.6)]" :
-                          jac.organizativo === "Cancelada" ? "bg-gray-400 shadow-[0_0_8px_rgba(156,163,175,0.6)]" :
-                          "bg-gray-300"
-                        }`}></span>
-                        {jac.organizativo || "Desconocido"}
-                      </div>
+                    <td className="px-4 py-3">
+                      <OrganizativoStatus
+                        estado={
+                          jac.organizativo === "Activa" ||
+                          jac.organizativo === "Inactiva" ||
+                          jac.organizativo === "Cancelada"
+                            ? jac.organizativo
+                            : "Inactiva"
+                        }
+                      />
                     </td>
 
                     {canViewAfiliados && (

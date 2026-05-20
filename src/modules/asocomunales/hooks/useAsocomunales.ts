@@ -5,6 +5,8 @@ import type {
   CreateAsocomunalDto,
   UpdateAsocomunalDto,
 } from "../types";
+import { useAuth } from "../../../context/AuthContext";
+import { isPrivilegedUser } from "../../../utils/roles";
 import { AsocomunalesService } from "../services/asocomunalesService";
 
 const initialFilters: AsocomunalFilters = {
@@ -21,6 +23,9 @@ const initialFilters: AsocomunalFilters = {
  * Flujo: Component → Hook → Service → Backend
  */
 export function useAsocomunales() {
+  const { user, isAuthLoading } = useAuth();
+  const privileged = isPrivilegedUser(user);
+
   const [data, setData] = useState<Asocomunal[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -28,24 +33,43 @@ export function useAsocomunales() {
   const [debouncedBusqueda, setDebouncedBusqueda] = useState("");
   const debounceRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 
-  // Cargar datos del backend al montar
+  // Esperar a que la sesión esté resuelta para no pedir /public y luego / con cookie
   useEffect(() => {
+    if (isAuthLoading) return;
+
+    let cancelled = false;
+
     const fetchData = async () => {
       try {
         setLoading(true);
-        const asocomunales = await AsocomunalesService.getAsocomunales();
-        setData(asocomunales);
+        setError(null);
+        const asocomunales = privileged
+          ? await AsocomunalesService.getAsocomunales()
+          : await AsocomunalesService.getAsocomunalesPublic();
+        if (!cancelled) {
+          setData(asocomunales);
+        }
       } catch (err) {
         console.error("Error cargando asocomunales:", err);
-        setError("Error al cargar asocomunales");
-        setData([]);
+        if (!cancelled) {
+          setError(
+            err instanceof Error ? err.message : "Error al cargar asocomunales",
+          );
+          setData([]);
+        }
       } finally {
-        setLoading(false);
+        if (!cancelled) {
+          setLoading(false);
+        }
       }
     };
 
-    fetchData();
-  }, []);
+    void fetchData();
+
+    return () => {
+      cancelled = true;
+    };
+  }, [privileged, isAuthLoading]);
 
   // Debounce para búsqueda
   useEffect(() => {

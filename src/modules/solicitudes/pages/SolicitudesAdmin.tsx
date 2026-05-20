@@ -6,8 +6,8 @@ import EmptyState from "../../../components/ui/EmptyState";
 import { ModalRechazar } from "../../../components/ui/ModalRechazar";
 import { useSolicitudes, estadoVariant, type TipoAccion, type EstadoSolicitud, type CambioCampo, type SolicitudItem } from "../hooks/useSolicitudes";
 
-const card     = "bg-white dark:bg-gray-800 rounded-xl border border-gray-100 dark:border-gray-700 shadow-sm";
-const input    = "w-full border border-gray-200 dark:border-gray-600 bg-white dark:bg-gray-900 text-sm text-gray-600 dark:text-gray-300 placeholder:text-gray-400 dark:placeholder:text-gray-500 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-[#1B7F4B]/30 focus:border-[#1B7F4B] transition-all";
+const card = "bg-white dark:bg-gray-800 rounded-xl border border-gray-100 dark:border-gray-700 shadow-sm";
+const input = "w-full border border-gray-200 dark:border-gray-600 bg-white dark:bg-gray-900 text-sm text-gray-600 dark:text-gray-300 placeholder:text-gray-400 dark:placeholder:text-gray-500 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-[#1B7F4B]/30 focus:border-[#1B7F4B] transition-all";
 const selectCls = `appearance-none ${input} cursor-pointer`;
 
 // ─── Tabla de cambios ────────────────────────────────────────────────────────
@@ -47,11 +47,11 @@ function TarjetaSolicitud({
   onAprobar?: (id: number) => void;
   onRechazar?: (id: number) => void;
 }) {
-  const expandida  = expandidoId === s.id;
+  const expandida = expandidoId === s.id;
   const esPendiente = s.estado === "Pendiente";
-  const badgeTipo  = s.tipo.startsWith("Crear") ? "Nuevo Registro"
-                   : s.tipo.startsWith("Editar") ? "Modificación"
-                   : "Cambio de Estado";
+  const badgeTipo = s.tipo.startsWith("Crear") ? "Nuevo Registro"
+    : s.tipo.startsWith("Editar") ? "Modificación"
+      : "Cambio de Estado";
 
   return (
     <div className={`${card} overflow-hidden`}>
@@ -61,11 +61,10 @@ function TarjetaSolicitud({
             <span className="text-sm font-semibold text-gray-800 dark:text-gray-100">{s.descripcion}</span>
 
             {/* Badge tipo (Nuevo Registro / Modificación / etc.) */}
-            <span className={`inline-flex items-center px-2 py-0.5 rounded-full text-[10px] font-bold ${
-              badgeTipo === "Nuevo Registro" ? "bg-green-100 dark:bg-green-900/30 text-green-700 dark:text-green-400"
+            <span className={`inline-flex items-center px-2 py-0.5 rounded-full text-[10px] font-bold ${badgeTipo === "Nuevo Registro" ? "bg-green-100 dark:bg-green-900/30 text-green-700 dark:text-green-400"
               : badgeTipo === "Modificación" ? "bg-blue-100 dark:bg-blue-900/30 text-blue-700 dark:text-blue-400"
-              : "bg-purple-100 dark:bg-purple-900/30 text-purple-600 dark:text-purple-400"
-            }`}>
+                : "bg-purple-100 dark:bg-purple-900/30 text-purple-600 dark:text-purple-400"
+              }`}>
               {badgeTipo}
             </span>
 
@@ -76,19 +75,33 @@ function TarjetaSolicitud({
 
             {/* Badge origen: Acción Admin vs Propuesta Operador (solo en historial) */}
             {!esPendienteTab && (
-              <span className={`inline-flex items-center px-2 py-0.5 rounded-full text-[10px] font-semibold ${
-                s.esAccionAdmin
-                  ? "bg-indigo-100 dark:bg-indigo-900/30 text-indigo-700 dark:text-indigo-400"
-                  : "bg-amber-100 dark:bg-amber-900/30 text-amber-700 dark:text-amber-400"
-              }`}>
+              <span className={`inline-flex items-center px-2 py-0.5 rounded-full text-[10px] font-semibold ${s.esAccionAdmin
+                ? "bg-indigo-100 dark:bg-indigo-900/30 text-indigo-700 dark:text-indigo-400"
+                : "bg-amber-100 dark:bg-amber-900/30 text-amber-700 dark:text-amber-400"
+                }`}>
                 {s.esAccionAdmin ? "Acción directa Admin" : "Propuesta Operador"}
               </span>
             )}
           </div>
 
-          <div className="flex items-center gap-3 mt-1 text-xs text-gray-400 dark:text-gray-500">
-            <span>{s.esAccionAdmin ? "Realizado por:" : "Enviado por:"} <span className="text-gray-600 dark:text-gray-300 font-medium">{s.operador}</span></span>
+          <div className="flex items-center gap-3 mt-1 text-xs text-gray-400 dark:text-gray-500 flex-wrap">
+            <span>
+              {s.esAccionAdmin ? "Realizado por:" : "Enviado por:"}
+              {" "}<span className="text-gray-600 dark:text-gray-300 font-medium">{s.operador}</span>
+              {s.operadorEmail && s.operadorEmail !== s.operador && (
+                <span className="ml-1 text-gray-400 dark:text-gray-500">({s.operadorEmail})</span>
+              )}
+            </span>
             <span>{new Date(s.fecha).toLocaleDateString("es-CO", { day: "2-digit", month: "short", year: "numeric" })}</span>
+            {s.revisadoPorAdmin && !s.esAccionAdmin && (
+              <span>
+                {s.estado === "Aprobada" ? "Aprobado por:" : "Rechazado por:"}
+                {" "}<span className="text-gray-600 dark:text-gray-300 font-medium">{s.revisadoPorAdmin}</span>
+                {s.revisadoPorAdminEmail && s.revisadoPorAdminEmail !== s.revisadoPorAdmin && (
+                  <span className="ml-1 text-gray-400 dark:text-gray-500">({s.revisadoPorAdminEmail})</span>
+                )}
+              </span>
+            )}
           </div>
         </div>
 
@@ -143,8 +156,8 @@ function TarjetaSolicitud({
 }
 
 const TIPOS: TipoAccion[] = [
-  "Crear JAC", "Editar JAC", "Eliminar JAC",
-  "Crear Asocomunal", "Editar Asocomunal", "Eliminar Asocomunal",
+  "Crear JAC", "Editar JAC",
+  "Crear Asocomunal", "Editar Asocomunal", "Cambio de estado Asocomunal",
 ];
 
 // ─── Componente principal ────────────────────────────────────────────────────
@@ -156,16 +169,16 @@ function SolicitudesAdmin() {
     loading,
   } = useSolicitudes();
 
-  const [tab,         setTab]         = useState<"pendientes" | "historial">("pendientes");
-  const [rechazarId,  setRechazarId]  = useState<number | null>(null);
-  const [aprobarId,   setAprobarId]   = useState<number | null>(null);
+  const [tab, setTab] = useState<"pendientes" | "historial">("pendientes");
+  const [rechazarId, setRechazarId] = useState<number | null>(null);
+  const [aprobarId, setAprobarId] = useState<number | null>(null);
   const [expandidoId, setExpandidoId] = useState<number | null>(null);
 
   const toggle = (id: number) => setExpandidoId((prev) => (prev === id ? null : id));
 
   // Separar por pestaña
   const pendientes = filtered.filter((s) => s.estado === "Pendiente");
-  const historial  = filtered.filter((s) => s.estado !== "Pendiente");
+  const historial = filtered.filter((s) => s.estado !== "Pendiente");
   const listaMostrada = tab === "pendientes" ? pendientes : historial;
 
   return (
@@ -212,11 +225,10 @@ function SolicitudesAdmin() {
       <div className="flex gap-1 mb-4 border-b border-gray-200 dark:border-gray-700">
         <button
           onClick={() => setTab("pendientes")}
-          className={`inline-flex items-center gap-2 px-4 py-2.5 text-sm font-medium border-b-2 transition-colors ${
-            tab === "pendientes"
-              ? "border-[#1B7F4B] text-[#1B7F4B] dark:text-emerald-400"
-              : "border-transparent text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-300"
-          }`}
+          className={`inline-flex items-center gap-2 px-4 py-2.5 text-sm font-medium border-b-2 transition-colors ${tab === "pendientes"
+            ? "border-[#1B7F4B] text-[#1B7F4B] dark:text-emerald-400"
+            : "border-transparent text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-300"
+            }`}
         >
           <ClipboardList size={15} />
           Pendientes
@@ -228,11 +240,10 @@ function SolicitudesAdmin() {
         </button>
         <button
           onClick={() => setTab("historial")}
-          className={`inline-flex items-center gap-2 px-4 py-2.5 text-sm font-medium border-b-2 transition-colors ${
-            tab === "historial"
-              ? "border-[#1B7F4B] text-[#1B7F4B] dark:text-emerald-400"
-              : "border-transparent text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-300"
-          }`}
+          className={`inline-flex items-center gap-2 px-4 py-2.5 text-sm font-medium border-b-2 transition-colors ${tab === "historial"
+            ? "border-[#1B7F4B] text-[#1B7F4B] dark:text-emerald-400"
+            : "border-transparent text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-300"
+            }`}
         >
           <History size={15} />
           Historial
@@ -261,11 +272,11 @@ function SolicitudesAdmin() {
           </div>
         </div>
         <div className="flex items-center gap-3 mt-4">
-          <button onClick={handleSearch} className="inline-flex items-center gap-2 bg-[#1B7F4B] hover:bg-[#166340] text-white text-sm font-semibold px-4 py-2.5 rounded-lg transition-colors">
-            <Search size={16} /> Buscar
-          </button>
-          <button onClick={handleClear} className="inline-flex items-center gap-2 bg-white dark:bg-gray-800 hover:bg-gray-50 dark:hover:bg-gray-700 text-gray-600 dark:text-gray-300 text-sm font-medium px-4 py-2.5 rounded-lg border border-gray-200 dark:border-gray-600 transition-colors">
-            <RotateCcw size={16} /> Limpiar
+          <p className="text-xs text-gray-400 dark:text-gray-500">
+            Los filtros se aplican automáticamente en tiempo real
+          </p>
+          <button onClick={handleClear} className="ml-auto inline-flex items-center gap-2 bg-white dark:bg-gray-800 hover:bg-gray-50 dark:hover:bg-gray-700 text-gray-600 dark:text-gray-300 text-sm font-medium px-4 py-2.5 rounded-lg border border-gray-200 dark:border-gray-600 transition-colors">
+            <RotateCcw size={16} /> Limpiar filtros
           </button>
         </div>
       </div>

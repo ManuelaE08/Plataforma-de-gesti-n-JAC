@@ -94,7 +94,10 @@ function MisSolicitudes() {
         ) : (
           filtradas.map((s) => {
             const expandida = expandidoId === s.id;
-            const badgeTipo = s.tipo.startsWith("Crear") ? "Nuevo Registro" : s.tipo.startsWith("Editar") ? "Modificación" : "Eliminación";
+            const badgeTipo = s.tipo.startsWith("Crear") ? "Nuevo Registro"
+              : s.tipo.startsWith("Editar") ? "Modificación"
+              : s.tipo.startsWith("Eliminar") ? "Eliminación"
+              : "Cambio de Estado";
 
             return (
               <div key={s.id} className={`${card} overflow-hidden`}>
@@ -102,19 +105,30 @@ function MisSolicitudes() {
                   <div>
                     <div className="flex items-center gap-2 flex-wrap">
                       <span className="text-sm font-semibold text-gray-800 dark:text-gray-100">{s.descripcion}</span>
-                      <span className={`inline-flex items-center px-2 py-0.5 rounded-full text-[10px] font-bold ${badgeTipo === "Nuevo Registro" ? "bg-green-100 dark:bg-green-900/30 text-green-700 dark:text-green-400"
-                          : badgeTipo === "Modificación" ? "bg-blue-100 dark:bg-blue-900/30 text-blue-700 dark:text-blue-400"
-                            : "bg-red-100 dark:bg-red-900/30 text-red-600 dark:text-red-400"
-                        }`}>
+                      <span className={`inline-flex items-center px-2 py-0.5 rounded-full text-[10px] font-bold ${
+                        badgeTipo === "Nuevo Registro" ? "bg-green-100 dark:bg-green-900/30 text-green-700 dark:text-green-400"
+                        : badgeTipo === "Modificación" ? "bg-blue-100 dark:bg-blue-900/30 text-blue-700 dark:text-blue-400"
+                        : badgeTipo === "Eliminación" ? "bg-red-100 dark:bg-red-900/30 text-red-600 dark:text-red-400"
+                        : "bg-purple-100 dark:bg-purple-900/30 text-purple-600 dark:text-purple-400"
+                      }`}>
                         {badgeTipo}
                       </span>
                       <span className="inline-flex items-center px-2 py-0.5 rounded-full text-[10px] font-semibold bg-gray-100 dark:bg-gray-700 text-gray-600 dark:text-gray-300">
                         {s.entidad}
                       </span>
                     </div>
-                    <p className="text-xs text-gray-400 dark:text-gray-500 mt-1">
-                      {new Date(s.fecha).toLocaleDateString("es-CO", { day: "2-digit", month: "short", year: "numeric" })}
-                    </p>
+                    <div className="flex items-center gap-2 flex-wrap mt-1 text-xs text-gray-400 dark:text-gray-500">
+                      <span>{new Date(s.fecha).toLocaleDateString("es-CO", { day: "2-digit", month: "short", year: "numeric" })}</span>
+                      {s.revisadoPorAdmin && s.estado !== "Pendiente" && (
+                        <span>
+                          {s.estado === "Aprobada" ? " Aprobado por:" : " Rechazado por:"}
+                          {" "}<span className="text-gray-600 dark:text-gray-300 font-medium">{s.revisadoPorAdmin}</span>
+                          {s.revisadoPorAdminEmail && s.revisadoPorAdminEmail !== s.revisadoPorAdmin && (
+                            <span className="ml-1 text-gray-400 dark:text-gray-500">({s.revisadoPorAdminEmail})</span>
+                          )}
+                        </span>
+                      )}
+                    </div>
                   </div>
                   <div className="flex items-center gap-2 shrink-0">
                     <Badge label={s.estado} variant={estadoVariant[s.estado]} />
