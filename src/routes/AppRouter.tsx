@@ -15,11 +15,12 @@ import JacDetalle from "../pages/JacDetalle";
 import AsocomunalDetalle from "../modules/asocomunales/pages/AsocomunalDetalle";
 import Migracion from "../pages/Migracion";
 import { useAuth } from "../context/AuthContext";
+import { Permissions } from "../utils/permissions";
 import Configuracion from "../pages/Configuracion";
 
 function RootDashboard() {
   const { user } = useAuth();
-  return user?.rol === "usuario" || user === null ? <DashboardUsuario /> : <Dashboard />;
+  return Permissions.isRegularUser(user) || user === null ? <DashboardUsuario /> : <Dashboard />;
 }
 
 function ProtectedRoute({ children }: { children: ReactNode }) {

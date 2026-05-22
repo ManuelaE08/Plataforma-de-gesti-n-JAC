@@ -1,7 +1,12 @@
 import { createContext, useContext, useEffect, useState } from "react";
 import type { ReactNode } from "react";
 import type { AuthContextType, User, UserRole } from "../types/auth";
-import keycloak, { initKeycloak, persistRefreshToken, clearPersistedSession } from "../lib/keycloak";
+import keycloak, {
+  initKeycloak,
+  persistRefreshToken,
+  clearPersistedSession,
+  attachBearerTokenInterceptor,
+} from "../lib/keycloak";
 
 const AuthContext = createContext<AuthContextType | null>(null);
 
@@ -64,6 +69,7 @@ export function AuthProvider({ children }: AuthProviderProps) {
         if (!active) return;
 
         if (authenticated) {
+          attachBearerTokenInterceptor();
           const sessionUser = buildUserFromToken();
 
           if (!sessionUser) {
@@ -101,8 +107,25 @@ export function AuthProvider({ children }: AuthProviderProps) {
     void keycloak.logout({ redirectUri: window.location.origin });
   };
 
+  const getToken = async (): Promise<string | undefined> => {
+    try {
+      await keycloak.updateToken(30);
+      persistRefreshToken();
+      return keycloak.token;
+    } catch {
+      return undefined;
+    }
+  };
+
   return (
-    <AuthContext.Provider value={{ user, isAuthLoading, login, logout }}>
+    <AuthContext.Provider value={{
+      user,
+      isAuthLoading,
+      login,
+      logout,
+      keycloak,
+      getToken,
+    }}>
       {children}
     </AuthContext.Provider>
   );

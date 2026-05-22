@@ -15,4 +15,6 @@ export interface AuthContextType {
   isAuthLoading: boolean;
   login: () => void;
   logout: () => void;
+  keycloak?: any;
+  getToken?: () => Promise<string | undefined>;
 }

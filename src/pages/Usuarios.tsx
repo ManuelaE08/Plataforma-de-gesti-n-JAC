@@ -6,6 +6,7 @@ import Badge from "../components/ui/Badge";
 import { useUsuarios, rolesInfo, type UsuarioItem, type CrearUsuarioInput } from "../hooks/useUsuarios";
 import type { RolAsignable } from "../services/usuariosApi";
 import { useAuth } from "../context/AuthContext";
+import { Permissions } from "../utils/permissions";
 
 const card     = "bg-white dark:bg-gray-800 rounded-xl border border-gray-100 dark:border-gray-700 shadow-sm";
 const inputCls = "w-full border border-gray-200 dark:border-gray-600 bg-gray-50 dark:bg-gray-900 text-sm text-gray-800 dark:text-gray-200 placeholder:text-gray-300 dark:placeholder:text-gray-500 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-[#1B7F4B]/30 focus:border-[#1B7F4B] focus:bg-white dark:focus:bg-gray-800 transition";
@@ -282,7 +283,7 @@ function ModalEditarUsuario({
 // ── Página principal ─────────────────────────────────────────────────────────
 function Usuarios() {
   const { user } = useAuth();
-  const esSuperadmin = user?.rol === "superadmin";
+  const esSuperadmin = Permissions.isSuperAdmin(user);
 
   const {
     filtered, filters, stats,
