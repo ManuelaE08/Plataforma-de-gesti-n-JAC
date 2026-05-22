@@ -78,6 +78,16 @@ function JacDetalle() {
   const [editingField, setEditingField] = useState<string | null>(null);
   const [tempValue, setTempValue] = useState("");
   const [successMessage, setSuccessMessage] = useState<string | null>(null);
+  const [accessDenied, setAccessDenied] = useState(false);
+
+  useEffect(() => {
+    // Bloquear acceso si la autenticación ya cargó pero el usuario o su rol no están definidos
+    if (!isAuthLoading && (!user || !user.rol)) {
+      setAccessDenied(true);
+    } else {
+      setAccessDenied(false);
+    }
+  }, [isAuthLoading, user]);
 
   const startEditing = (field: string, value: string) => {
     setEditingField(field);
@@ -179,6 +189,21 @@ function JacDetalle() {
       return matchNombre && matchRol;
     });
   }, [jac, debouncedBusqueda, filtroRol]);
+
+  if (accessDenied) {
+    return (
+      <div>
+        <PageHeader title="Acceso denegado" subtitle="Acceso restringido" description="No tiene permisos para ver este recurso">
+          <button onClick={() => navigate("/jac")} className="flex items-center gap-2 bg-white dark:bg-gray-800 hover:bg-gray-50 dark:hover:bg-gray-700 text-gray-700 dark:text-gray-200 text-sm font-semibold px-4 py-2.5 rounded-lg border border-gray-200 dark:border-gray-600 transition-colors">
+            <ArrowLeft size={16} /> Volver
+          </button>
+        </PageHeader>
+        <div className={`${card} p-5`}>
+          <EmptyState message="No tiene permisos para consultar esta página." inTable={false} />
+        </div>
+      </div>
+    );
+  }
 
   if (loading) {
     return (
