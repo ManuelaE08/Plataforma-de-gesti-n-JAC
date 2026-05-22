@@ -74,7 +74,7 @@ function ThemeToggle() {
 
 function Layout({ children }: LayoutProps) {
   const navigate = useNavigate();
-  const { user, logout } = useAuth();
+  const { user, login, logout } = useAuth();
 
   const isLoggedIn = Boolean(user);
   const activeRole  = user?.rol ?? "usuario";
@@ -111,7 +111,7 @@ function Layout({ children }: LayoutProps) {
     return () => document.removeEventListener("mousedown", handleClickOutside);
   }, []);
 
-  const handleLogout = () => { logout(); navigate("/login", { replace: true }); };
+  const handleLogout = () => { logout(); };
   const mostrarBell  = isLoggedIn && (activeRole === "admin" || activeRole === "operador");
 
   return (
@@ -263,7 +263,7 @@ function Layout({ children }: LayoutProps) {
                 </div>
               ) : (
                 <button
-                  onClick={() => navigate("/login")}
+                  onClick={login}
                   className="rounded-lg bg-[#1B7F4B] px-4 py-2 text-xs font-medium text-white hover:bg-[#166A3F] transition-colors"
                 >
                   Iniciar sesión

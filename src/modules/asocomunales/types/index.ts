@@ -30,6 +30,16 @@ export interface AfiliadoAsocItem {
   rol: RolAfiliadoAsoc;
 }
 
+/** Respuesta del endpoint público GET /asocomunales/public */
+export interface AsocomunalPublicApi {
+  id: number;
+  nombre: string;
+  estado: boolean;
+  municipio: Municipio;
+  jacsCount: number;
+  jacs?: Array<{ nombre: string; estado: boolean }>;
+}
+
 // Entidad principal: Asocomunal (modelo de respuesta del backend)
 export interface Asocomunal {
   id: number;

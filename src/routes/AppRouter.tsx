@@ -11,31 +11,22 @@ import Analiticas from "../pages/Analiticas";
 import Alertas from "../pages/Alertas";
 import SolicitudesAdmin from "../modules/solicitudes/pages/SolicitudesAdmin";
 import MisSolicitudes from "../modules/solicitudes/pages/MisSolicitudes";
-
 import JacDetalle from "../pages/JacDetalle";
 import AsocomunalDetalle from "../modules/asocomunales/pages/AsocomunalDetalle";
 import Migracion from "../pages/Migracion";
-
 import { useAuth } from "../context/AuthContext";
-import Login from "../pages/Login";
+import { Permissions } from "../utils/permissions";
 import Configuracion from "../pages/Configuracion";
 
 function RootDashboard() {
   const { user } = useAuth();
-  return user?.rol === "usuario" || user === null ? <DashboardUsuario /> : <Dashboard />;
+  return Permissions.isRegularUser(user) || user === null ? <DashboardUsuario /> : <Dashboard />;
 }
 
 function ProtectedRoute({ children }: { children: ReactNode }) {
   const { user, isAuthLoading } = useAuth();
   if (isAuthLoading) return null;
-  if (!user) return <Navigate to="/login" replace />;
-  return <>{children}</>;
-}
-
-function PublicOnlyRoute({ children }: { children: ReactNode }) {
-  const { user, isAuthLoading } = useAuth();
-  if (isAuthLoading) return null;
-  if (user) return <Navigate to="/" replace />;
+  if (!user) return <Navigate to="/" replace />;
   return <>{children}</>;
 }
 
@@ -53,7 +44,6 @@ function AppRouter() {
 
   return (
     <Routes>
-      <Route path="/login" element={<PublicOnlyRoute><Login /></PublicOnlyRoute>} />
       <Route path="/" element={<Layout><RootDashboard /></Layout>} />
       <Route path="/jac" element={<Layout><Jac /></Layout>} />
       <Route path="/jac/:id" element={<Layout><JacDetalle /></Layout>} />

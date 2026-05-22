@@ -37,6 +37,19 @@ export interface JacListItem {
   organizativo: EstadoOrganizativo;
 }
 
+/** Detalle público de JAC (`GET /jac/public/:id`) — sin PII. */
+export interface JacPublicItem {
+  id: number;
+  nombre: string;
+  municipio: string;
+  barrio: string;
+  afiliados: number;
+  estado: EstadoOrganizativo;
+  tipo: TipoJac;
+  minimoAfiliados: number;
+  enRiesgo: boolean;
+}
+
 /**
  * JAC completa para la página de detalle (`GET /jac/:id`).
  */

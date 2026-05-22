@@ -29,4 +29,16 @@ export const menuByRole: MenuByRole = {
     { name: "Administración de Usuarios", path: "/usuarios" },
     { name: "Configuración", path: "/configuracion" },
   ],
+  superadmin: [
+    { name: "Dashboard", path: "/" },
+    { name: "Juntas de Acción Comunal", path: "/jac" },
+    { name: "Asocomunales", path: "/asocomunales" },
+    { name: "Analítica y Estadísticas", path: "/analiticas" },
+    { name: "Alertas y Riesgo Organizativo", path: "/alertas" },
+    { name: "Reportes", path: "/reportes" },
+    { name: "Solicitudes Pendientes", path: "/solicitudes" },
+    { name: "Migración de Datos", path: "/migracion" },
+    { name: "Administración de Usuarios", path: "/usuarios" },
+    { name: "Configuración", path: "/configuracion" },
+  ],
 };

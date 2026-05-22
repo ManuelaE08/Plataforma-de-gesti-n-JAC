@@ -13,6 +13,7 @@ import { ModalAfiliadoFormulario } from "../modules/jac/components/ModalAfiliado
 
 //Se agrego SolicitudesService para poder editar las solicitudes
 import { SolicitudesService } from "../modules/solicitudes/services/solicitudes.service";
+import { Permissions } from "../utils/permissions";
 import type { JacItem } from "../modules/jac/types";
 
 const card = "bg-white dark:bg-gray-800 rounded-xl border border-gray-100 dark:border-gray-700 shadow-sm";
@@ -22,22 +23,44 @@ const selectCls = "appearance-none bg-white dark:bg-gray-900 border border-gray-
 function JacDetalle() {
   const { id } = useParams();
   const navigate = useNavigate();
-  const { user } = useAuth();
-  const canViewAfiliados = user?.rol === "admin" || user?.rol === "operador";
+  const { user, isAuthLoading } = useAuth();
+  console.log('[JacDetalle] user.rol:', user?.rol);
+
+  // Usar funciones centralizadas de permisos
+  const esAdmin = Permissions.isAdmin(user);
+  const canViewAfiliados = Permissions.canViewJacs(user);
+  const canViewConfidential = esAdmin;
 
   const [jac, setJac] = useState<JacItem | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
-    if (!id) return;
+    if (!id || isAuthLoading) return;
+
+    let cancelled = false;
     setLoading(true);
     setError(null);
-    JACService.findOne(Number(id))
-      .then(setJac)
-      .catch((err: Error) => setError(err.message))
-      .finally(() => setLoading(false));
-  }, [id]);
+
+    const load = canViewConfidential
+      ? JACService.findOne(Number(id))
+      : JACService.findOnePublic(Number(id));
+
+    load
+      .then((data) => {
+        if (!cancelled) setJac(data);
+      })
+      .catch((err: Error) => {
+        if (!cancelled) setError(err.message);
+      })
+      .finally(() => {
+        if (!cancelled) setLoading(false);
+      });
+
+    return () => {
+      cancelled = true;
+    };
+  }, [id, canViewConfidential, isAuthLoading]);
 
   const [busqueda, setBusqueda] = useState("");
   const [filtroRol, setFiltroRol] = useState("");
@@ -75,21 +98,20 @@ function JacDetalle() {
       if (editingField === "estado") dto.estado = tempValue.toLowerCase();
       if (editingField === "tipo") dto.tipo = tempValue.toLowerCase();
 
-      //Se agrego para que el auditor modifque directamente y el operador cree una solicitud
       const fieldNames: Record<string, string> = { ruc: "Número RUC", estado: "Estado", tipo: "Tipo" };
 
-      if (user?.rol === "admin") {
-        // Admin edita directamente
+      if (esAdmin) {
         const updated = await JACService.update(jac.id, dto);
         setJac(updated);
 
-        // Registrar en auditoría (log)
         try {
           await SolicitudesService.registrarAccionAdmin({
             entidadAfectada: "JAC",
             entidadId: String(jac.id),
             tipoAccion: "EDITAR",
-            payloadAnterior: { [editingField]: editingField === "ruc" ? jac.numeroRUC : editingField === "estado" ? jac.estado : jac.tipo },
+            payloadAnterior: {
+              [editingField]: editingField === "ruc" ? jac.numeroRUC : editingField === "estado" ? jac.estado : jac.tipo,
+            },
             payloadDeseado: dto,
           });
         } catch {
@@ -98,12 +120,13 @@ function JacDetalle() {
 
         setSuccessMessage(`${fieldNames[editingField] || "Campo"} actualizado correctamente`);
       } else if (user?.rol === "operador") {
-        // Operador propone el cambio
         await SolicitudesService.crear({
           entidadAfectada: "JAC",
           entidadId: String(jac.id),
           tipoAccion: "EDITAR",
-          payloadAnterior: { [editingField]: editingField === "ruc" ? jac.numeroRUC : editingField === "estado" ? jac.estado : jac.tipo },
+          payloadAnterior: {
+            [editingField]: editingField === "ruc" ? jac.numeroRUC : editingField === "estado" ? jac.estado : jac.tipo,
+          },
           payloadDeseado: dto,
         });
 
@@ -209,7 +232,7 @@ function JacDetalle() {
         </div>
       )}
 
-      {/* Alerta de riesgo: solo JACs activas que no alcanzan el mínimo legal de afiliados */}
+      {/* Alerta de riesgo */}
       {jac.enRiesgo && (
         <div className="rounded-lg px-4 py-3 mb-4 border bg-amber-50 text-amber-800 border-amber-200 dark:bg-amber-900/20 dark:text-amber-300 dark:border-amber-800">
           <div className="flex items-start gap-3">
@@ -226,7 +249,7 @@ function JacDetalle() {
       )}
 
       {/* KPI cards */}
-      <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-5 gap-4 mb-4">
+      <div className={`grid grid-cols-1 md:grid-cols-2 gap-4 mb-4 ${canViewConfidential ? "xl:grid-cols-5" : "xl:grid-cols-4"}`}>
         <div className={`${card} p-4`}>
           <div className="flex items-center gap-2 mb-2 text-gray-500 dark:text-gray-400">
             <MapPin size={16} />
@@ -245,38 +268,42 @@ function JacDetalle() {
           <p className="text-xs text-gray-400 dark:text-gray-500">Registrados en la junta</p>
         </div>
 
-        <div className={`${card} p-4 relative group`}>
-          <div className="flex items-center gap-2 mb-2 text-gray-500 dark:text-gray-400">
-            <FileText size={16} />
-            <span className="text-xs font-semibold uppercase tracking-wider">Número RUC</span>
-          </div>
-          {editingField === "ruc" ? (
-            <div className="flex items-center gap-2">
-              <input
-                autoFocus
-                value={tempValue}
-                onChange={(e) => setTempValue(e.target.value)}
-                className="w-full bg-gray-50 dark:bg-gray-900 border border-gray-200 dark:border-gray-700 rounded px-2 py-1 text-sm focus:outline-none focus:ring-1 focus:ring-[#1B7F4B]"
-                placeholder="Ingrese RUC..."
-              />
-              <button onClick={handleSave} className="p-1 text-green-600 hover:bg-green-50 dark:hover:bg-green-900/20 rounded transition-colors" title="Guardar">
-                <Check size={16} />
-              </button>
-              <button onClick={handleCancel} className="p-1 text-red-600 hover:bg-red-50 dark:hover:bg-red-900/20 rounded transition-colors" title="Cancelar">
-                <X size={16} />
-              </button>
+        {canViewConfidential && (
+          <div className={`${card} p-4 relative group`}>
+            <div className="flex items-center gap-2 mb-2 text-gray-500 dark:text-gray-400">
+              <FileText size={16} />
+              <span className="text-xs font-semibold uppercase tracking-wider">Número RUC</span>
             </div>
-          ) : (
-            <>
-              <p className="text-lg font-semibold text-gray-800 dark:text-gray-100">
-                {jac.numeroRUC || <span className="text-sm font-normal text-gray-400 italic">No tiene RUC</span>}
-              </p>
-              <button onClick={() => startEditing("ruc", jac.numeroRUC || "")} className="absolute bottom-3 right-3 p-1.5 text-gray-400 hover:text-[#1B7F4B] hover:bg-green-50 dark:hover:bg-[#1B7F4B]/20 rounded-lg transition-colors opacity-0 group-hover:opacity-100" title="Editar Número RUC">
-                <Pencil size={14} />
-              </button>
-            </>
-          )}
-        </div>
+            {editingField === "ruc" ? (
+              <div className="flex items-center gap-2">
+                <input
+                  autoFocus
+                  value={tempValue}
+                  onChange={(e) => setTempValue(e.target.value)}
+                  className="w-full bg-gray-50 dark:bg-gray-900 border border-gray-200 dark:border-gray-700 rounded px-2 py-1 text-sm focus:outline-none focus:ring-1 focus:ring-[#1B7F4B]"
+                  placeholder="Ingrese RUC..."
+                />
+                <button onClick={handleSave} className="p-1 text-green-600 hover:bg-green-50 dark:hover:bg-green-900/20 rounded transition-colors" title="Guardar">
+                  <Check size={16} />
+                </button>
+                <button onClick={handleCancel} className="p-1 text-red-600 hover:bg-red-50 dark:hover:bg-red-900/20 rounded transition-colors" title="Cancelar">
+                  <X size={16} />
+                </button>
+              </div>
+            ) : (
+              <>
+                <p className="text-lg font-semibold text-gray-800 dark:text-gray-100">
+                  {jac.numeroRUC || <span className="text-sm font-normal text-gray-400 italic">No tiene RUC</span>}
+                </p>
+                {canViewAfiliados && (
+                  <button onClick={() => startEditing("ruc", jac.numeroRUC || "")} className="absolute bottom-3 right-3 p-1.5 text-gray-400 hover:text-[#1B7F4B] hover:bg-green-50 dark:hover:bg-[#1B7F4B]/20 rounded-lg transition-colors opacity-0 group-hover:opacity-100" title="Editar Número RUC">
+                    <Pencil size={14} />
+                  </button>
+                )}
+              </>
+            )}
+          </div>
+        )}
 
         <div className={`${card} p-4 relative group`}>
           <div className="flex items-center gap-2 mb-2 text-gray-500 dark:text-gray-400">
@@ -314,9 +341,11 @@ function JacDetalle() {
                   {jac.estado || "Desconocido"}
                 </p>
               </div>
-              <button onClick={() => startEditing("estado", jac.estado || "Activa")} className="absolute bottom-3 right-3 p-1.5 text-gray-400 hover:text-[#1B7F4B] hover:bg-green-50 dark:hover:bg-[#1B7F4B]/20 rounded-lg transition-colors opacity-0 group-hover:opacity-100" title="Editar Estado de la JAC">
-                <Pencil size={14} />
-              </button>
+              {canViewAfiliados && (
+                <button onClick={() => startEditing("estado", jac.estado || "Activa")} className="absolute bottom-3 right-3 p-1.5 text-gray-400 hover:text-[#1B7F4B] hover:bg-green-50 dark:hover:bg-[#1B7F4B]/20 rounded-lg transition-colors opacity-0 group-hover:opacity-100" title="Editar Estado de la JAC">
+                  <Pencil size={14} />
+                </button>
+              )}
             </>
           )}
         </div>
@@ -349,9 +378,11 @@ function JacDetalle() {
               <p className="text-lg font-semibold text-gray-800 dark:text-gray-100">
                 {jac.tipo || "No definido"}
               </p>
-              <button onClick={() => startEditing("tipo", jac.tipo || "Barrio")} className="absolute bottom-3 right-3 p-1.5 text-gray-400 hover:text-[#1B7F4B] hover:bg-green-50 dark:hover:bg-[#1B7F4B]/20 rounded-lg transition-colors opacity-0 group-hover:opacity-100" title="Editar Tipo JAC">
-                <Pencil size={14} />
-              </button>
+              {canViewAfiliados && (
+                <button onClick={() => startEditing("tipo", jac.tipo || "Barrio")} className="absolute bottom-3 right-3 p-1.5 text-gray-400 hover:text-[#1B7F4B] hover:bg-green-50 dark:hover:bg-[#1B7F4B]/20 rounded-lg transition-colors opacity-0 group-hover:opacity-100" title="Editar Tipo JAC">
+                  <Pencil size={14} />
+                </button>
+              )}
             </>
           )}
         </div>
@@ -374,7 +405,7 @@ function JacDetalle() {
         </div>
       </div>
 
-      {/* Tabla afiliados — con permisos */}
+      {/* Tabla afiliados */}
       {canViewAfiliados && (
         <div className={`${card} overflow-hidden`}>
           <div className="px-5 py-4 border-b border-gray-100 dark:border-gray-700">
@@ -382,7 +413,6 @@ function JacDetalle() {
             <p className="text-xs text-gray-400 dark:text-gray-500 mt-1">Listado de miembros de la junta y cargo dentro de la organización</p>
           </div>
 
-          {/* Filtros afiliados */}
           <div className="px-5 py-3 border-b border-gray-100 dark:border-gray-700 bg-gray-50 dark:bg-gray-900/50">
             <div className="flex flex-col sm:flex-row gap-3 items-start sm:items-center">
               <div className="flex-1 min-w-0">
@@ -447,7 +477,6 @@ function JacDetalle() {
         </div>
       )}
 
-      {/* Sin permisos */}
       {!canViewAfiliados && (
         <div className={`${card} p-5`}>
           <h2 className="text-sm font-semibold text-gray-800 dark:text-gray-100 mb-2">Afiliados registrados</h2>

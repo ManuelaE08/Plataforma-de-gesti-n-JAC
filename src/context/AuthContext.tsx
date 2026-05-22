@@ -1,50 +1,55 @@
 import { createContext, useContext, useEffect, useState } from "react";
 import type { ReactNode } from "react";
-import type { AuthContextType, User } from "../types/auth";
+import type { AuthContextType, User, UserRole } from "../types/auth";
+import keycloak, {
+  initKeycloak,
+  persistRefreshToken,
+  clearPersistedSession,
+  attachBearerTokenInterceptor,
+} from "../lib/keycloak";
 
 const AuthContext = createContext<AuthContextType | null>(null);
 
-type AuthBackendPayload = Partial<
-  Pick<User, "sub" | "usuario" | "email" | "nombre" | "rol">
->;
-
-interface AuthBackendResponse extends AuthBackendPayload {
-  payload?: AuthBackendPayload;
-  user?: AuthBackendPayload;
+function isValidRole(rol: unknown): rol is UserRole {
+  return rol === "superadmin" || rol === "admin" || rol === "operador";
 }
 
-const baseEndpoint = import.meta.env.VITE_AUTH?.replace(/\/$/, "");
-const authEndpoint = baseEndpoint?.replace(/\/auth$/, "");
+function buildUserFromToken(): User | null {
+  const parsed = keycloak.tokenParsed;
+  if (!parsed) return null;
 
-function isValidRole(rol: unknown): rol is User["rol"] {
-  return rol === "admin" || rol === "operador" || rol === "usuario";
-}
+  const realmRoles: unknown[] = (parsed as Record<string, unknown>)?.realm_access
+    ? ((parsed as Record<string, { roles?: unknown[] }>).realm_access?.roles ?? [])
+    : [];
 
-function normalizePayload(data: AuthBackendResponse): AuthBackendPayload {
-  return data.user ?? data.payload ?? data;
-}
+  // Si tiene varios roles del sistema, gana el de mayor privilegio.
+  const rolesValidos = realmRoles.filter(isValidRole);
+  const prioridad: UserRole[] = ["superadmin", "admin", "operador"];
+  const rol = prioridad.find((r) => rolesValidos.includes(r));
+  if (!rol) return null;
 
-function buildUserFromPayload(payload: AuthBackendPayload): User {
-  const rol = payload.rol;
-  if (!isValidRole(rol)) {
-    throw new Error("El rol retornado por el backend no es válido");
-  }
+  const nombre =
+    (parsed as Record<string, unknown>).name ||
+    (parsed as Record<string, unknown>).preferred_username ||
+    (parsed as Record<string, unknown>).email;
 
-  if (!payload.nombre) {
-    throw new Error("La respuesta del backend no contiene el nombre del usuario");
-  }
+  if (!nombre || typeof nombre !== "string") return null;
 
-  const usuario = payload.usuario || payload.email || payload.sub;
-  if (!usuario) {
-    throw new Error("La respuesta del backend no contiene un identificador de usuario");
-  }
+  const usuario =
+    (parsed as Record<string, unknown>).preferred_username ||
+    (parsed as Record<string, unknown>).email ||
+    (parsed as Record<string, unknown>).sub;
+
+  if (!usuario || typeof usuario !== "string") return null;
 
   return {
-    sub: payload.sub,
+    sub: typeof parsed.sub === "string" ? parsed.sub : undefined,
     usuario,
     rol,
-    nombre: payload.nombre,
-    email: payload.email,
+    nombre,
+    email: typeof (parsed as Record<string, unknown>).email === "string"
+      ? (parsed as Record<string, unknown>).email as string
+      : undefined,
   };
 }
 
@@ -56,122 +61,71 @@ export function AuthProvider({ children }: AuthProviderProps) {
   const [user, setUser] = useState<User | null>(null);
   const [isAuthLoading, setIsAuthLoading] = useState<boolean>(true);
 
-  const loadSessionFromCookie = async (): Promise<User | null> => {
-    if (!baseEndpoint) {
-      return null;
-    }
-
-    const response = await fetch(authEndpoint + "/auth/me", {
-      method: "GET",
-      credentials: "include",
-    });
-
-    if (!response.ok) {
-      return null;
-    }
-
-    const data = (await response.json()) as AuthBackendResponse;
-    return buildUserFromPayload(normalizePayload(data));
-  };
-
   useEffect(() => {
     let active = true;
 
-    const bootstrapSession = async () => {
-      try {
-        const sessionUser = await loadSessionFromCookie();
-        if (active) {
-          setUser(sessionUser);
-        }
-      } catch (error) {
-        console.error("No se pudo restaurar la sesión desde cookie:", error);
-        if (active) {
+    initKeycloak()
+      .then((authenticated) => {
+        if (!active) return;
+
+        if (authenticated) {
+          attachBearerTokenInterceptor();
+          const sessionUser = buildUserFromToken();
+
+          if (!sessionUser) {
+            clearPersistedSession();
+            void keycloak.logout({ redirectUri: window.location.origin });
+            setUser(null);
+          } else {
+            persistRefreshToken();
+            setUser(sessionUser);
+          }
+        } else {
           setUser(null);
         }
-      } finally {
-        if (active) {
-          setIsAuthLoading(false);
-        }
-      }
-    };
-
-    void bootstrapSession();
+      })
+      .catch((err) => {
+        console.error("Error inicializando Keycloak:", err);
+        if (active) setUser(null);
+      })
+      .finally(() => {
+        if (active) setIsAuthLoading(false);
+      });
 
     return () => {
       active = false;
     };
   }, []);
 
-  const loginWithGoogle = async (credential: string): Promise<boolean> => {
-    try {
-      if (!credential) {
-        throw new Error("No se recibió la credencial de Google");
-      }
-
-      if (!authEndpoint) {
-        throw new Error("VITE_AUTH no está configurado");
-      }
-
-      const response = await fetch(authEndpoint + "/auth/google", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        credentials: "include",
-        body: JSON.stringify({ credential }),
-      });
-
-      if (!response.ok) {
-        const errorBody = await response.text();
-        throw new Error(
-          "Error autenticando con Google (" +
-            response.status +
-            "): " +
-            (errorBody || response.statusText)
-        );
-      }
-
-      let nextUser: User | null = null;
-      const contentType = response.headers.get("content-type") ?? "";
-
-      if (contentType.includes("application/json")) {
-        const data = (await response.json()) as AuthBackendResponse;
-        try {
-          nextUser = buildUserFromPayload(normalizePayload(data));
-        } catch {
-          nextUser = null;
-        }
-      }
-
-      if (!nextUser) {
-        nextUser = await loadSessionFromCookie();
-      }
-
-      if (!nextUser) {
-        throw new Error("No fue posible recuperar la sesión después del login");
-      }
-
-      setUser(nextUser);
-      return true;
-    } catch (error) {
-      console.error("Error en login de Google:", error);
-      return false;
-    }
+  const login = () => {
+    void keycloak.login();
   };
 
   const logout = () => {
     setUser(null);
+    clearPersistedSession();
+    void keycloak.logout({ redirectUri: window.location.origin });
+  };
 
-    if (!authEndpoint) {
-      return;
+  const getToken = async (): Promise<string | undefined> => {
+    try {
+      await keycloak.updateToken(30);
+      persistRefreshToken();
+      return keycloak.token;
+    } catch {
+      return undefined;
     }
-
-    void fetch(authEndpoint + "/auth/logout", {
-      method: "POST",
-      credentials: "include",
-    });
   };
 
   return (
-    <AuthContext.Provider value={{ user, isAuthLoading, loginWithGoogle, logout }}>
+    <AuthContext.Provider value={{
+      user,
+      isAuthLoading,
+      login,
+      logout,
+      keycloak,
+      getToken,
+    }}>
       {children}
     </AuthContext.Provider>
   );
