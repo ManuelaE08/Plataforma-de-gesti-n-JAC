@@ -6,6 +6,7 @@ import { JACService } from "../../modules/jac/services/jacService";
 //Importaciones neuvas para registrar la auditoria
 import { SolicitudesService } from "../../modules/solicitudes/services/solicitudes.service";
 import { useAuth } from "../../context/AuthContext";
+import { Permissions } from "../../utils/permissions";
 import type { CreateJACDto, TipoJacEnum } from "../../modules/jac/types";
 
 interface ModalCrearJacProps {
@@ -130,7 +131,7 @@ export function ModalCrearJac({ onClose, onSave }: ModalCrearJacProps) {
     try {
       setSubmitting(true);
 
-      if (user?.rol === "admin" || user?.rol === "superadmin") {
+      if (Permissions.isAdmin(user)) {
         // Admin crea directamente y registra en auditoría
         await JACService.create(payload);
 

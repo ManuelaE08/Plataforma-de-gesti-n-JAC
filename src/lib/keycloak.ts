@@ -52,4 +52,38 @@ export function clearPersistedSession() {
   sessionStorage.removeItem(REFRESH_TOKEN_KEY);
 }
 
+let fetchPatched = false;
+
+export function attachBearerTokenInterceptor() {
+  if (fetchPatched || typeof window === 'undefined' || !window.fetch) {
+    return;
+  }
+
+  fetchPatched = true;
+  const originalFetch = window.fetch.bind(window);
+  const baseUrl = (import.meta.env.VITE_API_BASE_URL as string | undefined)?.replace(/\/$/, "") ?? "";
+
+  window.fetch = async (input: RequestInfo, init: RequestInit = {}) => {
+    const url = typeof input === 'string' ? input : input.url;
+    const normalizedUrl = url.toString();
+    const shouldAttach = !init?.headers || !new Headers(init.headers).has('Authorization');
+    const isApiRequest = baseUrl ? normalizedUrl.startsWith(baseUrl) : normalizedUrl.startsWith(window.location.origin);
+
+    if (shouldAttach && isApiRequest) {
+      try {
+        await keycloak.updateToken(30);
+        if (keycloak.token) {
+          const headers = new Headers(init.headers);
+          headers.set('Authorization', `Bearer ${keycloak.token}`);
+          init = { ...init, headers };
+        }
+      } catch {
+        // continuar, el request puede fallar y el flujo de login lo atenderá.
+      }
+    }
+
+    return originalFetch(input, init);
+  };
+}
+
 export default keycloak;

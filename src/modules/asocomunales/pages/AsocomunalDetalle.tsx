@@ -7,6 +7,7 @@ import SearchBar from "../../../components/ui/SearchBar";
 import EmptyState from "../../../components/ui/EmptyState";
 import { useAuth } from "../../../context/AuthContext";
 import { AsocomunalesService } from "../services/asocomunalesService";
+import { Permissions } from "../../../utils/permissions";
 import type { Asocomunal } from "../types";
 
 const card = "bg-white dark:bg-gray-800 rounded-xl border border-gray-100 dark:border-gray-700 shadow-sm";
@@ -18,7 +19,7 @@ function AsocomunalDetalle() {
   const navigate = useNavigate();
   const { user } = useAuth();
 
-  const canViewConfidential = user?.rol === "admin" || user?.rol === "operador";
+  const canViewConfidential = Permissions.canViewConfidential(user);
 
   if (!canViewConfidential) {
     return (
@@ -82,7 +83,7 @@ function AsocomunalDetalle() {
     setIsRefreshing(false);
   };
 
-  const canViewJacs = user?.rol === "admin" || user?.rol === "operador";
+  const canViewJacs = Permissions.canViewJacs(user);
   const jacsFiltradas = asoc?.jacs.filter((j) =>
     !debouncedBusqueda || j.nombre.toLowerCase().includes(debouncedBusqueda.toLowerCase())
   ) || [];
