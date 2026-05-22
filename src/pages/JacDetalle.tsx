@@ -1,4 +1,4 @@
-import { ArrowLeft, Users, MapPin, FileText, ShieldCheck, RotateCcw, AlertTriangle, Pencil, Tags, Check, X, CheckCircle2 } from "lucide-react";
+import { ArrowLeft, Users, MapPin, FileText, ShieldCheck, RotateCcw, AlertTriangle, Pencil, Tags, Check, X, CheckCircle2, Plus, Trash2 } from "lucide-react";
 import { useMemo, useState, useEffect, useRef } from "react";
 import { useNavigate, useParams } from "react-router-dom";
 import Badge from "../components/ui/Badge";
@@ -8,6 +8,8 @@ import EmptyState from "../components/ui/EmptyState";
 import { useAuth } from "../context/AuthContext";
 import { orgVariant, rolVariant } from "../hooks/useJac";
 import { JACService } from "../modules/jac/services/jacService";
+import { AfiliadosService } from "../modules/jac/services/afiliadosService";
+import { ModalAfiliadoFormulario } from "../modules/jac/components/ModalAfiliadoFormulario";
 
 //Se agrego SolicitudesService para poder editar las solicitudes
 import { SolicitudesService } from "../modules/solicitudes/services/solicitudes.service";
@@ -41,6 +43,8 @@ function JacDetalle() {
   const [filtroRol, setFiltroRol] = useState("");
   const [debouncedBusqueda, setDebouncedBusqueda] = useState("");
   const debounceRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const [modalOpen, setModalOpen] = useState(false);
+  const [afiliadoEdit, setAfiliadoEdit] = useState<number | null>(null);
 
   useEffect(() => {
     if (debounceRef.current) clearTimeout(debounceRef.current);
@@ -115,6 +119,34 @@ function JacDetalle() {
   };
 
   const handleClearAfiliados = () => { setBusqueda(""); setFiltroRol(""); setDebouncedBusqueda(""); };
+  
+  const handleAgregarAfiliado = () => {
+    setAfiliadoEdit(null);
+    setModalOpen(true);
+  };
+  
+  const handleEditarAfiliado = (id: number) => {
+    setAfiliadoEdit(id);
+    setModalOpen(true);
+  };
+  
+  const handleEliminarAfiliado = async (id: number) => {
+    if (!confirm("¿Estás seguro de que deseas eliminar este afiliado?")) return;
+    try {
+      await AfiliadosService.delete(id);
+      if (id) {
+        setJac((prev) => prev ? { ...prev, miembros: prev.miembros?.filter((m) => m.id !== id) || [] } : null);
+      }
+    } catch (err) {
+      alert("Error al eliminar: " + (err instanceof Error ? err.message : "desconocido"));
+    }
+  };
+  
+  const handleModalSuccess = () => {
+    if (id) {
+      JACService.findOne(Number(id)).then(setJac);
+    }
+  };
 
   const miembrosFiltrados = useMemo(() => {
     if (!jac || !jac.miembros) return [];
@@ -370,6 +402,9 @@ function JacDetalle() {
                   <RotateCcw size={14} /> Limpiar
                 </button>
               )}
+              <button onClick={handleAgregarAfiliado} className="inline-flex items-center gap-1.5 bg-green-600 hover:bg-green-700 text-white text-sm px-3 py-2 rounded-lg transition-colors shrink-0">
+                <Plus size={14} /> Agregar
+              </button>
               <span className="text-xs text-gray-400 dark:text-gray-500 shrink-0">
                 {miembrosFiltrados.length} de {(jac.miembros || []).length}
               </span>
@@ -380,7 +415,7 @@ function JacDetalle() {
             <table className="w-full text-sm">
               <thead>
                 <tr className="border-b border-gray-100 dark:border-gray-700 bg-gray-50 dark:bg-gray-900/50">
-                  {["Nombre", "Documento", "Teléfono", "Cargo / rol"].map((col) => (
+                  {["Nombre", "Documento", "Teléfono", "Cargo / rol", "Acciones"].map((col) => (
                     <th key={col} className="text-left text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wider px-4 py-3">{col}</th>
                   ))}
                 </tr>
@@ -395,6 +430,14 @@ function JacDetalle() {
                       <td className="px-4 py-3 text-gray-600 dark:text-gray-300 tabular-nums">{miembro.documento}</td>
                       <td className="px-4 py-3 text-gray-600 dark:text-gray-300 tabular-nums">{miembro.telefono}</td>
                       <td className="px-4 py-3"><Badge label={miembro.rol} variant={rolVariant[miembro.rol]} /></td>
+                      <td className="px-4 py-3 flex gap-2">
+                        <button onClick={() => handleEditarAfiliado(miembro.id)} className="text-blue-600 hover:text-blue-800 dark:text-blue-400 dark:hover:text-blue-300" title="Editar">
+                          <Pencil size={16} />
+                        </button>
+                        <button onClick={() => handleEliminarAfiliado(miembro.id)} className="text-red-600 hover:text-red-800 dark:text-red-400 dark:hover:text-red-300" title="Eliminar">
+                          <Trash2 size={16} />
+                        </button>
+                      </td>
                     </tr>
                   ))
                 )}
@@ -411,6 +454,16 @@ function JacDetalle() {
           <p className="text-sm text-gray-500 dark:text-gray-400">No tiene permisos para consultar el detalle de afiliados de esta JAC.</p>
         </div>
       )}
+
+      {/* Modal para crear/editar afiliados */}
+      <ModalAfiliadoFormulario
+        isOpen={modalOpen}
+        onClose={() => setModalOpen(false)}
+        jacId={jac.id}
+        municipioId={jac.municipio_id}
+        afiliadoId={afiliadoEdit}
+        onSuccess={handleModalSuccess}
+      />
     </div>
   );
 }
