@@ -47,7 +47,7 @@ export class AsocomunalAdapter {
       jacs: (raw.jacs ?? []).map((jac, index) => ({
         id: index,
         nombre: jac.nombre,
-        estado: jac.estado,
+        estado: jac.estado ? 'activa' : 'inactiva',
       })),
     };
     return AsocomunalAdapter.mapAsocomunal(asocomunal);
