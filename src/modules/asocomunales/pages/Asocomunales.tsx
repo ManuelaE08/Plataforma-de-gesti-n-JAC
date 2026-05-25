@@ -14,6 +14,7 @@ import { useMunicipios } from "../hooks/useMunicipios";
 import { useAuth } from "../../../context/AuthContext";
 import { useSolicitudes } from "../../solicitudes/hooks/useSolicitudes";
 import { SolicitudesService } from "../../solicitudes/services/solicitudes.service";
+import { Permissions } from "../../../utils/permissions";
 import type { Asocomunal, CreateAsocomunalDto, UpdateAsocomunalDto } from "../types";
 
 const card = "bg-white dark:bg-gray-800 rounded-xl border border-gray-100 dark:border-gray-700 shadow-sm";
@@ -43,10 +44,10 @@ function Asocomunales() {
   const [editingAsocomunal, setEditingAsocomunal] = useState<Asocomunal | null>(null);
   const [creatingLoading, setCreatingLoading] = useState(false);
 
-  const esAdmin = user?.rol === "admin" || user?.rol === "superadmin";
-  const canViewActions = esAdmin || user?.rol === "operador";
+  const esAdmin = Permissions.isAdmin(user);
+  const canViewActions = esAdmin || Permissions.isOperador(user);
   //Nuevo cambio, se permite la creacion de asocomunales por parte de los operadores
-  const canCreate = esAdmin || user?.rol === "operador";
+  const canCreate = esAdmin || Permissions.isOperador(user);
 
   const canDirectEdit = esAdmin;
 
@@ -59,7 +60,7 @@ function Asocomunales() {
         if (muni) payloadAudit.municipioId_nombre = muni.nombre;
       }
 
-      if (user?.rol === "admin") {
+      if (Permissions.isAdmin(user)) {
         const currentAsoc = data.find(a => a.id === id);
         await updateAsocomunal(id, asoc as UpdateAsocomunalDto);
         // Log fire-and-forget en auditoría (no bloquea la UI)
@@ -143,7 +144,7 @@ function Asocomunales() {
     }
   };
 
-  const canViewConfidential = user?.rol === "admin" || user?.rol === "operador";
+  const canViewConfidential = Permissions.canViewConfidential(user);
 
   const headers = canViewConfidential
     ? ["Nombre", "Municipio", "Presidente", "Contacto", "Estado", ...(canViewActions ? ["Acciones"] : [])]
