@@ -59,7 +59,7 @@ function Asocomunales() {
         if (muni) payloadAudit.municipioId_nombre = muni.nombre;
       }
 
-      if (user?.rol === "admin") {
+      if (esAdmin) {
         const currentAsoc = data.find(a => a.id === id);
         await updateAsocomunal(id, asoc as UpdateAsocomunalDto);
         // Log fire-and-forget en auditoría (no bloquea la UI)
