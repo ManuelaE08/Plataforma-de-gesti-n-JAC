@@ -2,16 +2,43 @@ import { useState } from "react";
 import { Plus, Search, X, Pencil, UserX, UserCheck, ShieldCheck, Trash2, RefreshCw, Loader2, Eye, EyeOff } from "lucide-react";
 import Swal from "sweetalert2";
 import PageHeader from "../components/ui/PageHeader";
-import Badge from "../components/ui/Badge";
 import { useUsuarios, rolesInfo, type UsuarioItem, type CrearUsuarioInput } from "../hooks/useUsuarios";
 import type { RolAsignable } from "../services/usuariosApi";
 import { useAuth } from "../context/AuthContext";
 import { Permissions } from "../utils/permissions";
 
-const card     = "bg-white dark:bg-gray-800 rounded-xl border border-gray-100 dark:border-gray-700 shadow-sm";
-const inputCls = "w-full border border-gray-200 dark:border-gray-600 bg-gray-50 dark:bg-gray-900 text-sm text-gray-800 dark:text-gray-200 placeholder:text-gray-300 dark:placeholder:text-gray-500 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-[#1B7F4B]/30 focus:border-[#1B7F4B] focus:bg-white dark:focus:bg-gray-800 transition";
+// ── CONSTANTES DE DISEÑO INSTITUCIONAL ───────────────────────────────────────
+const card = "bg-white dark:bg-gray-800 rounded-xl border border-gray-100 dark:border-gray-700 shadow-sm";
 
-// ── Modal: Crear usuario ─────────────────────────────────────────────────────
+const focusRing = "focus:outline-none focus:ring-2 focus:ring-[#1B7F4B]/30 focus:border-[#1B7F4B]";
+
+const inputCls = `w-full border border-gray-200 dark:border-gray-600 bg-white dark:bg-gray-900 text-base text-gray-800 dark:text-gray-200 placeholder:text-gray-400 dark:placeholder:text-gray-500 rounded-lg px-3 py-2 ${focusRing} transition`;
+
+const selectCls = `appearance-none w-full bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-600 text-base text-gray-600 dark:text-gray-300 rounded-lg pl-3 pr-10 py-2 ${focusRing} transition-all cursor-pointer bg-[url('data:image/svg+xml;charset=utf-8,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20fill%3D%22none%22%20viewBox%3D%220%200%2020%2020%22%3E%3Cpath%20stroke%3D%22%236B7280%22%20stroke-linecap%3D%22round%22%20stroke-linejoin%3D%22round%22%20stroke-width%3D%221.5%22%20d%3D%22m6%208%204%204%204-4%22%2F%3E%3C%2Fsvg%3E')] bg-[position:right_0.5rem_center] bg-[size:1.5em_1.5em] bg-no-repeat`;
+
+const labelCls = "text-sm font-semibold uppercase tracking-wider text-gray-500 dark:text-gray-400";
+
+const btnInteractiveCls = `p-1.5 rounded-lg transition ${focusRing}`;
+
+// ── COMPONENTE MINIMALISTA: DOT DE ESTADO ────────────────────────────────────
+function StatusDot({ type, label }: { type: "green" | "red" | "amber" | "gray" | "blue"; label: string }) {
+  const dotShadows = {
+    green: "bg-green-500 shadow-[0_0_8px_rgba(34,197,94,0.6)]",
+    red: "bg-red-500 shadow-[0_0_8px_rgba(239,68,68,0.6)]",
+    amber: "bg-amber-500 shadow-[0_0_8px_rgba(245,158,11,0.6)]",
+    gray: "bg-gray-400 shadow-[0_0_8px_rgba(156,163,175,0.6)]",
+    blue: "bg-blue-500 shadow-[0_0_8px_rgba(59,130,246,0.6)]", // Soporte para rol Operador/Admin neutral
+  };
+
+  return (
+    <div className="flex items-center gap-2 font-semibold text-base">
+      <span className={`w-2.5 h-2.5 shrink-0 rounded-full ${dotShadows[type]}`} />
+      <span className="text-gray-700 dark:text-gray-200">{label}</span>
+    </div>
+  );
+}
+
+// ── MODAL: CREAR USUARIO ─────────────────────────────────────────────────────
 function ModalCrearUsuario({
   puedeCrearAdmin,
   onClose,
@@ -21,31 +48,31 @@ function ModalCrearUsuario({
   onClose: () => void;
   onSave: (input: CrearUsuarioInput) => Promise<void>;
 }) {
-  const [nombre,           setNombre]           = useState("");
-  const [apellido,         setApellido]         = useState("");
-  const [correo,           setCorreo]           = useState("");
-  const [rol,              setRol]              = useState<RolAsignable>("operador");
+  const [nombre, setNombre] = useState("");
+  const [apellido, setApellido] = useState("");
+  const [correo, setCorreo] = useState("");
+  const [rol, setRol] = useState<RolAsignable>("operador");
   const [passwordTemporal, setPasswordTemporal] = useState("");
-  const [showPassword,     setShowPassword]     = useState(false);
-  const [error,            setError]            = useState("");
-  const [loading,          setLoading]          = useState(false);
+  const [showPassword, setShowPassword] = useState(false);
+  const [error, setError] = useState("");
+  const [loading, setLoading] = useState(false);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!nombre.trim())                 { setError("El nombre es obligatorio");                   return; }
-    if (!apellido.trim())               { setError("El apellido es obligatorio");                 return; }
-    if (!correo.trim())                 { setError("El correo es obligatorio");                   return; }
-    if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(correo)) { setError("Ingresa un correo válido");       return; }
-    if (passwordTemporal.length < 8)    { setError("La contraseña debe tener al menos 8 caracteres"); return; }
+    if (!nombre.trim()) { setError("El nombre es obligatorio"); return; }
+    if (!apellido.trim()) { setError("El apellido es obligatorio"); return; }
+    if (!correo.trim()) { setError("El correo es obligatorio"); return; }
+    if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(correo)) { setError("Ingresa un correo válido"); return; }
+    if (passwordTemporal.length < 8) { setError("La contraseña debe tener al menos 8 caracteres"); return; }
 
     setLoading(true);
     setError("");
     try {
       await onSave({
-        correo:           correo.trim(),
-        nombre:           nombre.trim(),
-        apellido:         apellido.trim(),
-        rol:              puedeCrearAdmin ? rol : "operador",
+        correo: correo.trim(),
+        nombre: nombre.trim(),
+        apellido: apellido.trim(),
+        rol: puedeCrearAdmin ? rol : "operador",
         passwordTemporal,
       });
       onClose();
@@ -57,14 +84,13 @@ function ModalCrearUsuario({
   };
 
   const generarPassword = () => {
-    // 12 caracteres mezclando mayuscula, minuscula, digito y simbolo.
-    const upper   = "ABCDEFGHJKLMNPQRSTUVWXYZ";
-    const lower   = "abcdefghijkmnopqrstuvwxyz";
-    const digits  = "23456789";
+    const upper = "ABCDEFGHJKLMNPQRSTUVWXYZ";
+    const lower = "abcdefghijkmnopqrstuvwxyz";
+    const digits = "23456789";
     const symbols = "!@#$%&*?";
-    const all     = upper + lower + digits + symbols;
-    const pick    = (pool: string) => pool[Math.floor(Math.random() * pool.length)];
-    const base    = [pick(upper), pick(lower), pick(digits), pick(symbols)];
+    const all = upper + lower + digits + symbols;
+    const pick = (pool: string) => pool[Math.floor(Math.random() * pool.length)];
+    const base = [pick(upper), pick(lower), pick(digits), pick(symbols)];
     while (base.length < 12) base.push(pick(all));
     setPasswordTemporal(base.sort(() => Math.random() - 0.5).join(""));
     setShowPassword(true);
@@ -75,14 +101,14 @@ function ModalCrearUsuario({
       <div className={`${card} w-full max-w-md rounded-2xl`}>
         <div className="flex items-center justify-between px-6 py-4 border-b border-gray-100 dark:border-gray-700">
           <div>
-            <h2 className="text-base font-semibold text-gray-800 dark:text-gray-100">
+            <h2 className="text-lg font-bold text-gray-800 dark:text-gray-100">
               {puedeCrearAdmin ? "Crear usuario" : "Crear operador"}
             </h2>
-            <p className="text-xs text-gray-400 dark:text-gray-500 mt-0.5">
+            <p className="text-base text-gray-500 dark:text-gray-400 mt-0.5">
               El usuario definirá su contraseña la primera vez vía "Olvidé mi contraseña"
             </p>
           </div>
-          <button onClick={onClose} className="p-2 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-700 text-gray-400 transition">
+          <button onClick={onClose} className={`p-2 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-700 text-gray-400 transition ${focusRing}`}>
             <X size={18} />
           </button>
         </div>
@@ -90,7 +116,7 @@ function ModalCrearUsuario({
         <form onSubmit={(e) => { void handleSubmit(e); }} className="px-6 py-5 flex flex-col gap-4">
           <div className="grid grid-cols-2 gap-3">
             <div className="flex flex-col gap-1">
-              <label className="text-xs font-semibold text-gray-600 dark:text-gray-400 uppercase tracking-wider">Nombre</label>
+              <label className={labelCls}>Nombre</label>
               <input
                 type="text"
                 value={nombre}
@@ -101,7 +127,7 @@ function ModalCrearUsuario({
               />
             </div>
             <div className="flex flex-col gap-1">
-              <label className="text-xs font-semibold text-gray-600 dark:text-gray-400 uppercase tracking-wider">Apellido</label>
+              <label className={labelCls}>Apellido</label>
               <input
                 type="text"
                 value={apellido}
@@ -114,9 +140,7 @@ function ModalCrearUsuario({
           </div>
 
           <div className="flex flex-col gap-1">
-            <label className="text-xs font-semibold text-gray-600 dark:text-gray-400 uppercase tracking-wider">
-              Correo electrónico
-            </label>
+            <label className={labelCls}>Correo electrónico</label>
             <input
               type="email"
               value={correo}
@@ -128,35 +152,33 @@ function ModalCrearUsuario({
           </div>
 
           <div className="flex flex-col gap-1">
-            <label className="text-xs font-semibold text-gray-600 dark:text-gray-400 uppercase tracking-wider">Rol</label>
+            <label className={labelCls}>Rol</label>
             {puedeCrearAdmin ? (
               <select
                 value={rol}
                 onChange={(e) => setRol(e.target.value as RolAsignable)}
                 disabled={loading}
-                className={`appearance-none ${inputCls} cursor-pointer`}
+                className={selectCls}
               >
                 <option value="operador">Operador</option>
                 <option value="admin">Administrador</option>
               </select>
             ) : (
-              <div className="flex items-center gap-2 px-3 py-2 border border-gray-200 dark:border-gray-600 bg-gray-50 dark:bg-gray-900 rounded-lg">
-                <Badge label="Operador" variant="blue" />
-                <span className="text-xs text-gray-400 dark:text-gray-500">Único rol asignable por administradores</span>
+              <div className="flex items-center gap-3 px-3 py-2 border border-gray-200 dark:border-gray-600 bg-white dark:bg-gray-900 rounded-lg">
+                <StatusDot type="blue" label="Operador" />
+                <span className="text-base text-gray-500 dark:text-gray-400">Único rol asignable por administradores</span>
               </div>
             )}
           </div>
 
           <div className="flex flex-col gap-1">
             <div className="flex items-center justify-between">
-              <label className="text-xs font-semibold text-gray-600 dark:text-gray-400 uppercase tracking-wider">
-                Contraseña temporal
-              </label>
+              <label className={labelCls}>Contraseña temporal</label>
               <button
                 type="button"
                 onClick={generarPassword}
                 disabled={loading}
-                className="text-xs text-[#1B7F4B] hover:underline font-medium disabled:opacity-50"
+                className={`text-sm text-[#1B7F4B] hover:text-[#166340] font-semibold hover:underline disabled:opacity-50 transition rounded px-1 ${focusRing}`}
               >
                 Generar
               </button>
@@ -167,41 +189,41 @@ function ModalCrearUsuario({
                 value={passwordTemporal}
                 onChange={(e) => { setPasswordTemporal(e.target.value); setError(""); }}
                 placeholder="Mínimo 8 caracteres"
-                className={`${inputCls} pr-9`}
+                className={`${inputCls} pr-10`}
                 disabled={loading}
                 autoComplete="new-password"
               />
               <button
                 type="button"
                 onClick={() => setShowPassword((v) => !v)}
-                className="absolute right-2 top-1/2 -translate-y-1/2 p-1 rounded text-gray-400 hover:text-gray-600 dark:hover:text-gray-300"
+                className={`absolute right-2 top-1/2 -translate-y-1/2 p-1.5 rounded text-gray-400 hover:text-gray-600 dark:hover:text-gray-300 ${focusRing}`}
                 title={showPassword ? "Ocultar" : "Mostrar"}
               >
                 {showPassword ? <EyeOff size={16} /> : <Eye size={16} />}
               </button>
             </div>
-            <p className="text-xs text-gray-400 dark:text-gray-500">
+            <p className="text-base text-gray-500 dark:text-gray-400">
               El usuario deberá cambiarla obligatoriamente en su primer inicio de sesión.
             </p>
           </div>
 
-          {error && <p className="text-xs text-red-500 dark:text-red-400">{error}</p>}
+          {error && <p className="text-base font-semibold text-red-500 dark:text-red-400">{error}</p>}
 
-          <div className="flex items-center justify-end gap-3 pt-1 border-t border-gray-100 dark:border-gray-700">
+          <div className="flex items-center justify-end gap-3 pt-2 border-t border-gray-100 dark:border-gray-700">
             <button
               type="button"
               onClick={onClose}
               disabled={loading}
-              className="px-4 py-2 text-sm font-medium text-gray-600 dark:text-gray-300 border border-gray-200 dark:border-gray-600 rounded-lg hover:bg-gray-50 dark:hover:bg-gray-700 transition disabled:opacity-50"
+              className={`px-4 py-2 text-base font-medium text-gray-600 dark:text-gray-300 border border-gray-200 dark:border-gray-600 rounded-lg hover:bg-gray-50 dark:hover:bg-gray-700 transition disabled:opacity-50 ${focusRing}`}
             >
               Cancelar
             </button>
             <button
               type="submit"
               disabled={loading}
-              className="flex items-center gap-2 px-4 py-2 text-sm font-semibold text-white bg-[#1B7F4B] hover:bg-[#166340] rounded-lg transition disabled:opacity-60"
+              className={`flex items-center gap-2 px-4 py-2 text-base font-semibold text-white bg-[#1B7F4B] hover:bg-[#166340] rounded-lg transition disabled:opacity-60 ${focusRing}`}
             >
-              {loading && <Loader2 size={14} className="animate-spin" />}
+              {loading && <Loader2 size={16} className="animate-spin" />}
               {loading ? "Creando…" : "Crear usuario"}
             </button>
           </div>
@@ -211,7 +233,7 @@ function ModalCrearUsuario({
   );
 }
 
-// ── Modal: Editar usuario ────────────────────────────────────────────────────
+// ── MODAL: EDITAR USUARIO ────────────────────────────────────────────────────
 function ModalEditarUsuario({
   usuario,
   onClose,
@@ -221,8 +243,8 @@ function ModalEditarUsuario({
   onClose: () => void;
   onSave: (id: string, nombre: string) => Promise<void>;
 }) {
-  const [nombre,  setNombre]  = useState(usuario.nombre);
-  const [error,   setError]   = useState("");
+  const [nombre, setNombre] = useState(usuario.nombre);
+  const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
 
   const handleGuardar = async () => {
@@ -243,35 +265,35 @@ function ModalEditarUsuario({
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 px-4">
       <div className={`${card} w-full max-w-sm rounded-2xl p-6`}>
-        <h2 className="text-base font-semibold text-gray-800 dark:text-gray-100 mb-1">Editar usuario</h2>
-        <p className="text-xs text-gray-400 dark:text-gray-500 mb-4">{usuario.correo}</p>
+        <h2 className="text-lg font-bold text-gray-800 dark:text-gray-100 mb-1">Editar usuario</h2>
+        <p className="text-base text-gray-500 dark:text-gray-400 mb-4">{usuario.correo}</p>
 
         <div className="flex flex-col gap-1 mb-4">
-          <label className="text-xs font-semibold text-gray-600 dark:text-gray-400 uppercase tracking-wider">Nombre completo</label>
+          <label className={labelCls}>Nombre completo</label>
           <input
             type="text"
             value={nombre}
             onChange={(e) => { setNombre(e.target.value); setError(""); }}
-            className={`${inputCls} ${error ? "border-red-300 dark:border-red-600 bg-red-50 dark:bg-red-900/20" : ""}`}
+            className={`${inputCls} ${error ? "border-red-500 dark:border-red-500" : ""}`}
             disabled={loading}
           />
-          {error && <p className="text-xs text-red-500 dark:text-red-400">{error}</p>}
+          {error && <p className="text-base font-semibold text-red-500 dark:text-red-400">{error}</p>}
         </div>
 
         <div className="flex justify-end gap-3">
           <button
             onClick={onClose}
             disabled={loading}
-            className="px-4 py-2 text-sm font-medium text-gray-600 dark:text-gray-300 border border-gray-200 dark:border-gray-600 rounded-lg hover:bg-gray-50 dark:hover:bg-gray-700 transition disabled:opacity-50"
+            className={`px-4 py-2 text-base font-medium text-gray-600 dark:text-gray-300 border border-gray-200 dark:border-gray-600 rounded-lg hover:bg-gray-50 dark:hover:bg-gray-700 transition disabled:opacity-50 ${focusRing}`}
           >
             Cancelar
           </button>
           <button
             onClick={() => { void handleGuardar(); }}
             disabled={loading}
-            className="flex items-center gap-2 px-4 py-2 text-sm font-semibold text-white bg-[#1B7F4B] hover:bg-[#166340] rounded-lg transition disabled:opacity-60"
+            className={`flex items-center gap-2 px-4 py-2 text-base font-semibold text-white bg-[#1B7F4B] hover:bg-[#166340] rounded-lg transition disabled:opacity-60 ${focusRing}`}
           >
-            {loading && <Loader2 size={14} className="animate-spin" />}
+            {loading && <Loader2 size={16} className="animate-spin" />}
             {loading ? "Guardando…" : "Guardar"}
           </button>
         </div>
@@ -280,7 +302,7 @@ function ModalEditarUsuario({
   );
 }
 
-// ── Página principal ─────────────────────────────────────────────────────────
+// ── PÁGINA PRINCIPAL ─────────────────────────────────────────────────────────
 function Usuarios() {
   const { user } = useAuth();
   const esSuperadmin = Permissions.isSuperAdmin(user);
@@ -293,11 +315,8 @@ function Usuarios() {
   } = useUsuarios();
 
   const [showCrear, setShowCrear] = useState(false);
-  const [editando,  setEditando]  = useState<UsuarioItem | null>(null);
+  const [editando, setEditando] = useState<UsuarioItem | null>(null);
 
-  // Reglas de gestion en la UI (espejo de las del backend):
-  // - superadmin: puede gestionar admin y operador, NO a otros superadmin.
-  // - admin: solo puede gestionar operador.
   const puedeGestionar = (u: UsuarioItem): boolean => {
     if (u.rol === "superadmin") return false;
     if (esSuperadmin) return true;
@@ -368,12 +387,19 @@ function Usuarios() {
     }
   };
 
+  // Mapeos de variantes semánticas de roles para usar en StatusDot
+  const getRolDotVariant = (rol: string): "red" | "amber" | "blue" | "gray" => {
+    if (rol === "superadmin") return "red";
+    if (rol === "admin") return "amber";
+    return "blue";
+  };
+
   return (
     <div>
       <PageHeader title="Administración de Usuarios" subtitle="Gestione los usuarios del sistema">
         <button
           onClick={() => setShowCrear(true)}
-          className="flex items-center gap-2 bg-[#1B7F4B] hover:bg-[#166340] text-white text-sm font-semibold px-4 py-2.5 rounded-lg transition shrink-0"
+          className={`flex items-center gap-2 bg-[#1B7F4B] hover:bg-[#166340] text-white text-base font-semibold px-4 py-2.5 rounded-lg transition shrink-0 ${focusRing}`}
         >
           <Plus size={16} /> {esSuperadmin ? "Crear usuario" : "Crear operador"}
         </button>
@@ -398,31 +424,33 @@ function Usuarios() {
       <div className={`${card} p-4 mb-4`}>
         <div className="flex flex-col sm:flex-row gap-3">
           <div className="relative flex-1 sm:flex-[2]">
-            <Search size={14} className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400 dark:text-gray-500" />
+            <Search size={16} className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400 dark:text-gray-500" />
             <input
               type="text"
               placeholder="Buscar por nombre o correo..."
               value={filters.busqueda}
               onChange={(e) => setBusqueda(e.target.value)}
-              className={`${inputCls} pl-8`}
+              className={`${inputCls} pl-10`}
             />
           </div>
-          <select
-            value={filters.rol}
-            onChange={(e) => setRol(e.target.value)}
-            className={`appearance-none ${inputCls} cursor-pointer sm:w-44`}
-          >
-            <option value="">Todos los roles</option>
-            <option value="superadmin">Superadmin</option>
-            <option value="admin">Administrador</option>
-            <option value="operador">Operador</option>
-          </select>
+          <div className="sm:w-52">
+            <select
+              value={filters.rol}
+              onChange={(e) => setRol(e.target.value)}
+              className={selectCls}
+            >
+              <option value="">Todos los roles</option>
+              <option value="superadmin">Superadmin</option>
+              <option value="admin">Administrador</option>
+              <option value="operador">Operador</option>
+            </select>
+          </div>
           {(filters.busqueda || filters.rol) && (
             <button
               onClick={limpiarFiltros}
-              className="inline-flex items-center gap-1.5 text-sm text-gray-500 dark:text-gray-400 border border-gray-200 dark:border-gray-600 rounded-lg px-3 py-2 hover:bg-gray-50 dark:hover:bg-gray-700 transition"
+              className={`inline-flex items-center gap-1.5 text-base text-gray-600 dark:text-gray-300 border border-gray-200 dark:border-gray-600 rounded-lg px-4 py-2 hover:bg-gray-50 dark:hover:bg-gray-700 transition ${focusRing}`}
             >
-              <X size={14} /> Limpiar
+              <X size={16} /> Limpiar
             </button>
           )}
         </div>
@@ -432,35 +460,35 @@ function Usuarios() {
       <div className={`${card} overflow-hidden mb-4`}>
         {isLoading ? (
           <div className="flex items-center justify-center gap-2 py-16 text-gray-400 dark:text-gray-500">
-            <Loader2 size={20} className="animate-spin" />
-            <span className="text-sm">Cargando usuarios…</span>
+            <Loader2 size={24} className="animate-spin" />
+            <span className="text-base">Cargando usuarios…</span>
           </div>
         ) : error ? (
           <div className="flex flex-col items-center justify-center py-16 gap-3">
-            <p className="text-sm text-red-500 dark:text-red-400">{error}</p>
+            <p className="text-base text-red-500 dark:text-red-400">{error}</p>
             <button
               onClick={() => { void recargar(); }}
-              className="flex items-center gap-2 text-sm text-[#1B7F4B] hover:underline font-medium"
+              className={`flex items-center gap-2 text-base text-[#1B7F4B] hover:text-[#166340] hover:underline font-semibold rounded px-1 ${focusRing}`}
             >
-              <RefreshCw size={14} /> Reintentar
+              <RefreshCw size={16} /> Reintentar
             </button>
           </div>
         ) : (
           <div className="overflow-x-auto">
-            <table className="w-full text-sm">
+            <table className="w-full text-base">
               <thead>
                 <tr className="border-b border-gray-100 dark:border-gray-700 bg-gray-50 dark:bg-gray-900/50">
                   {["Nombre", "Correo electrónico", "Rol", "Estado", "Acciones"].map((col) => (
-                    <th key={col} className="text-left text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wider px-4 py-3">
+                    <th key={col} className={`${labelCls} text-left px-4 py-3`}>
                       {col}
                     </th>
                   ))}
                 </tr>
               </thead>
-              <tbody className="divide-y divide-gray-50 dark:divide-gray-700">
+              <tbody className="divide-y divide-gray-50 dark:divide-gray-700 bg-white dark:bg-gray-900">
                 {filtered.length === 0 ? (
                   <tr>
-                    <td colSpan={5} className="text-center text-sm text-gray-400 dark:text-gray-500 py-12">
+                    <td colSpan={5} className="text-center text-base text-gray-400 dark:text-gray-500 py-12">
                       No se encontraron usuarios
                     </td>
                   </tr>
@@ -472,17 +500,21 @@ function Usuarios() {
                         ? "Los superadmin no pueden ser modificados"
                         : "Solo un superadmin puede modificar administradores"
                       : undefined;
-                    const btnBase     = "p-1.5 rounded-lg transition";
-                    const btnDisabled = `${btnBase} opacity-30 cursor-not-allowed text-gray-400`;
+
+                    const btnDisabled = `${btnInteractiveCls} opacity-20 cursor-not-allowed text-gray-400`;
 
                     return (
                       <tr key={u.id} className="hover:bg-gray-50 dark:hover:bg-gray-700/40 transition-colors">
-                        <td className="px-4 py-3 font-medium text-gray-800 dark:text-gray-100">{u.nombre}</td>
-                        <td className="px-4 py-3 text-gray-500 dark:text-gray-400">{u.correo}</td>
-                        <td className="px-4 py-3"><Badge label={rolesInfo[u.rol].label} variant={rolesInfo[u.rol].variant} /></td>
-                        <td className="px-4 py-3"><Badge label={u.estado} variant={u.estado === "Activo" ? "green" : "gray"} /></td>
+                        <td className="px-4 py-3 font-bold text-gray-800 dark:text-gray-100">{u.nombre}</td>
+                        <td className="px-4 py-3 text-gray-600 dark:text-gray-300">{u.correo}</td>
                         <td className="px-4 py-3">
-                          <div className="flex items-center gap-1" title={motivoBloqueo}>
+                          <StatusDot type={getRolDotVariant(u.rol)} label={rolesInfo[u.rol].label} />
+                        </td>
+                        <td className="px-4 py-3">
+                          <StatusDot type={u.estado === "Activo" ? "green" : "gray"} label={u.estado} />
+                        </td>
+                        <td className="px-4 py-3">
+                          <div className="flex items-center gap-1.5" title={motivoBloqueo}>
                             {/* Editar */}
                             <button
                               onClick={() => gestionable && setEditando(u)}
@@ -490,10 +522,10 @@ function Usuarios() {
                               title={motivoBloqueo ?? "Editar"}
                               className={!gestionable || opLoading
                                 ? btnDisabled
-                                : `${btnBase} hover:bg-[#1B7F4B]/10 dark:hover:bg-[#1B7F4B]/20 text-gray-400 hover:text-[#1B7F4B]`
+                                : `${btnInteractiveCls} hover:bg-[#1B7F4B]/10 dark:hover:bg-[#1B7F4B]/20 text-gray-400 hover:text-[#1B7F4B]`
                               }
                             >
-                              <Pencil size={15} />
+                              <Pencil size={16} />
                             </button>
 
                             {/* Activar / Desactivar */}
@@ -503,13 +535,13 @@ function Usuarios() {
                               title={motivoBloqueo ?? (u.estado === "Activo" ? "Desactivar" : "Activar")}
                               className={!gestionable || opLoading
                                 ? btnDisabled
-                                : `${btnBase} ${u.estado === "Activo"
-                                    ? "hover:bg-red-50 dark:hover:bg-red-900/20 text-gray-400 hover:text-red-500 dark:hover:text-red-400"
-                                    : "hover:bg-green-50 dark:hover:bg-green-900/20 text-gray-400 hover:text-green-600 dark:hover:text-green-400"
-                                  }`
+                                : `${btnInteractiveCls} ${u.estado === "Activo"
+                                  ? "hover:bg-red-50 dark:hover:bg-red-900/20 text-gray-400 hover:text-red-500 dark:hover:text-red-400"
+                                  : "hover:bg-green-50 dark:hover:bg-green-900/20 text-gray-400 hover:text-green-600 dark:hover:text-green-400"
+                                }`
                               }
                             >
-                              {u.estado === "Activo" ? <UserX size={15} /> : <UserCheck size={15} />}
+                              {u.estado === "Activo" ? <UserX size={16} /> : <UserCheck size={16} />}
                             </button>
 
                             {/* Eliminar */}
@@ -519,10 +551,10 @@ function Usuarios() {
                               title={motivoBloqueo ?? "Eliminar"}
                               className={!gestionable || opLoading
                                 ? btnDisabled
-                                : `${btnBase} hover:bg-red-50 dark:hover:bg-red-900/20 text-gray-400 hover:text-red-500 dark:hover:text-red-400`
+                                : `${btnInteractiveCls} hover:bg-red-50 dark:hover:bg-red-900/20 text-gray-400 hover:text-red-500 dark:hover:text-red-400`
                               }
                             >
-                              <Trash2 size={15} />
+                              <Trash2 size={16} />
                             </button>
                           </div>
                         </td>
@@ -540,8 +572,8 @@ function Usuarios() {
       <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
         {/* Roles del sistema */}
         <div className={`${card} p-5`}>
-          <h3 className="text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wider mb-3 flex items-center gap-2">
-            <ShieldCheck size={14} className="text-gray-400 dark:text-gray-500" /> Roles del sistema
+          <h3 className={`${labelCls} mb-3 flex items-center gap-2`}>
+            <ShieldCheck size={16} className="text-gray-400 dark:text-gray-500" /> Roles del sistema
           </h3>
           <div className="flex flex-col gap-2">
             {(["superadmin", "admin", "operador"] as const).map((key) => {
@@ -553,10 +585,10 @@ function Usuarios() {
                     ? "border-[#1B7F4B]/20 dark:border-[#1B7F4B]/30 bg-[#1B7F4B]/5 dark:bg-[#1B7F4B]/10"
                     : "border-gray-200 dark:border-gray-700 bg-gray-50 dark:bg-gray-900/50"
                 }`}>
-                  <p className={`text-sm font-semibold ${destacado ? "text-[#1B7F4B]" : "text-gray-700 dark:text-gray-200"}`}>
+                  <p className={`text-base font-bold ${destacado ? "text-[#1B7F4B]" : "text-gray-700 dark:text-gray-200"}`}>
                     {r.label}
                   </p>
-                  <p className="text-xs text-gray-500 dark:text-gray-400 mt-0.5">{r.descripcion.split(".")[0]}</p>
+                  <p className="text-base text-gray-500 dark:text-gray-400 mt-0.5">{r.descripcion.split(".")[0]}</p>
                 </div>
               );
             })}
@@ -565,19 +597,19 @@ function Usuarios() {
 
         {/* Estadísticas */}
         <div className={`${card} p-5`}>
-          <h3 className="text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wider mb-3">Estadísticas</h3>
+          <h3 className={labelCls} mb-3>Estadísticas</h3>
           <div className="flex flex-col gap-3">
             {[
-              { label: "Total usuarios",  value: stats.total },
-              { label: "Activos",         value: stats.activos },
-              { label: "Inactivos",       value: stats.inactivos },
-              { label: "Superadmins",     value: stats.superadmins },
+              { label: "Total usuarios", value: stats.total },
+              { label: "Activos", value: stats.activos },
+              { label: "Inactivos", value: stats.inactivos },
+              { label: "Superadmins", value: stats.superadmins },
               { label: "Administradores", value: stats.admins },
-              { label: "Operadores",      value: stats.operadores },
+              { label: "Operadores", value: stats.operadores },
             ].map((s) => (
-              <div key={s.label} className="flex items-center justify-between text-sm">
-                <span className="text-gray-500 dark:text-gray-400">{s.label}</span>
-                <span className="font-semibold text-gray-800 dark:text-gray-100">{s.value}</span>
+              <div key={s.label} className="flex items-center justify-between text-base border-b border-gray-50 dark:border-gray-700/50 pb-1 last:border-none">
+                <span className="text-gray-600 dark:text-gray-300">{s.label}</span>
+                <span className="font-bold text-gray-800 dark:text-gray-100">{s.value}</span>
               </div>
             ))}
           </div>
