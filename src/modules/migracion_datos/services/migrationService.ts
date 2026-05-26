@@ -1,6 +1,7 @@
 import {
   AfiliadoImportError,
   AfiliadoImportErrorResponse,
+  ImportarAfiliadosResultDto,
   MigrationOptions,
   MigrationResponse,
 } from "../types";
@@ -65,7 +66,7 @@ export class MigrationService {
    * En caso de error 4xx con `errores[]`, lanza un `AfiliadoImportError` cuyo
    * `detalles` ya viene parseado para el UI.
    */
-  static async uploadAfiliadosExcel({ file, jacId }: { file: File; jacId: number }): Promise<MigrationResponse> {
+  static async uploadAfiliadosExcel({ file, jacId }: { file: File; jacId: number }): Promise<ImportarAfiliadosResultDto> {
     if (!file) throw new Error("No file provided");
     if (jacId === undefined || jacId === null) {
       throw new Error("Debe seleccionar una JAC antes de importar afiliados.");
@@ -107,6 +108,6 @@ export class MigrationService {
       );
     }
 
-    return (await response.json()) as MigrationResponse;
+    return (await response.json()) as ImportarAfiliadosResultDto;
   }
 }

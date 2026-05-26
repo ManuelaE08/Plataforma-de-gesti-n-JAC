@@ -16,6 +16,18 @@ interface MigracionResultado {
   validas: number;
   advertencias: number;
   errores: number;
+  /**
+   * Detalle específico de una importación de afiliados (presente solo cuando
+   * `tipoEntidad === "afiliados"` y la importación terminó en éxito).
+   * Lo dejamos opcional para no romper el shape de las otras entidades.
+   */
+  afiliados?: {
+    jacId: number;
+    insertados: number;
+    actualizados: number;
+    cargosAsignados: number;
+    cargosCreados: string[];
+  };
 }
 
 const formatosPermitidos = [".xlsx", ".xls", ".csv"];
@@ -242,12 +254,24 @@ export function useMigracion() {
           file: archivo,
           jacId: jacSeleccionada!.id,
         });
-        const resAny = res as any;
+        // El backend devuelve un ImportarAfiliadosResultDto cuando termina ok:
+        //   { jacId, afiliadosInsertados, afiliadosActualizados,
+        //     cargosAsignados, cargosCreados[], errores[] }
+        // En éxito `errores` viene vacío y `validas` debe ser
+        // insertados + actualizados (todo lo que realmente quedó en BD).
+        const totalProcesado = res.afiliadosInsertados + res.afiliadosActualizados;
         setResultado({
-          filasDetectadas: resAny.totalRecords ?? resAny.totalProcesadas ?? resAny.validas ?? 0,
-          validas: resAny.validas ?? resAny.inserted ?? 0,
-          advertencias: resAny.advertencias ?? 0,
-          errores: typeof resAny.errores === "number" ? resAny.errores : 0,
+          filasDetectadas: totalProcesado,
+          validas: totalProcesado,
+          advertencias: 0,
+          errores: res.errores?.length ?? 0,
+          afiliados: {
+            jacId: res.jacId,
+            insertados: res.afiliadosInsertados,
+            actualizados: res.afiliadosActualizados,
+            cargosAsignados: res.cargosAsignados,
+            cargosCreados: res.cargosCreados ?? [],
+          },
         });
         setDetallesErrores([]);
         setProgreso(100);

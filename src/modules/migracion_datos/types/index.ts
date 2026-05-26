@@ -26,6 +26,25 @@ export interface AfiliadoImportErrorItem {
   motivo: string;
 }
 
+/**
+ * Resultado exitoso (HTTP 200) de `POST /afiliados/importar-excel`.
+ * Espejo del `ImportarAfiliadosResultDto` del backend.
+ *
+ * @remarks
+ * Cuando `errores` viene vacío, la transacción se completó y todos los
+ * contadores reflejan lo realmente insertado/actualizado en BD.
+ */
+export interface ImportarAfiliadosResultDto {
+  jacId: number;
+  /** Personas creadas nuevas en BD (cédula no existía). */
+  afiliadosInsertados: number;
+  /** Personas ya existentes cuyos datos se actualizaron. */
+  afiliadosActualizados: number;
+  cargosAsignados: number;
+  cargosCreados: string[];
+  errores: AfiliadoImportErrorItem[];
+}
+
 /** Estructura completa del payload de error 4xx que devuelve `/afiliados/importar-excel`. */
 export interface AfiliadoImportErrorResponse {
   statusCode: number;
