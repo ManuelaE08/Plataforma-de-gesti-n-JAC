@@ -1,6 +1,7 @@
 import { Plus, RotateCcw, Ellipsis, Trash2 } from "lucide-react";
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
+import Swal from "sweetalert2";
 import PageHeader from "../components/ui/PageHeader";
 import SearchBar from "../components/ui/SearchBar";
 import { OrganizativoStatus } from "../components/ui/OrganizativoStatus";
@@ -18,7 +19,43 @@ function Jac() {
   const {
     filters, filtered, loading, error, refetch, handleClear, totalLoaded,
     setBusqueda, setMunicipio, setEstado, setMinAfiliados, setLimite, setDocumental,
+    deleteJac,
   } = useJac();
+
+  const handleDelete = async (id: number, nombre: string) => {
+    const result = await Swal.fire({
+      title: "¿Desactivar esta JAC?",
+      html: `Se cambiará el estado de <strong>${nombre}</strong> a <strong>Cancelada</strong>. La JAC no se borrará de la base de datos y podrá reactivarla más adelante. PERO tenga en cuenta que se borrarán los afiliados para esta JAC `,
+      icon: "warning",
+      showCancelButton: true,
+      confirmButtonColor: "#d33",
+      cancelButtonColor: "#6b7280",
+      confirmButtonText: "Sí, desactivar",
+      cancelButtonText: "Cancelar",
+    });
+
+    if (!result.isConfirmed) return;
+
+    try {
+      await deleteJac(id);
+      await Swal.fire({
+        icon: "success",
+        title: "JAC desactivada",
+        text: `${nombre} fue desactivada correctamente.`,
+        confirmButtonColor: "#1B7F4B",
+        timer: 2000,
+        timerProgressBar: true,
+      });
+    } catch (err: unknown) {
+      console.error("Error al eliminar la JAC:", err);
+      await Swal.fire({
+        icon: "error",
+        title: "No se pudo desactivar la JAC",
+        text: err instanceof Error ? err.message : "Ocurrió un error inesperado.",
+        confirmButtonColor: "#1B7F4B",
+      });
+    }
+  };
 
   const navigate = useNavigate();
   const { user } = useAuth();
@@ -194,8 +231,10 @@ function Jac() {
                           </button>
                           {canDelete && (
                             <button
-                              className="p-1.5 rounded-lg hover:bg-red-50 dark:hover:bg-red-900/20 text-gray-400 dark:text-gray-500 hover:text-red-500 dark:hover:text-red-400 transition-colors"
-                              title="Eliminar"
+                              onClick={() => handleDelete(jac.id, jac.nombre)}
+                              disabled={jac.organizativo === "Cancelada"}
+                              className="p-1.5 rounded-lg hover:bg-red-50 dark:hover:bg-red-900/20 text-gray-400 dark:text-gray-500 hover:text-red-500 dark:hover:text-red-400 transition-colors disabled:opacity-30 disabled:cursor-not-allowed disabled:hover:bg-transparent disabled:hover:text-gray-400"
+                              title={jac.organizativo === "Cancelada" ? "La JAC ya está cancelada" : "Desactivar JAC"}
                             >
                               <Trash2 size={20} />
                             </button>

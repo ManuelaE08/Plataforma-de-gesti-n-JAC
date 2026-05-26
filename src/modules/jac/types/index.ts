@@ -1,7 +1,7 @@
 // ── Enums / literales ────────────────────────────────────────────────────────
 
 export type EstadoDocumental = "Vigente" | "Vencida" | "Por vencer";
-export type EstadoOrganizativo = "Activa" | "Inactiva";
+export type EstadoOrganizativo = "Activa" | "Inactiva" | "Cancelada";
 export type TipoJac = "Barrio" | "Vereda";
 
 /**
