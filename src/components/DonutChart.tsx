@@ -43,7 +43,7 @@ function DonutChart({ urban, rural, total }: DonutChartProps) {
               {total}
             </text>
             <text x="120" y="146" textAnchor="middle" className="text-xs font-bold fill-slate-500 dark:fill-slate-400 tracking-wider uppercase transition-colors" dominantBaseline="middle">
-              Total JACs
+              Total JACs activas
             </text>
           </svg>
         </div>

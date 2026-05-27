@@ -15,15 +15,19 @@ import { ModalAfiliadoFormulario } from "../modules/jac/components/ModalAfiliado
 import { ModalEditarJac } from "../modules/jac/components/ModalEditarJac";
 import { ModalDetalleAfiliado } from "../modules/jac/components/ModalDetalleAfiliado";
 
-//Se agrego SolicitudesService para poder editar las solicitudes
+// Se agregó SolicitudesService para poder editar las solicitudes
 import { SolicitudesService } from "../modules/solicitudes/services/solicitudes.service";
 import { Permissions } from "../utils/permissions";
 import type { JacItem, UpdateJACDto } from "../modules/jac/types";
 import type { Asocomunal } from "../modules/asocomunales/types";
 
+// Clases del Sistema de Diseño Institucional
 const card = "bg-white dark:bg-gray-800 rounded-xl border border-gray-100 dark:border-gray-700 shadow-sm";
-const label = "text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wider mb-1";
-const selectCls = "appearance-none bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-600 text-sm text-gray-600 dark:text-gray-300 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-[#1B7F4B]/30 focus:border-[#1B7F4B] transition-all cursor-pointer shrink-0";
+const label = "text-sm font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wider mb-1";
+const focusRing = "focus:outline-none focus:ring-2 focus:ring-[#1B7F4B]/30 focus:border-[#1B7F4B]";
+const inputBase = "bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-600 text-base text-gray-600 dark:text-gray-300 rounded-lg px-3 py-2 transition-all";
+
+const selectCls = "appearance-none w-full bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-600 text-base text-gray-600 dark:text-gray-300 rounded-lg pl-3 pr-10 py-2 focus:outline-none focus:ring-2 focus:ring-[#1B7F4B]/30 focus:border-[#1B7F4B] transition-all cursor-pointer bg-[url('data:image/svg+xml;charset=utf-8,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20fill%3D%22none%22%20viewBox%3D%220%200%2020%2020%22%3E%3Cpath%20stroke%3D%22%236B7280%22%20stroke-linecap%3D%22round%22%20stroke-linejoin%3D%22round%22%20stroke-width%3D%221.5%22%20d%3D%22m6%208%204%204%204-4%22%2F%3E%3C%2Fsvg%3E')] bg-[position:right_0.5rem_center] bg-[size:1.5em_1.5em] bg-no-repeat";
 
 function JacDetalle() {
   const { id } = useParams();
@@ -229,11 +233,37 @@ function JacDetalle() {
     });
   }, [jac, debouncedBusqueda, filtroRol]);
 
+  // Renderizador de Dots LED únicamente para estados operativos reales (Estado de la JAC)
+  const renderStatusDot = (status: string) => {
+    const statusLower = status?.toLowerCase();
+    let dotClass = "bg-gray-400 shadow-[0_0_8px_rgba(156,163,175,0.6)]";
+
+    if (["activa"].includes(statusLower)) {
+      dotClass = "bg-green-500 shadow-[0_0_8px_rgba(34,197,94,0.6)]";
+    } else if (["inactiva"].includes(statusLower)) {
+      dotClass = "bg-red-500 shadow-[0_0_8px_rgba(239,68,68,0.6)]";
+    } else if (["pendiente"].includes(statusLower)) {
+      dotClass = "bg-amber-500 shadow-[0_0_8px_rgba(245,158,11,0.6)]";
+    } else if (["cancelada"].includes(statusLower)) {
+      dotClass = "bg-gray-400 shadow-[0_0_8px_rgba(156,163,175,0.6)]";
+    }
+
+    return (
+      <div className="flex items-center gap-2 font-semibold text-base text-gray-800 dark:text-gray-100">
+        <span className={`w-2.5 h-2.5 shrink-0 rounded-full ${dotClass}`} />
+        <span>{status}</span>
+      </div>
+    );
+  };
+
   if (accessDenied) {
     return (
       <div>
         <PageHeader title="Acceso denegado" subtitle="Acceso restringido" description="No tiene permisos para ver este recurso">
-          <button onClick={() => navigate("/jac")} className="flex items-center gap-2 bg-white dark:bg-gray-800 hover:bg-gray-50 dark:hover:bg-gray-700 text-gray-700 dark:text-gray-200 text-sm font-semibold px-4 py-2.5 rounded-lg border border-gray-200 dark:border-gray-600 transition-colors">
+          <button 
+            onClick={() => navigate("/jac")} 
+            className={`flex items-center gap-2 bg-white dark:bg-gray-800 hover:bg-gray-50 dark:hover:bg-gray-700 text-gray-700 dark:text-gray-200 text-base font-semibold px-4 py-2.5 rounded-lg border border-gray-200 dark:border-gray-600 transition-colors ${focusRing}`}
+          >
             <ArrowLeft size={16} /> Volver
           </button>
         </PageHeader>
@@ -248,12 +278,15 @@ function JacDetalle() {
     return (
       <div>
         <PageHeader title="Detalle de JAC" subtitle="Información detallada" description="Cargando información de la junta...">
-          <button onClick={() => navigate("/jac")} className="flex items-center gap-2 bg-white dark:bg-gray-800 hover:bg-gray-50 dark:hover:bg-gray-700 text-gray-700 dark:text-gray-200 text-sm font-semibold px-4 py-2.5 rounded-lg border border-gray-200 dark:border-gray-600 transition-colors">
+          <button 
+            onClick={() => navigate("/jac")} 
+            className={`flex items-center gap-2 bg-white dark:bg-gray-800 hover:bg-gray-50 dark:hover:bg-gray-700 text-gray-700 dark:text-gray-200 text-base font-semibold px-4 py-2.5 rounded-lg border border-gray-200 dark:border-gray-600 transition-colors ${focusRing}`}
+          >
             <ArrowLeft size={16} /> Volver
           </button>
         </PageHeader>
         <div className={`${card} p-8 flex items-center justify-center`}>
-          <p className="text-sm text-gray-400 dark:text-gray-500">Cargando...</p>
+          <p className="text-base text-gray-400 dark:text-gray-500">Cargando...</p>
         </div>
       </div>
     );
@@ -263,7 +296,10 @@ function JacDetalle() {
     return (
       <div>
         <PageHeader title="Detalle de JAC" subtitle="Información detallada" description="No se encontró la JAC solicitada">
-          <button onClick={() => navigate("/jac")} className="flex items-center gap-2 bg-white dark:bg-gray-800 hover:bg-gray-50 dark:hover:bg-gray-700 text-gray-700 dark:text-gray-200 text-sm font-semibold px-4 py-2.5 rounded-lg border border-gray-200 dark:border-gray-600 transition-colors">
+          <button 
+            onClick={() => navigate("/jac")} 
+            className={`flex items-center gap-2 bg-white dark:bg-gray-800 hover:bg-gray-50 dark:hover:bg-gray-700 text-gray-700 dark:text-gray-200 text-base font-semibold px-4 py-2.5 rounded-lg border border-gray-200 dark:border-gray-600 transition-colors ${focusRing}`}
+          >
             <ArrowLeft size={16} /> Volver
           </button>
         </PageHeader>
@@ -301,7 +337,7 @@ function JacDetalle() {
         <div className="animate-in fade-in slide-in-from-top-2 rounded-lg px-4 py-3 mb-4 border bg-green-50 text-green-800 border-green-200 dark:bg-green-900/20 dark:text-green-300 dark:border-green-800">
           <div className="flex items-center gap-3">
             <CheckCircle2 size={18} className="shrink-0" />
-            <p className="text-sm font-medium">{successMessage}</p>
+            <p className="text-base font-medium">{successMessage}</p>
           </div>
         </div>
       )}
@@ -311,9 +347,9 @@ function JacDetalle() {
         <div className="rounded-lg px-4 py-3 mb-4 border bg-amber-50 text-amber-800 border-amber-200 dark:bg-amber-900/20 dark:text-amber-300 dark:border-amber-800">
           <div className="flex items-start gap-3">
             <AlertTriangle size={20} className="shrink-0 mt-0.5" />
-            <div className="text-sm">
+            <div className="text-base">
               <p className="font-semibold">JAC en riesgo de inactivación</p>
-              <p className="mt-0.5">
+              <p className="mt-0.5 text-gray-600 dark:text-gray-300">
                 Esta junta cuenta con <span className="font-semibold tabular-nums">{jac.afiliados || 0}</span> afiliado{(jac.afiliados || 0) === 1 ? "" : "s"}, por debajo del mínimo legal de <span className="font-semibold tabular-nums">{jac.minimoAfiliados || 0}</span> requerido para una JAC de tipo <span className="font-semibold">{jac.tipo || "desconocido"}</span> (Ley 2166 de 2021, Art. 11).
                 Si no se incrementa el número de afiliados activos, la junta podría perder su condición de activa.
               </p>
@@ -327,26 +363,26 @@ function JacDetalle() {
         <div className={`${card} p-4`}>
           <div className="flex items-center gap-2 mb-2 text-gray-500 dark:text-gray-400">
             <MapPin size={16} />
-            <span className="text-xs font-semibold uppercase tracking-wider">Ubicación</span>
+            <span className="text-sm font-semibold uppercase tracking-wider">Ubicación</span>
           </div>
-          <p className="text-sm font-semibold text-gray-800 dark:text-gray-100">{jac.municipio}</p>
-          <p className="text-sm text-gray-500 dark:text-gray-400">{jac.barrio}</p>
+          <p className="text-base font-bold text-gray-800 dark:text-gray-100">{jac.municipio}</p>
+          <p className="text-base text-gray-500 dark:text-gray-400">{jac.barrio}</p>
         </div>
 
         <div className={`${card} p-4`}>
           <div className="flex items-center gap-2 mb-2 text-gray-500 dark:text-gray-400">
             <Users size={16} />
-            <span className="text-xs font-semibold uppercase tracking-wider">Afiliados</span>
+            <span className="text-sm font-semibold uppercase tracking-wider">Afiliados</span>
           </div>
           <p className="text-2xl font-bold text-gray-800 dark:text-gray-100">{jac.afiliados || 0}</p>
-          <p className="text-xs text-gray-400 dark:text-gray-500">Registrados en la junta</p>
+          <p className="text-sm text-gray-400 dark:text-gray-500">Registrados en la junta</p>
         </div>
 
         {canViewConfidential && (
           <div className={`${card} p-4 relative group`}>
             <div className="flex items-center gap-2 mb-2 text-gray-500 dark:text-gray-400">
               <FileText size={16} />
-              <span className="text-xs font-semibold uppercase tracking-wider">Número RUC</span>
+              <span className="text-sm font-semibold uppercase tracking-wider">Número RUC</span>
             </div>
             <p className="text-lg font-semibold text-gray-800 dark:text-gray-100">
               {jac.numeroRUC || <span className="text-sm font-normal text-gray-400 italic">No tiene RUC</span>}
@@ -357,7 +393,7 @@ function JacDetalle() {
         <div className={`${card} p-4 relative group`}>
           <div className="flex items-center gap-2 mb-2 text-gray-500 dark:text-gray-400">
             <ShieldCheck size={16} />
-            <span className="text-xs font-semibold uppercase tracking-wider">Estado de la JAC</span>
+            <span className="text-sm font-semibold uppercase tracking-wider">Estado de la JAC</span>
           </div>
           <div className="flex items-center gap-2">
             <span className={`w-2 h-2 rounded-full ${jac.estado === "Activa" ? "bg-green-500 shadow-[0_0_8px_rgba(34,197,94,0.6)]" :
@@ -374,7 +410,7 @@ function JacDetalle() {
         <div className={`${card} p-4 relative group`}>
           <div className="flex items-center gap-2 mb-2 text-gray-500 dark:text-gray-400">
             <Tags size={16} />
-            <span className="text-xs font-semibold uppercase tracking-wider">Tipo JAC</span>
+            <span className="text-sm font-semibold uppercase tracking-wider">Tipo JAC</span>
           </div>
           <p className="text-lg font-semibold text-gray-800 dark:text-gray-100">
             {jac.tipo || "No definido"}
@@ -384,8 +420,8 @@ function JacDetalle() {
 
       {/* Información general */}
       <div className={`${card} p-5 mb-4`}>
-        <h2 className="text-sm font-semibold text-gray-800 dark:text-gray-100 mb-3">Información general</h2>
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-4 text-sm">
+        <h2 className="text-lg font-bold text-gray-800 dark:text-gray-100 mb-3">Información general</h2>
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-4 text-base">
           {[
             { label: "Nombre", value: jac.nombre },
             { label: "Municipio", value: jac.municipio },
@@ -393,7 +429,7 @@ function JacDetalle() {
           ].map(({ label: l, value }) => (
             <div key={l}>
               <p className={label}>{l}</p>
-              <p className="text-gray-800 dark:text-gray-200">{value}</p>
+              <p className="text-gray-600 dark:text-gray-300">{value}</p>
             </div>
           ))}
         </div>
@@ -403,13 +439,13 @@ function JacDetalle() {
       {canViewAfiliados && (
         <div className={`${card} overflow-hidden`}>
           <div className="px-5 py-4 border-b border-gray-100 dark:border-gray-700">
-            <h2 className="text-sm font-semibold text-gray-800 dark:text-gray-100">Afiliados registrados</h2>
-            <p className="text-xs text-gray-400 dark:text-gray-500 mt-1">Listado de miembros de la junta y cargo dentro de la organización</p>
+            <h2 className="text-lg font-bold text-gray-800 dark:text-gray-100">Afiliados registrados</h2>
+            <p className="text-base text-gray-600 dark:text-gray-300 mt-1">Listado de miembros de la junta y cargo dentro de la organización</p>
           </div>
 
           <div className="px-5 py-3 border-b border-gray-100 dark:border-gray-700 bg-gray-50 dark:bg-gray-900/50">
             <div className="flex flex-col sm:flex-row gap-3 items-start sm:items-center">
-              <div className="flex-1 min-w-0">
+              <div className="flex-1 min-w-0 w-full">
                 <SearchBar placeholder="Buscar por nombre o documento..." value={busqueda} onChange={(e) => setBusqueda(e.target.value)} />
               </div>
               <select value={filtroRol} onChange={(e) => setFiltroRol(e.target.value)} className={selectCls}>
@@ -426,11 +462,11 @@ function JacDetalle() {
                 <option value="Promotor">Promotor</option>
               </select>
               {(busqueda || filtroRol) && (
-                <button onClick={handleClearAfiliados} className="inline-flex items-center gap-1.5 bg-white dark:bg-gray-800 hover:bg-gray-100 dark:hover:bg-gray-700 text-gray-500 dark:text-gray-400 text-sm px-3 py-2 rounded-lg border border-gray-200 dark:border-gray-600 transition-colors shrink-0">
+                <button onClick={handleClearAfiliados} className={`inline-flex items-center gap-1.5 bg-white dark:bg-gray-800 hover:bg-gray-100 dark:hover:bg-gray-700 text-gray-500 dark:text-gray-400 text-base px-3 py-2 rounded-lg border border-gray-200 dark:border-gray-600 transition-colors shrink-0 ${focusRing}`}>
                   <RotateCcw size={14} /> Limpiar
                 </button>
               )}
-              <button onClick={handleAgregarAfiliado} className="inline-flex items-center gap-1.5 bg-green-600 hover:bg-green-700 text-white text-sm px-3 py-2 rounded-lg transition-colors shrink-0">
+              <button onClick={handleAgregarAfiliado} className={`inline-flex items-center gap-1.5 bg-[#1B7F4B] hover:bg-[#166340] text-white text-base px-3 py-2 rounded-lg transition-colors shrink-0 ${focusRing}`}>
                 <Plus size={14} /> Agregar
               </button>
               <button 
@@ -447,21 +483,25 @@ function JacDetalle() {
           </div>
 
           <div className="overflow-x-auto">
-            <table className="w-full text-sm">
+            <table className="w-full text-base">
               <thead>
                 <tr className="border-b border-gray-100 dark:border-gray-700 bg-gray-50 dark:bg-gray-900/50">
                   {["Nombre", "Documento", "Teléfono", "Cargo / rol", "Acciones"].map((col) => (
-                    <th key={col} className="text-left text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wider px-4 py-3">{col}</th>
+                    <th key={col} className="text-left text-sm font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wider px-4 py-3">{col}</th>
                   ))}
                 </tr>
               </thead>
               <tbody>
                 {miembrosFiltrados.length === 0 ? (
-                  <EmptyState message="No se encontraron afiliados con los criterios ingresados" />
+                  <tr>
+                    <td colSpan={5}>
+                      <EmptyState message="No se encontraron afiliados con los criterios ingresados" />
+                    </td>
+                  </tr>
                 ) : (
                   miembrosFiltrados.map((miembro) => (
                     <tr key={miembro.id} className="border-b border-gray-50 dark:border-gray-700 hover:bg-gray-50 dark:hover:bg-gray-700/40 transition-colors">
-                      <td className="px-4 py-3 font-medium text-gray-800 dark:text-gray-100">{miembro.nombre}</td>
+                      <td className="px-4 py-3 font-bold text-gray-800 dark:text-gray-100">{miembro.nombre}</td>
                       <td className="px-4 py-3 text-gray-600 dark:text-gray-300 tabular-nums">{miembro.documento}</td>
                       <td className="px-4 py-3 text-gray-600 dark:text-gray-300 tabular-nums">{miembro.telefono}</td>
                       <td className="px-4 py-3"><Badge label={miembro.rol} variant={rolVariant[miembro.rol]} /></td>
@@ -489,8 +529,8 @@ function JacDetalle() {
 
       {!canViewAfiliados && (
         <div className={`${card} p-5`}>
-          <h2 className="text-sm font-semibold text-gray-800 dark:text-gray-100 mb-2">Afiliados registrados</h2>
-          <p className="text-sm text-gray-500 dark:text-gray-400">No tiene permisos para consultar el detalle de afiliados de esta JAC.</p>
+          <h2 className="text-lg font-bold text-gray-800 dark:text-gray-100 mb-2">Afiliados registrados</h2>
+          <p className="text-base text-gray-600 dark:text-gray-300">No tiene permisos para consultar el detalle de afiliados de esta JAC.</p>
         </div>
       )}
 

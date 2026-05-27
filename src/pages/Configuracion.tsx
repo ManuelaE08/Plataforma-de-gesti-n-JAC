@@ -1,4 +1,4 @@
-import { Bell, Moon, Sun, Building2, Globe, Clock } from "lucide-react";
+import { Bell, Moon, Sun, Building2, Globe, Clock, CheckCircle2 } from "lucide-react";
 import { useState } from "react";
 import PageHeader from "../components/ui/PageHeader";
 import { useTema } from "../context/TemaContext";
@@ -16,7 +16,7 @@ function Toggle({
       role="switch"
       aria-checked={enabled}
       onClick={() => onChange(!enabled)}
-      className={`relative inline-flex h-6 w-11 shrink-0 items-center rounded-full transition-colors duration-200 focus:outline-none focus-visible:ring-2 focus-visible:ring-[#1B7F4B]/50 ${
+      className={`relative inline-flex h-6 w-11 shrink-0 items-center rounded-full transition-colors duration-200 focus:outline-none focus:ring-2 focus:ring-[#1B7F4B]/30 focus:border-[#1B7F4B] ${
         enabled ? "bg-[#1B7F4B]" : "bg-gray-200 dark:bg-gray-600"
       }`}
     >
@@ -41,10 +41,10 @@ function NotifRow({
   onChange: (v: boolean) => void;
 }) {
   return (
-    <div className="flex items-center justify-between gap-6 py-3">
+    <div className="flex items-center justify-between gap-6 py-4">
       <div>
-        <p className="text-sm font-medium text-gray-800 dark:text-gray-100">{label}</p>
-        <p className="text-xs text-gray-400 dark:text-gray-500 mt-0.5">{desc}</p>
+        <p className="text-base font-semibold text-gray-800 dark:text-gray-100">{label}</p>
+        <p className="text-base text-gray-500 dark:text-gray-400 mt-1">{desc}</p>
       </div>
       <Toggle enabled={value} onChange={onChange} />
     </div>
@@ -78,72 +78,98 @@ function Configuracion() {
   const setNotif = (key: keyof typeof notifs) => (v: boolean) =>
     setNotifs((p) => ({ ...p, [key]: v }));
 
+  const inputCls = "w-full rounded-lg border border-gray-200 dark:border-gray-600 bg-white dark:bg-gray-900 px-3 py-2 text-base text-gray-800 dark:text-gray-100 focus:outline-none focus:ring-2 focus:ring-[#1B7F4B]/30 focus:border-[#1B7F4B] transition-all";
+  const disabledContainerCls = "w-full rounded-lg border border-gray-200 dark:border-gray-600 px-3 py-2 text-base text-gray-600 dark:text-gray-300 bg-white dark:bg-gray-900 opacity-90";
+
   return (
-    <div>
+    <div className="space-y-6">
       <PageHeader
         title="Configuración"
         subtitle="Administre las preferencias del sistema"
       />
 
-      <div className="grid grid-cols-1 lg:grid-cols-5 gap-4 mb-4">
-        <div className="lg:col-span-3 bg-white dark:bg-gray-800 rounded-xl border border-gray-100 dark:border-gray-700 shadow-sm p-5">
-          <h2 className="text-sm font-semibold text-gray-800 dark:text-gray-100 mb-4 flex items-center gap-2">
-            <Building2 size={15} className="text-gray-400" />
+      <div className="grid grid-cols-1 lg:grid-cols-5 gap-6">
+        {/* Columna de Información Institucional */}
+        <div className="lg:col-span-3 bg-white dark:bg-gray-800 rounded-xl border border-gray-100 dark:border-gray-700 shadow-sm p-6">
+          <h2 className="text-lg font-bold text-gray-800 dark:text-gray-100 mb-6 flex items-center gap-2">
+            <Building2 size={20} className="text-gray-400" />
             Información institucional
           </h2>
-          <form onSubmit={handleGuardar} className="flex flex-col gap-4">
+          
+          <form onSubmit={handleGuardar} className="flex flex-col gap-5">
             <div>
-              <label className="block text-xs font-medium text-gray-500 dark:text-gray-400 mb-1">
+              <label className="block text-sm font-semibold uppercase tracking-wider text-gray-500 dark:text-gray-400 mb-2">
                 Nombre de la institución
               </label>
               <input
                 type="text"
                 value={institucion.nombre}
                 onChange={(e) => setInstitucion((p) => ({ ...p, nombre: e.target.value }))}
-                className="w-full rounded-lg border border-gray-200 dark:border-gray-600 bg-white dark:bg-gray-700 px-3 py-2 text-sm text-gray-800 dark:text-gray-100 focus:outline-none focus:ring-2 focus:ring-[#1B7F4B]/40 focus:border-[#1B7F4B] transition"
+                className={inputCls}
               />
             </div>
+            
             <div>
-              <label className="block text-xs font-medium text-gray-500 dark:text-gray-400 mb-1">NIT</label>
+              <label className="block text-sm font-semibold uppercase tracking-wider text-gray-500 dark:text-gray-400 mb-2">
+                NIT
+              </label>
               <input
                 type="text"
                 value={institucion.nit}
                 onChange={(e) => setInstitucion((p) => ({ ...p, nit: e.target.value }))}
-                className="w-full rounded-lg border border-gray-200 dark:border-gray-600 bg-white dark:bg-gray-700 px-3 py-2 text-sm text-gray-800 dark:text-gray-100 focus:outline-none focus:ring-2 focus:ring-[#1B7F4B]/40 focus:border-[#1B7F4B] transition"
+                className={inputCls}
               />
             </div>
+            
             <div>
-              <label className="block text-xs font-medium text-gray-500 dark:text-gray-400 mb-1">Dirección</label>
+              <label className="block text-sm font-semibold uppercase tracking-wider text-gray-500 dark:text-gray-400 mb-2">
+                Dirección
+              </label>
               <input
                 type="text"
                 value={institucion.direccion}
                 onChange={(e) => setInstitucion((p) => ({ ...p, direccion: e.target.value }))}
-                className="w-full rounded-lg border border-gray-200 dark:border-gray-600 bg-white dark:bg-gray-700 px-3 py-2 text-sm text-gray-800 dark:text-gray-100 focus:outline-none focus:ring-2 focus:ring-[#1B7F4B]/40 focus:border-[#1B7F4B] transition"
+                className={inputCls}
               />
             </div>
+            
             <div>
-              <label className="block text-xs font-medium text-gray-500 dark:text-gray-400 mb-1">Teléfono</label>
+              <label className="block text-sm font-semibold uppercase tracking-wider text-gray-500 dark:text-gray-400 mb-2">
+                Teléfono
+              </label>
               <input
                 type="text"
                 value={institucion.telefono}
                 onChange={(e) => setInstitucion((p) => ({ ...p, telefono: e.target.value }))}
-                className="w-full rounded-lg border border-gray-200 dark:border-gray-600 bg-white dark:bg-gray-700 px-3 py-2 text-sm text-gray-800 dark:text-gray-100 focus:outline-none focus:ring-2 focus:ring-[#1B7F4B]/40 focus:border-[#1B7F4B] transition"
+                className={inputCls}
               />
             </div>
-            <button
-              type="submit"
-              className={`w-full py-2.5 rounded-lg text-sm font-semibold text-white transition-colors ${
-                guardado ? "bg-green-600" : "bg-[#1B7F4B] hover:bg-[#166040]"
-              }`}
-            >
-              {guardado ? "✓ Cambios guardados" : "Guardar cambios"}
-            </button>
+            
+            <div className="pt-2 flex flex-col gap-3">
+              <button
+                type="submit"
+                className={`w-full py-3 rounded-lg text-base font-semibold text-white transition-colors focus:outline-none focus:ring-2 focus:ring-[#1B7F4B]/30 focus:border-[#1B7F4B] ${
+                  guardado ? "bg-green-600" : "bg-[#1B7F4B] hover:bg-[#166340]"
+                }`}
+              >
+                {guardado ? "✓ Cambios guardados" : "Guardar cambios"}
+              </button>
+
+              {/* Indicador de estado minimalista tipo LED solicitado */}
+              {guardado && (
+                <div className="flex items-center gap-2 font-semibold text-base justify-center pt-1">
+                  <span className="w-2.5 h-2.5 shrink-0 rounded-full bg-green-500 shadow-[0_0_8px_rgba(34,197,94,0.6)]" />
+                  <span className="text-gray-700 dark:text-gray-200">Estado: Configuración actualizada</span>
+                </div>
+              )}
+            </div>
           </form>
         </div>
 
-        <div className="lg:col-span-2 bg-white dark:bg-gray-800 rounded-xl border border-gray-100 dark:border-gray-700 shadow-sm p-5">
-          <h2 className="text-sm font-semibold text-gray-800 dark:text-gray-100 mb-2 flex items-center gap-2">
-            <Bell size={15} className="text-gray-400" />
+        {/* Columna de Notificaciones */}
+        <div className="lg:col-span-2 bg-white dark:bg-gray-800 rounded-xl border border-gray-100 dark:border-gray-700 shadow-sm p-6">
+          <h2 className="text-lg font-bold text-gray-800 dark:text-gray-100 mb-4 flex items-center gap-2">
+            <Bell size={20} className="text-gray-400" />
             Notificaciones
           </h2>
           <div className="divide-y divide-gray-100 dark:divide-gray-700">
@@ -175,41 +201,43 @@ function Configuracion() {
         </div>
       </div>
 
-      <div className="bg-white dark:bg-gray-800 rounded-xl border border-gray-100 dark:border-gray-700 shadow-sm p-5">
-        <h2 className="text-sm font-semibold text-gray-800 dark:text-gray-100 mb-4 flex items-center gap-2">
-          <Globe size={15} className="text-gray-400" />
+      {/* Sección de Preferencias del Sistema */}
+      <div className="bg-white dark:bg-gray-800 rounded-xl border border-gray-100 dark:border-gray-700 shadow-sm p-6">
+        <h2 className="text-lg font-bold text-gray-800 dark:text-gray-100 mb-6 flex items-center gap-2">
+          <Globe size={20} className="text-gray-400" />
           Preferencias del sistema
         </h2>
-        <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 mb-4">
+        
+        <div className="grid grid-cols-1 sm:grid-cols-2 gap-6 mb-6">
           <div>
-            <label className="block text-xs font-medium text-gray-500 dark:text-gray-400 mb-1 flex items-center gap-1">
-              <Globe size={12} /> Idioma
+            <label className="block text-sm font-semibold uppercase tracking-wider text-gray-500 dark:text-gray-400 mb-2 flex items-center gap-1">
+              <Globe size={14} /> Idioma
             </label>
-            <div className="rounded-lg border border-gray-200 dark:border-gray-600 px-3 py-2 text-sm text-gray-500 dark:text-gray-300 bg-gray-50 dark:bg-gray-700">
+            <div className={disabledContainerCls}>
               Español
             </div>
           </div>
           <div>
-            <label className="block text-xs font-medium text-gray-500 dark:text-gray-400 mb-1 flex items-center gap-1">
-              <Clock size={12} /> Zona horaria
+            <label className="flex text-sm font-semibold uppercase tracking-wider text-gray-500 dark:text-gray-400 mb-2 flex items-center gap-1">
+              <Clock size={14} /> Zona horaria
             </label>
-            <div className="rounded-lg border border-gray-200 dark:border-gray-600 px-3 py-2 text-sm text-gray-500 dark:text-gray-300 bg-gray-50 dark:bg-gray-700">
+            <div className={disabledContainerCls}>
               (GMT-5) Bogotá, Colombia
             </div>
           </div>
         </div>
 
-        <div className="flex items-center justify-between pt-4 border-t border-gray-100 dark:border-gray-700">
+        <div className="flex items-center justify-between pt-6 border-t border-gray-100 dark:border-gray-700">
           <div>
-            <p className="text-sm font-medium text-gray-800 dark:text-gray-100 flex items-center gap-2">
+            <p className="text-base font-semibold text-gray-800 dark:text-gray-100 flex items-center gap-2">
               {tema === "oscuro" ? (
-                <Moon size={15} className="text-gray-400" />
+                <Moon size={20} className="text-gray-400" />
               ) : (
-                <Sun size={15} className="text-yellow-500" />
+                <Sun size={20} className="text-yellow-500" />
               )}
               Modo oscuro
             </p>
-            <p className="text-xs text-gray-400 dark:text-gray-500 mt-0.5">
+            <p className="text-base text-gray-500 dark:text-gray-400 mt-1">
               Cambiar la apariencia del sistema
             </p>
           </div>

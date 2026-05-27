@@ -3,12 +3,11 @@ import type { LucideIcon } from "lucide-react";
 interface StatCardProps {
   title: string;
   value: number | string;
-  label: string;
   icon: LucideIcon;
   accentClass?: string;
 }
 
-function StatCard({ title, value, label, icon: Icon, accentClass }: StatCardProps) {
+function StatCard({ title, value,icon: Icon, accentClass }: StatCardProps) {
   return (
     <div className={`relative overflow-hidden rounded-2xl border border-slate-200 dark:border-gray-700 bg-white dark:bg-gray-800 shadow-sm transition-transform duration-300 hover:scale-[1.02] ${accentClass ?? ""}`}>
       <div className="relative p-6">
@@ -21,7 +20,6 @@ function StatCard({ title, value, label, icon: Icon, accentClass }: StatCardProp
             <Icon size={26} className="text-[#1B7F4B] dark:text-emerald-400" />
           </div>
         </div>
-        <p className="mt-4 text-sm text-slate-500 dark:text-slate-400">{label}</p>
       </div>
     </div>
   );

@@ -1,6 +1,3 @@
-import { useState, useRef, useEffect } from "react";
-import { ChevronDown, X } from "lucide-react";
-
 const MUNICIPIOS = [
   "Almaguer", "Argelia", "Balboa", "Bolívar", "Buenos Aires", "Cajibío",
   "Caldono", "Caloto", "Corinto", "El Tambo", "Florencia", "Guachené",
@@ -17,91 +14,22 @@ interface Props {
   onChange: (v: string) => void;
 }
 
+// Usamos exactamente la misma clase estilizada que tienes en tu archivo principal para los selectores
+const selectCls = "appearance-none w-full bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-600 text-base text-gray-600 dark:text-gray-300 rounded-lg pl-3 pr-10 py-2 focus:outline-none focus:ring-2 focus:ring-[#1B7F4B]/30 focus:border-[#1B7F4B] transition-all cursor-pointer bg-[url('data:image/svg+xml;charset=utf-8,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20fill%3D%22none%22%20viewBox%3D%220%200%2024%2024%22%20stroke%3D%22%239ca3af%22%20stroke-width%3D%222%22%3E%3Cpath%20stroke-linecap%3D%22round%22%20stroke-linejoin%3D%22round%22%20d%3D%22M19%209l-7%207-7-7%22%2F%3E%3C%2Fsvg%3E')] bg-[length:1.25rem_1.25rem] bg-[right_0.75rem_center] bg-no-repeat";
+
 export default function MunicipioCombobox({ value, onChange }: Props) {
-  const [query,  setQuery]  = useState(value);
-  const [open,   setOpen]   = useState(false);
-  const rootRef = useRef<HTMLDivElement>(null);
-
-  // Keep input text in sync when parent clears the filter
-  useEffect(() => { setQuery(value); }, [value]);
-
-  useEffect(() => {
-    function onOutside(e: MouseEvent) {
-      if (rootRef.current && !rootRef.current.contains(e.target as Node)) {
-        setOpen(false);
-        // If user typed something but didn't pick, revert to committed value
-        setQuery(value);
-      }
-    }
-    document.addEventListener("mousedown", onOutside);
-    return () => document.removeEventListener("mousedown", onOutside);
-  }, [value]);
-
-  const matches = query.trim()
-    ? MUNICIPIOS.filter((m) => m.toLowerCase().includes(query.toLowerCase()))
-    : MUNICIPIOS;
-
-  function select(m: string) {
-    onChange(m);
-    setQuery(m);
-    setOpen(false);
-  }
-
-  function clear() {
-    onChange("");
-    setQuery("");
-    setOpen(false);
-  }
-
   return (
-    <div ref={rootRef} className="relative">
-      <div className="flex items-center bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-600 rounded-lg overflow-hidden focus-within:ring-2 focus-within:ring-[#1B7F4B]/30 focus-within:border-[#1B7F4B] transition-all">
-        <input
-          type="text"
-          placeholder="Municipio..."
-          value={query}
-          onFocus={() => setOpen(true)}
-          onChange={(e) => { setQuery(e.target.value); setOpen(true); }}
-          className="flex-1 bg-transparent text-sm text-gray-600 dark:text-gray-300 placeholder:text-gray-400 dark:placeholder:text-gray-500 px-3 py-2 focus:outline-none"
-        />
-        {value ? (
-          <button
-            onClick={clear}
-            className="px-2 text-gray-400 hover:text-gray-600 dark:hover:text-gray-200 transition-colors"
-            title="Limpiar"
-          >
-            <X size={14} />
-          </button>
-        ) : (
-          <span className="px-2 text-gray-400 pointer-events-none">
-            <ChevronDown size={14} />
-          </span>
-        )}
-      </div>
-
-      {open && matches.length > 0 && (
-        <ul className="absolute z-50 mt-1 w-full max-h-56 overflow-y-auto bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-600 rounded-lg shadow-lg text-sm">
-          {!query.trim() && (
-            <li
-              onMouseDown={() => { onChange(""); setQuery(""); setOpen(false); }}
-              className="px-3 py-2 text-gray-400 dark:text-gray-500 italic cursor-pointer hover:bg-gray-50 dark:hover:bg-gray-800"
-            >
-              Todos los municipios
-            </li>
-          )}
-          {matches.map((m) => (
-            <li
-              key={m}
-              onMouseDown={() => select(m)}
-              className={`px-3 py-2 cursor-pointer hover:bg-[#1B7F4B]/10 dark:hover:bg-[#1B7F4B]/20 transition-colors ${
-                m === value ? "font-semibold text-[#1B7F4B] dark:text-emerald-400" : "text-gray-700 dark:text-gray-300"
-              }`}
-            >
-              {m}
-            </li>
-          ))}
-        </ul>
-      )}
-    </div>
+    <select
+      value={value}
+      onChange={(e) => onChange(e.target.value)}
+      className={selectCls}
+    >
+      <option value="">Todos los municipios</option>
+      {MUNICIPIOS.map((m) => (
+        <option key={m} value={m}>
+          {m}
+        </option>
+      ))}
+    </select>
   );
 }
