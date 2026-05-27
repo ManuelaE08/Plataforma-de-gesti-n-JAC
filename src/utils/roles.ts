@@ -1,6 +1,7 @@
 import type { User } from "../types/auth";
+import { Permissions } from "./permissions";
 
-/** Admin u operador: acceso a endpoints con datos completos. */
+/** Superadmin, admin u operador: acceso a endpoints con datos completos (no /public). */
 export function isPrivilegedUser(user: User | null): boolean {
-  return user?.rol === "admin" || user?.rol === "operador";
+  return Permissions.canViewConfidential(user);
 }

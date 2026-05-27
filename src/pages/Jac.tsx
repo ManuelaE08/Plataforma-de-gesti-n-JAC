@@ -11,8 +11,13 @@ import { useJac, columns, orgVariant, type EstadoDocumental, type EstadoOrganiza
 import { useAuth } from "../context/AuthContext";
 
 const card = "bg-white dark:bg-gray-800 rounded-xl border border-gray-100 dark:border-gray-700 shadow-sm";
-const selectCls = "appearance-none w-full bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-600 text-sm text-gray-600 dark:text-gray-300 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-[#1B7F4B]/30 focus:border-[#1B7F4B] transition-all cursor-pointer";
-const inputCls = "w-full bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-600 text-sm text-gray-600 dark:text-gray-300 placeholder:text-gray-400 dark:placeholder:text-gray-500 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-[#1B7F4B]/30 focus:border-[#1B7F4B] transition-all";
+
+// Inputs y selects adaptados a 'text-base' según la guía global
+// Select con flecha personalizada integrada vía SVG en el fondo
+const selectCls = "appearance-none w-full bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-600 text-base text-gray-600 dark:text-gray-300 rounded-lg pl-3 pr-10 py-2 focus:outline-none focus:ring-2 focus:ring-[#1B7F4B]/30 focus:border-[#1B7F4B] transition-all cursor-pointer bg-[url('data:image/svg+xml;charset=utf-8,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20fill%3D%22none%22%20viewBox%3D%220%200%2024%2024%22%20stroke%3D%22%239ca3af%22%20stroke-width%3D%222%22%3E%3Cpath%20stroke-linecap%3D%22round%22%20stroke-linejoin%3D%22round%22%20d%3D%22M19%209l-7%207-7-7%22%2F%3E%3C%2Fsvg%3E')] bg-[length:1.25rem_1.25rem] bg-[right_0.75rem_center] bg-no-repeat";
+
+// Input estándar limpio
+const inputCls = "w-full bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-600 text-base text-gray-600 dark:text-gray-300 placeholder:text-gray-400 dark:placeholder:text-gray-500 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-[#1B7F4B]/30 focus:border-[#1B7F4B] transition-all";
 
 function Jac() {
   const {
@@ -35,19 +40,17 @@ function Jac() {
 
   return (
     <div>
+      {/* PageHeader por defecto debe manejar el text-2xl y text-base internamente para títulos y subtítulos */}
       <PageHeader
-        title="Juntas de Acción Comunal"
-        subtitle="Gestión de Juntas de Acción Comunal"
-        description="Administre y consulte la información de las JAC del departamento"
+        title="Gestión de Juntas de Acción Comunal"
+        subtitle="Administre y consulte la información de las JAC del departamento"
       >
         {canCreate && (
           <button
-            onClick={() => {
-              setShowModal(true);
-            }}
-            className="flex items-center gap-2 bg-[#1B7F4B] hover:bg-[#166340] text-white text-sm font-semibold px-4 py-2.5 rounded-lg transition-colors shrink-0"
+            onClick={() => setShowModal(true)}
+            className="flex items-center gap-2 bg-[#1B7F4B] hover:bg-[#166340] text-white text-base font-semibold px-4 py-2.5 rounded-lg transition-colors shrink-0"
           >
-            <Plus size={16} /> Crear nueva JAC
+            <Plus size={18} /> Crear nueva JAC
           </button>
         )}
       </PageHeader>
@@ -61,7 +64,8 @@ function Jac() {
 
       {/* Filtros */}
       <div className={`${card} p-4 mb-4`}>
-        <p className="text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wider mb-3">
+        {/* Label de sección adaptado a 'text-sm font-semibold uppercase' */}
+        <p className="text-sm font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wider mb-3">
           Filtros de búsqueda
         </p>
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3">
@@ -105,17 +109,17 @@ function Jac() {
         <div className="flex items-center gap-3 mt-4">
           <button
             onClick={handleClear}
-            className="inline-flex items-center gap-2 bg-white dark:bg-gray-800 hover:bg-gray-50 dark:hover:bg-gray-700 text-gray-600 dark:text-gray-300 text-sm font-medium px-4 py-2.5 rounded-lg border border-gray-200 dark:border-gray-600 transition-colors"
+            className="inline-flex items-center gap-2 bg-white dark:bg-gray-800 hover:bg-gray-50 dark:hover:bg-gray-700 text-gray-600 dark:text-gray-300 text-base font-medium px-4 py-2.5 rounded-lg border border-gray-200 dark:border-gray-600 transition-colors"
           >
             <RotateCcw size={16} /> Limpiar filtros
           </button>
         </div>
       </div>
 
-      {/* Alerta de cantidad cargada */}
+      {/* Banner de estado/alerta adaptado a 'text-base font-medium' */}
       {!loading && !error && (
         <div
-          className={`rounded-lg px-4 py-2.5 text-sm font-medium mb-4 border ${totalLoaded <= 100
+          className={`rounded-lg px-4 py-2.5 text-base font-medium mb-4 border ${totalLoaded <= 100
             ? "bg-green-50 text-green-700 border-green-200 dark:bg-green-900/20 dark:text-green-400 dark:border-green-800"
             : totalLoaded <= 500
               ? "bg-orange-50 text-orange-700 border-orange-200 dark:bg-orange-900/20 dark:text-orange-400 dark:border-orange-800"
@@ -125,21 +129,23 @@ function Jac() {
           {totalLoaded === 0
             ? "No se encontraron JAC con los criterios seleccionados."
             : totalLoaded <= 100
-              ? `Se Mostraron ${totalLoaded} JAC correctamente.`
+              ? `Se mostraron ${totalLoaded} JAC correctamente.`
               : totalLoaded <= 500
-                ? `Se Mostraron ${totalLoaded} JAC. Considere aplicar filtros para reducir la cantidad de registros.`
-                : `Se Mostraron ${totalLoaded} JAC. Se recomienda limitar la cantidad de JAC cargadas para mejorar el rendimiento.`}
+                ? `Se mostraron ${totalLoaded} JAC. Considere aplicar filtros para reducir la cantidad de registros.`
+                : `Se mostraron ${totalLoaded} JAC. Se recomienda limitar la cantidad de JAC cargadas para mejorar el rendimiento.`}
         </div>
       )}
 
       {/* Tabla */}
       <div className={`${card} overflow-hidden`}>
         <div className="overflow-x-auto">
-          <table className="w-full text-sm">
+          {/* El contenedor principal de la tabla cambia a text-base para las celdas */}
+          <table className="w-full text-base">
             <thead>
               <tr className="border-b border-gray-100 dark:border-gray-700 bg-gray-50 dark:bg-gray-900/50">
                 {visibleColumns.map((col) => (
-                  <th key={col} className="text-left text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wider px-4 py-3">
+                  // Encabezados (<th>) adaptados a 'text-sm font-semibold uppercase'
+                  <th key={col} className="text-left text-sm font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wider px-4 py-3">
                     {col}
                   </th>
                 ))}
@@ -147,13 +153,14 @@ function Jac() {
             </thead>
             <tbody>
               {loading ? (
-                <tr><td colSpan={visibleColumns.length} className="px-4 py-8 text-center text-sm text-gray-400">Cargando JAC...</td></tr>
+                <tr><td colSpan={visibleColumns.length} className="px-4 py-8 text-center text-base text-gray-400">Cargando JAC...</td></tr>
               ) : error ? (
-                <tr><td colSpan={visibleColumns.length} className="px-4 py-8 text-center text-sm text-red-500">{error} — <button onClick={refetch} className="underline">Reintentar</button></td></tr>
+                <tr><td colSpan={visibleColumns.length} className="px-4 py-8 text-center text-base text-red-500">{error} — <button onClick={refetch} className="underline">Reintentar</button></td></tr>
               ) : filtered.length === 0 ? (
                 <EmptyState message="No se encontraron JAC con los criterios seleccionados" />
               ) : (
                 filtered.map((jac) => (
+                  // Celdas (<td>) heredan 'text-base' de la tabla, con estilos específicos para fuentes secundarias si aplica
                   <tr key={jac.id} className="border-b border-gray-50 dark:border-gray-700 hover:bg-gray-50 dark:hover:bg-gray-700/40 transition-colors">
                     <td className="px-4 py-3 font-medium text-gray-800 dark:text-gray-100">
                       {canViewAfiliados ? (
@@ -171,6 +178,7 @@ function Jac() {
                     <td className="px-4 py-3 text-gray-600 dark:text-gray-300">{jac.barrio}</td>
                     <td className="px-4 py-3 text-gray-700 dark:text-gray-200 tabular-nums font-medium">{jac.afiliados}</td>
                     <td className="px-4 py-3">
+                      {/* El componente interno OrganizativoStatus debería renderizar texto con la clase 'text-sm font-medium' (Badges) */}
                       <OrganizativoStatus
                         estado={
                           jac.organizativo === "Activa" ||
