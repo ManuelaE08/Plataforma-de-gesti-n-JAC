@@ -33,6 +33,12 @@ export function ModalAfiliadoFormulario({
     correo: "",
     telefono: "",
     cargoId: "",
+    genero: "",
+    grupoEtnico: "",
+    fechaNacimiento: "",
+    ocupacion: "",
+    direccion: "",
+    discapacitado: false,
   });
 
   useEffect(() => {
@@ -56,6 +62,12 @@ export function ModalAfiliadoFormulario({
             correo: afiliado.correo || "",
             telefono: afiliado.telefono || "",
             cargoId: afiliado.cargoId ? String(afiliado.cargoId) : "",
+            genero: afiliado.genero || "",
+            grupoEtnico: afiliado.grupoEtnico || "",
+            fechaNacimiento: afiliado.fechaNacimiento ? afiliado.fechaNacimiento.split('T')[0] : "",
+            ocupacion: afiliado.ocupacion || "",
+            direccion: afiliado.direccion || "",
+            discapacitado: afiliado.discapacitado || false,
           });
         })
         .catch((err) => setError("Error al cargar afiliado: " + err.message))
@@ -69,14 +81,25 @@ export function ModalAfiliadoFormulario({
         correo: "",
         telefono: "",
         cargoId: "",
+        genero: "",
+        grupoEtnico: "",
+        fechaNacimiento: "",
+        ocupacion: "",
+        direccion: "",
+        discapacitado: false,
       });
       setError(null);
     }
   }, [isOpen, isEdit, afiliadoId]);
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
-    const { name, value } = e.target;
-    setFormData((prev) => ({ ...prev, [name]: value }));
+    const { name, value, type } = e.target;
+    if (type === 'checkbox') {
+      const checked = (e.target as HTMLInputElement).checked;
+      setFormData((prev) => ({ ...prev, [name]: checked }));
+    } else {
+      setFormData((prev) => ({ ...prev, [name]: value }));
+    }
   };
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -94,6 +117,12 @@ export function ModalAfiliadoFormulario({
           correo: formData.correo || undefined,
           telefono: formData.telefono || undefined,
           cargoId: formData.cargoId ? Number(formData.cargoId) : undefined,
+          genero: formData.genero || undefined,
+          grupoEtnico: formData.grupoEtnico || undefined,
+          fechaNacimiento: formData.fechaNacimiento || undefined,
+          ocupacion: formData.ocupacion || undefined,
+          direccion: formData.direccion || undefined,
+          discapacitado: formData.discapacitado,
         });
         await Swal.fire({ icon: "success", title: "Afiliado actualizado", text: "La información ha sido guardada correctamente.", confirmButtonColor: "#1B7F4B", timer: 2000, timerProgressBar: true });
       } else {
@@ -107,6 +136,12 @@ export function ModalAfiliadoFormulario({
           cargoId: formData.cargoId ? parseInt(formData.cargoId) : undefined,
           jacId,
           municipioId,
+          genero: formData.genero || undefined,
+          grupoEtnico: formData.grupoEtnico || undefined,
+          fechaNacimiento: formData.fechaNacimiento || undefined,
+          ocupacion: formData.ocupacion || undefined,
+          direccion: formData.direccion || undefined,
+          discapacitado: formData.discapacitado,
         } as CreateAfiliadoDto);
         await Swal.fire({ icon: "success", title: "Afiliado registrado", text: "El nuevo afiliado ha sido creado exitosamente.", confirmButtonColor: "#1B7F4B", timer: 2000, timerProgressBar: true });
       }
@@ -171,6 +206,51 @@ export function ModalAfiliadoFormulario({
           <div>
             <label className="block text-xs font-semibold text-gray-600 dark:text-gray-400 mb-2">Teléfono</label>
             <input type="tel" name="telefono" value={formData.telefono} onChange={handleChange} className="w-full px-3 py-2 border border-gray-200 dark:border-gray-600 rounded text-sm bg-white dark:bg-gray-700 text-gray-800 dark:text-gray-100" />
+          </div>
+
+          <div className="grid grid-cols-2 gap-4">
+            <div>
+              <label className="block text-xs font-semibold text-gray-600 dark:text-gray-400 mb-2">Género</label>
+              <select name="genero" value={formData.genero} onChange={handleChange} className="w-full px-3 py-2 border border-gray-200 dark:border-gray-600 rounded text-sm bg-white dark:bg-gray-700 text-gray-800 dark:text-gray-100">
+                <option value="">Seleccionar...</option>
+                <option value="M">Masculino</option>
+                <option value="H">Femenino</option>
+                <option value="LGTBIQ+">LGTBIQ+</option>
+              </select>
+            </div>
+            <div>
+              <label className="block text-xs font-semibold text-gray-600 dark:text-gray-400 mb-2">Grupo Étnico</label>
+              <select name="grupoEtnico" value={formData.grupoEtnico} onChange={handleChange} className="w-full px-3 py-2 border border-gray-200 dark:border-gray-600 rounded text-sm bg-white dark:bg-gray-700 text-gray-800 dark:text-gray-100">
+                <option value="">Seleccionar...</option>
+                <option value="Afro">Afro</option>
+                <option value="Indígena">Indígena</option>
+                <option value="Mestizo">Mestizo</option>
+                <option value="Campesino">Campesino</option>
+              </select>
+            </div>
+          </div>
+
+          <div className="grid grid-cols-2 gap-4">
+            <div>
+              <label className="block text-xs font-semibold text-gray-600 dark:text-gray-400 mb-2">Fecha Nacimiento</label>
+              <input type="date" name="fechaNacimiento" value={formData.fechaNacimiento} onChange={handleChange} onClick={(e) => e.currentTarget.showPicker()} className="w-full px-3 py-2 border border-gray-200 dark:border-gray-600 rounded text-sm bg-white dark:bg-gray-700 text-gray-800 dark:text-gray-100" />
+            </div>
+            <div>
+              <label className="block text-xs font-semibold text-gray-600 dark:text-gray-400 mb-2">Ocupación</label>
+              <input type="text" name="ocupacion" value={formData.ocupacion} onChange={handleChange} className="w-full px-3 py-2 border border-gray-200 dark:border-gray-600 rounded text-sm bg-white dark:bg-gray-700 text-gray-800 dark:text-gray-100" />
+            </div>
+          </div>
+
+          <div>
+            <label className="block text-xs font-semibold text-gray-600 dark:text-gray-400 mb-2">Dirección</label>
+            <input type="text" name="direccion" value={formData.direccion} onChange={handleChange} className="w-full px-3 py-2 border border-gray-200 dark:border-gray-600 rounded text-sm bg-white dark:bg-gray-700 text-gray-800 dark:text-gray-100" />
+          </div>
+
+          <div className="flex items-center gap-2 mt-2 mb-4">
+            <input type="checkbox" id="discapacitado" name="discapacitado" checked={formData.discapacitado} onChange={handleChange} className="w-4 h-4 text-blue-600 rounded border-gray-300" />
+            <label htmlFor="discapacitado" className="text-sm text-gray-700 dark:text-gray-300">
+              ¿Tiene alguna discapacidad?
+            </label>
           </div>
 
           <div>

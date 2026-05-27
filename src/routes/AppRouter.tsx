@@ -14,6 +14,7 @@ import MisSolicitudes from "../modules/solicitudes/pages/MisSolicitudes";
 import JacDetalle from "../pages/JacDetalle";
 import AsocomunalDetalle from "../modules/asocomunales/pages/AsocomunalDetalle";
 import Migracion from "../pages/Migracion";
+import MigracionAfiliados from "../modules/migracion_afiliados/pages/MigracionAfiliados";
 import { useAuth } from "../context/AuthContext";
 import { Permissions } from "../utils/permissions";
 import Configuracion from "../pages/Configuracion";
@@ -56,6 +57,7 @@ function AppRouter() {
       <Route path="/solicitudes" element={<Layout><SolicitudesAdmin /></Layout>} />
       <Route path="/mis-solicitudes" element={<Layout><MisSolicitudes /></Layout>} />
       <Route path="/migracion" element={<ProtectedLayout><Migracion /></ProtectedLayout>} />
+      <Route path="/migracion-afiliados" element={<ProtectedLayout><MigracionAfiliados /></ProtectedLayout>} />
       <Route path="/configuracion" element={<Layout><Configuracion /></Layout>} />
       <Route path="*" element={<Navigate to="/" replace />} />
     </Routes>

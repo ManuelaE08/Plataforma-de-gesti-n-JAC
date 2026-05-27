@@ -34,6 +34,14 @@ export interface CreateAfiliadoDto {
   jacId: number; // JAC a la que pertenece
   municipioId?: number;
   cargoId?: number | string; // Cargo opcional del afiliado
+  genero?: string;
+  grupoEtnico?: string;
+  fechaNacimiento?: string;
+  rangoEdad?: string;
+  ocupacion?: string;
+  direccion?: string;
+  estudiosRealizados?: string;
+  discapacitado?: boolean;
 }
 
 export interface UpdateAfiliadoDto {
@@ -44,6 +52,14 @@ export interface UpdateAfiliadoDto {
   correo?: string;
   telefono?: string;
   cargoId?: number | string;
+  genero?: string;
+  grupoEtnico?: string;
+  fechaNacimiento?: string;
+  rangoEdad?: string;
+  ocupacion?: string;
+  direccion?: string;
+  estudiosRealizados?: string;
+  discapacitado?: boolean;
 }
 
 export interface AfiliadoResponse {
@@ -59,6 +75,14 @@ export interface AfiliadoResponse {
   cargoId?: number;
   rol?: string;
   documento?: string;
+  genero?: string;
+  grupoEtnico?: string;
+  fechaNacimiento?: string;
+  rangoEdad?: string;
+  ocupacion?: string;
+  direccion?: string;
+  estudiosRealizados?: string;
+  discapacitado?: boolean;
 }
 
 export interface CargoResponse {

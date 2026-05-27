@@ -1,4 +1,4 @@
-import { ArrowLeft, Users, MapPin, FileText, ShieldCheck, RotateCcw, AlertTriangle, Pencil, Tags, CheckCircle2, Plus, Trash2, Edit, Ellipsis } from "lucide-react";
+import { ArrowLeft, Users, MapPin, FileText, ShieldCheck, RotateCcw, AlertTriangle, Pencil, Tags, CheckCircle2, Plus, Trash2, Edit, Ellipsis, Upload } from "lucide-react";
 import { useMemo, useState, useEffect, useRef } from "react";
 import { useNavigate, useParams } from "react-router-dom";
 import Swal from "sweetalert2";
@@ -432,6 +432,13 @@ function JacDetalle() {
               )}
               <button onClick={handleAgregarAfiliado} className="inline-flex items-center gap-1.5 bg-green-600 hover:bg-green-700 text-white text-sm px-3 py-2 rounded-lg transition-colors shrink-0">
                 <Plus size={14} /> Agregar
+              </button>
+              <button 
+                onClick={() => navigate(`/migracion-afiliados?jacId=${jac.id}`)}
+                className="inline-flex items-center gap-1.5 bg-[#1B7F4B] hover:bg-[#166040] text-white text-sm px-3 py-2 rounded-lg transition-colors shrink-0 font-semibold"
+                title="Importar afiliados desde Excel"
+              >
+                <Upload size={14} /> Importar Excel
               </button>
               <span className="text-xs text-gray-400 dark:text-gray-500 shrink-0">
                 {miembrosFiltrados.length} de {(jac.miembros || []).length}

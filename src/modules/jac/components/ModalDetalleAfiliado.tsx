@@ -1,4 +1,4 @@
-import { X, Mail, Phone, FileText, Badge as BadgeIcon, Briefcase, MapPin } from "lucide-react";
+import { X, Mail, Phone, FileText, Badge as BadgeIcon, Briefcase, MapPin, Calendar, Activity, GraduationCap, Map } from "lucide-react";
 import { useEffect, useState } from "react";
 import { AfiliadosService, AfiliadoResponse } from "../services/afiliadosService";
 
@@ -150,6 +150,87 @@ export function ModalDetalleAfiliado({
                 </div>
               )}
             </div>
+
+            {/* Información personal adicional (solo si hay datos) */}
+            {(afiliado.fechaNacimiento || afiliado.genero || afiliado.grupoEtnico || afiliado.ocupacion || afiliado.direccion || afiliado.estudiosRealizados || afiliado.discapacitado !== undefined && afiliado.discapacitado !== null) && (
+              <div className="space-y-3">
+                <h4 className="text-xs font-semibold text-gray-600 dark:text-gray-400 uppercase tracking-wider">
+                  Información Adicional
+                </h4>
+
+                <div className="grid grid-cols-2 gap-3">
+                  {afiliado.fechaNacimiento && (
+                    <div className="flex items-start gap-3 p-3 bg-gray-50 dark:bg-gray-700/50 rounded-lg col-span-2 sm:col-span-1">
+                      <Calendar size={16} className="text-gray-400 dark:text-gray-500 mt-0.5 shrink-0" />
+                      <div className="flex-1 min-w-0">
+                        <p className="text-xs text-gray-500 dark:text-gray-400">Fecha Nacimiento</p>
+                        <p className="text-sm font-medium text-gray-800 dark:text-gray-100">{afiliado.fechaNacimiento.split('T')[0]}</p>
+                      </div>
+                    </div>
+                  )}
+
+                  {afiliado.genero && (
+                    <div className="flex items-start gap-3 p-3 bg-gray-50 dark:bg-gray-700/50 rounded-lg col-span-2 sm:col-span-1">
+                      <BadgeIcon size={16} className="text-gray-400 dark:text-gray-500 mt-0.5 shrink-0" />
+                      <div className="flex-1 min-w-0">
+                        <p className="text-xs text-gray-500 dark:text-gray-400">Género</p>
+                        <p className="text-sm font-medium text-gray-800 dark:text-gray-100">{afiliado.genero}</p>
+                      </div>
+                    </div>
+                  )}
+
+                  {afiliado.grupoEtnico && (
+                    <div className="flex items-start gap-3 p-3 bg-gray-50 dark:bg-gray-700/50 rounded-lg col-span-2 sm:col-span-1">
+                      <BadgeIcon size={16} className="text-gray-400 dark:text-gray-500 mt-0.5 shrink-0" />
+                      <div className="flex-1 min-w-0">
+                        <p className="text-xs text-gray-500 dark:text-gray-400">Grupo Étnico</p>
+                        <p className="text-sm font-medium text-gray-800 dark:text-gray-100">{afiliado.grupoEtnico}</p>
+                      </div>
+                    </div>
+                  )}
+
+                  {afiliado.ocupacion && (
+                    <div className="flex items-start gap-3 p-3 bg-gray-50 dark:bg-gray-700/50 rounded-lg col-span-2 sm:col-span-1">
+                      <Briefcase size={16} className="text-gray-400 dark:text-gray-500 mt-0.5 shrink-0" />
+                      <div className="flex-1 min-w-0">
+                        <p className="text-xs text-gray-500 dark:text-gray-400">Ocupación</p>
+                        <p className="text-sm font-medium text-gray-800 dark:text-gray-100">{afiliado.ocupacion}</p>
+                      </div>
+                    </div>
+                  )}
+
+                  {afiliado.estudiosRealizados && (
+                    <div className="flex items-start gap-3 p-3 bg-gray-50 dark:bg-gray-700/50 rounded-lg col-span-2 sm:col-span-1">
+                      <GraduationCap size={16} className="text-gray-400 dark:text-gray-500 mt-0.5 shrink-0" />
+                      <div className="flex-1 min-w-0">
+                        <p className="text-xs text-gray-500 dark:text-gray-400">Estudios</p>
+                        <p className="text-sm font-medium text-gray-800 dark:text-gray-100">{afiliado.estudiosRealizados}</p>
+                      </div>
+                    </div>
+                  )}
+
+                  {(afiliado.discapacitado === true || afiliado.discapacitado === false) && (
+                    <div className="flex items-start gap-3 p-3 bg-gray-50 dark:bg-gray-700/50 rounded-lg col-span-2 sm:col-span-1">
+                      <Activity size={16} className="text-gray-400 dark:text-gray-500 mt-0.5 shrink-0" />
+                      <div className="flex-1 min-w-0">
+                        <p className="text-xs text-gray-500 dark:text-gray-400">Discapacidad</p>
+                        <p className="text-sm font-medium text-gray-800 dark:text-gray-100">{afiliado.discapacitado ? "Sí" : "No"}</p>
+                      </div>
+                    </div>
+                  )}
+
+                  {afiliado.direccion && (
+                    <div className="flex items-start gap-3 p-3 bg-gray-50 dark:bg-gray-700/50 rounded-lg col-span-2">
+                      <Map size={16} className="text-gray-400 dark:text-gray-500 mt-0.5 shrink-0" />
+                      <div className="flex-1 min-w-0">
+                        <p className="text-xs text-gray-500 dark:text-gray-400">Dirección</p>
+                        <p className="text-sm font-medium text-gray-800 dark:text-gray-100">{afiliado.direccion}</p>
+                      </div>
+                    </div>
+                  )}
+                </div>
+              </div>
+            )}
 
             {/* ID */}
             <div className="pt-4 border-t border-gray-100 dark:border-gray-700">
