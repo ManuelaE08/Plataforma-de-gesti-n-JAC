@@ -2,10 +2,10 @@
  * Servicio para gestionar afiliados/personas en las JACs
  */
 
-const baseEndpoint = import.meta.env.VITE_JAC_ENDPOINT?.replace(/\/$/, "");
+const baseEndpoint = import.meta.env.VITE_API_BASE_URL?.replace(/\/$/, "");
 
 function base(): string {
-  if (!baseEndpoint) throw new Error("VITE_JAC_ENDPOINT no está configurado");
+  if (!baseEndpoint) throw new Error("VITE_API_BASE_URL no está configurado");
   return `${baseEndpoint}/afiliados`;
 }
 
@@ -29,9 +29,8 @@ export interface CreateAfiliadoDto {
   apellido: string;
   cedula?: string;
   lugarExpedicionCedula?: string;
-  email?: string;
+  correo?: string;
   telefono?: string;
-  direccion?: string;
   jacId: number; // JAC a la que pertenece
   municipioId?: number;
   cargoId?: number | string; // Cargo opcional del afiliado
@@ -41,9 +40,10 @@ export interface UpdateAfiliadoDto {
   nombre?: string;
   apellido?: string;
   cedula?: string;
-  email?: string;
+  lugarExpedicionCedula?: string;
+  correo?: string;
   telefono?: string;
-  direccion?: string;
+  cargoId?: number | string;
 }
 
 export interface AfiliadoResponse {
@@ -51,12 +51,14 @@ export interface AfiliadoResponse {
   nombre: string;
   apellido: string;
   cedula?: string;
-  email?: string;
+  lugarExpedicionCedula?: string;
+  correo?: string;
   telefono?: string;
-  direccion?: string;
   jacId: number;
+  municipioId?: number;
   cargoId?: number;
   rol?: string;
+  documento?: string;
 }
 
 export interface CargoResponse {

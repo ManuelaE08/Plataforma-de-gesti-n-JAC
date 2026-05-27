@@ -1,4 +1,4 @@
-import { Plus, RotateCcw, Ellipsis, Edit } from "lucide-react";
+import { Plus, RotateCcw, Ellipsis, Edit, Pencil } from "lucide-react";
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import Swal from "sweetalert2";
@@ -49,8 +49,6 @@ function Asocomunales() {
   //Nuevo cambio, se permite la creacion de asocomunales por parte de los operadores
   const canCreate = esAdmin || Permissions.isOperador(user);
 
-  const canDirectEdit = esAdmin;
-
   const handleSaveEdit = async (id: number, asoc: CreateAsocomunalDto | UpdateAsocomunalDto) => {
     try {
       // Enriquecer el payload con el nombre del municipio para la auditoría
@@ -60,22 +58,29 @@ function Asocomunales() {
         if (muni) payloadAudit.municipioId_nombre = muni.nombre;
       }
 
+      // Enriquecer payloadAnterior con nombre del municipio si aplica
+      const currentAsoc = data.find(a => a.id === id);
+      const payloadAnteriorAudit: any = { ...currentAsoc };
+      if (currentAsoc?.municipio?.id) {
+        // El municipio ya está disponible en currentAsoc.municipio
+        payloadAnteriorAudit.municipioId = currentAsoc.municipio.id;
+        payloadAnteriorAudit.municipioId_nombre = currentAsoc.municipio.nombre;
+      }
+
       if (Permissions.isAdmin(user)) {
-        const currentAsoc = data.find(a => a.id === id);
         await updateAsocomunal(id, asoc as UpdateAsocomunalDto);
         // Log fire-and-forget en auditoría (no bloquea la UI)
         SolicitudesService.registrarAccionAdmin({
           entidadAfectada: "ASOCOMUNAL",
           tipoAccion: "EDITAR",
           entidadId: String(id),
-          payloadAnterior: currentAsoc,
+          payloadAnterior: payloadAnteriorAudit,
           payloadDeseado: payloadAudit,
         }).catch(err => console.warn("[Auditoría] No se pudo registrar el log:", err));
         await Swal.fire({ icon: "success", title: "Asocomunal actualizada", text: "La actualización se guardó correctamente.", confirmButtonColor: "#1B7F4B", timer: 2500, timerProgressBar: true });
       } else {
-        // Buscamos la asocomunal actual para enviarla como payloadAnterior
-        const currentAsoc = data.find(a => a.id === id);
-        await proponerCambio("ASOCOMUNAL", "EDITAR", payloadAudit, currentAsoc, String(id));
+        // Operador propone edición
+        await proponerCambio("ASOCOMUNAL", "EDITAR", payloadAudit, payloadAnteriorAudit, String(id));
         await Swal.fire({ icon: "info", title: "Propuesta enviada", text: "Tu propuesta de edición ha sido enviada para revisión del administrador.", confirmButtonColor: "#1B7F4B" });
       }
       setEditingAsocomunal(null);
@@ -116,7 +121,7 @@ function Asocomunales() {
           // Si es operador, propone el cambio
           const currentAsoc = data.find(a => a.id === id);
           const tipoAccion = currentStatus ? "DESACTIVAR" : "ACTIVAR";
-          
+
           await proponerCambio(
             "ASOCOMUNAL",
             tipoAccion as any,
@@ -173,17 +178,24 @@ function Asocomunales() {
           onSave={async (nueva: CreateAsocomunalDto | UpdateAsocomunalDto) => {
             try {
               setCreatingLoading(true);
+              // Enriquecer el payload con el nombre del municipio para auditoría
+              const payloadAudit: any = { ...nueva };
+              if (nueva.municipioId) {
+                const muni = municipios.find(m => m.id === nueva.municipioId);
+                if (muni) payloadAudit.municipioId_nombre = muni.nombre;
+              }
+
               if (esAdmin) {
                 await createAsocomunal(nueva as CreateAsocomunalDto);
                 // Log fire-and-forget en auditoría
                 SolicitudesService.registrarAccionAdmin({
                   entidadAfectada: "ASOCOMUNAL",
                   tipoAccion: "CREAR",
-                  payloadDeseado: nueva,
+                  payloadDeseado: payloadAudit,
                 }).catch(err => console.warn("[Auditoría] No se pudo registrar el log:", err));
                 await Swal.fire({ icon: "success", title: "Asocomunal creada", text: "La nueva asocomunal ha sido registrada correctamente.", confirmButtonColor: "#1B7F4B", timer: 2500, timerProgressBar: true });
               } else {
-                await proponerCambio("ASOCOMUNAL", "CREAR", nueva);
+                await proponerCambio("ASOCOMUNAL", "CREAR", payloadAudit);
                 await Swal.fire({ icon: "info", title: "Propuesta enviada", text: "Tu solicitud de creación ha sido enviada al administrador.", confirmButtonColor: "#1B7F4B" });
               }
               setShowModal(false);
@@ -305,7 +317,7 @@ function Asocomunales() {
                               className="p-1.5 rounded-lg hover:bg-blue-50 dark:hover:bg-blue-900/20 text-gray-400 dark:text-gray-500 hover:text-blue-500 dark:hover:text-blue-400 transition-colors"
                               title="Editar"
                             >
-                              <Edit size={15} />
+                              <Pencil size={16} />
                             </button>
                           )}
                           <button

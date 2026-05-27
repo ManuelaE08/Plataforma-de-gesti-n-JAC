@@ -70,7 +70,10 @@ export interface JacItem {
   /** `true` cuando la JAC está activa pero no alcanza el mínimo legal. */
   enRiesgo: boolean;
   miembros: AfiliadoItem[];
+  /** ID de la Asocomunal a la que pertenece la JAC (para edición). */
   asocomunalId?: number | null;
+  /** Nombre de la Asocomunal (para mostrar en formularios). */
+  asocomunalNombre?: string | null;
 }
 
 // ── DTOs de entrada ───────────────────────────────────────────────────────────

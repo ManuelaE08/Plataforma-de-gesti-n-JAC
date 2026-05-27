@@ -67,34 +67,121 @@ const mapearSolicitud = (back: any): SolicitudItem => {
   const tipoStr = tipoMap[back.tipoAccion] ?? `${back.tipoAccion} ${entityNormalizado}`;
 
   // Convertir payload a array de cambios para la tabla
-  const desired = back.payloadDeseado || {};
-  const previous = back.payloadAnterior || {};
+  let desired = back.payloadDeseado || {};
+  
+  // DEBUG: Si el payload es string, parsearlo
+  if (typeof desired === 'string') {
+    try {
+      desired = JSON.parse(desired);
+    } catch (e) {
+      console.warn("[useSolicitudes] No se pudo parsear payloadDeseado como JSON", desired);
+      desired = {};
+    }
+  }
+  
+  // Si payloadDeseado está vacío para CREAR/EDITAR, intentar recuperar de payloadAnterior
+  if (Object.keys(desired).length === 0 && back.payloadAnterior) {
+    console.warn("[useSolicitudes] payloadDeseado vacío, usando payloadAnterior como fallback", back.payloadAnterior);
+    desired = back.payloadAnterior;
+  }
+  
+  let previous = back.payloadAnterior || {};
+  
+  // Si payloadAnterior es string, parsearlo
+  if (typeof previous === 'string') {
+    try {
+      previous = JSON.parse(previous);
+    } catch (e) {
+      console.warn("[useSolicitudes] No se pudo parsear payloadAnterior como JSON", previous);
+      previous = {};
+    }
+  }
 
   // Mapeo amigable de nombres de campos técnicos a etiquetas legibles
   const fieldLabels: Record<string, string> = {
     nombre: "Nombre",
+    nombreCompleto: "Nombre",
+    nombreCorto: "Barrio/Vereda",
+    tipo: "Tipo (Barrio/Vereda)",
     municipioId: "Municipio",
+    municipioId_nombre: "Municipio",
     presidente: "Presidente",
     telefono: "Teléfono",
     correo: "Correo electrónico",
-    estado: "Estado (Activo/Inactivo)",
+    estado: "Estado",
+    numeroRUC: "Número RUC",
     documental: "Estado Documental",
     organizativo: "Estado Organizativo",
     descripcion: "Descripción",
-    barrio: "Barrio/Vereda"
+    barrio: "Barrio/Vereda",
+    asocomunalId: "Asocomunal",
+    asocomunalId_nombre: "Asocomunal"
+  };
+
+  // Mapeo de equivalencias entre nombres de campo en payloads anteriores vs nuevos
+  // Porque el backend devuelve ciertos campos con un nombre y el formulario los envía con otro
+  const fieldMapping: Record<string, string> = {
+    nombreCompleto: "nombre",           // Formulario: nombreCompleto → Backend: nombre
+    nombreCorto: "barrio",              // Formulario: nombreCorto → Backend: barrio
+    asocomunalId_nombre: "asocomunalNombre", // Versión nombre-legible de asocomunalId
+    municipioId_nombre: "municipioNombre",   // Versión nombre-legible de municipioId
   };
 
   // Obtenemos todas las llaves involucradas en el nuevo estado (desired)
   // ya que son los campos que el formulario envió
   const campos = Object.keys(desired)
-    .filter(key => key !== 'id' && !key.endsWith('_nombre')) // Ignorar ID y campos de nombre auxiliares
+    .filter(key => {
+      // Ignorar ID
+      if (key === 'id') return false;
+      // Si existe el campo _nombre, ignorar el ID correspondiente
+      if (key === 'municipioId' && desired.municipioId_nombre) return false;
+      if (key === 'asocomunalId' && desired.asocomunalId_nombre) return false;
+      return true;
+    })
     .map(key => {
       let valAnt = previous[key];
       let valNue = desired[key];
 
+      // Caso especial: buscar en el mapping si el campo nuevo tiene un equivalente en el anterior
+      const fieldInPrevious = fieldMapping[key];
+      if (fieldInPrevious && valAnt === undefined) {
+        valAnt = previous[fieldInPrevious];
+      }
+
+      // Caso especial: municipioId_nombre - mostrar nombre del municipio
+      if (key === 'municipioId_nombre') {
+        // Buscar anterior: primero en municipio.nombre, luego en municipioId_nombre, luego en municipio.id
+        valAnt = previous.municipio?.nombre || 
+                 previous.municipioId_nombre || 
+                 previous.municipio?.id ||
+                 "—";
+        valNue = desired.municipioId_nombre;
+      }
+
+      // Caso especial: asocomunalId_nombre - mostrar nombre de la asocomunal
+      if (key === 'asocomunalId_nombre') {
+        // Buscar anterior: primero en asocomunalNombre, luego en asocomunalId_nombre
+        valAnt = previous.asocomunalNombre || 
+                 previous.asocomunalId_nombre ||
+                 "—";
+        valNue = desired.asocomunalId_nombre;
+      }
+
       // Caso especial: municipioId en desired vs municipio.id en previous
       if (key === 'municipioId' && previous.municipio?.id) {
         valAnt = previous.municipio.nombre || previous.municipio.id;
+        valNue = desired.municipioId;
+      }
+
+      // Caso especial: asocomunalId - buscar el nombre asociado
+      if (key === 'asocomunalId') {
+        // Valor anterior: buscar asocomunalNombre en el mismo payload
+        if (previous.asocomunalNombre) {
+          valAnt = previous.asocomunalNombre;
+        }
+        // Si tenemos un ID anterior, intentar obtener nombre del payload
+        // (para EDITAR, el backend debería mandar el nombre anterior)
+        valNue = desired.asocomunalId;
       }
 
       // --- MEJORA: Buscar nombre amigable enviado en el payload ---
@@ -107,22 +194,65 @@ const mapearSolicitud = (back: any): SolicitudItem => {
         valAnt = previous[`${key}_nombre`];
       }
 
+      // Convertir tipo de JAC a texto legible
+      if (key === 'tipo') {
+        if (valNue === 'barrio') valNue = 'Barrio';
+        if (valNue === 'vereda') valNue = 'Vereda';
+        if (valAnt === 'barrio') valAnt = 'Barrio';
+        if (valAnt === 'vereda') valAnt = 'Vereda';
+      }
+
       // Intentar convertir booleanos a texto amigable
       if (typeof valNue === 'boolean') {
         valNue = valNue ? "Activo" : "Inactivo";
         valAnt = valAnt === true ? "Activo" : valAnt === false ? "Inactivo" : valAnt;
       }
 
+      // Normalizar estado a minúsculas para comparación consistente
+      if (key === 'estado' && valAnt) {
+        valAnt = String(valAnt).toLowerCase();
+      }
+      if (key === 'estado' && valNue) {
+        valNue = String(valNue).toLowerCase();
+      }
+
       return {
         campo: fieldLabels[key] || key,
-        valorAnterior: valAnt !== undefined ? String(valAnt) : "—",
-        valorNuevo: valNue !== undefined ? String(valNue) : "—"
+        valorAnterior: valAnt !== undefined && valAnt !== null && valAnt !== "" ? String(valAnt) : "—",
+        valorNuevo: valNue !== undefined && valNue !== null && valNue !== "" ? String(valNue) : "—"
       };
     })
-    .filter(c => c.valorAnterior !== c.valorNuevo); // Solo mostrar diferencias reales
+    .filter(c => {
+      // Para CREAR: mostrar todos los campos no vacíos
+      const isCrearAction = back.tipoAccion === "CREAR" || 
+                            back.tipoAccion?.startsWith("CREAR");
+      
+      if (isCrearAction) {
+        return c.valorNuevo !== "—"; // Solo excluir campos completamente vacíos
+      }
+      
+      // Para EDITAR/ELIMINAR: SOLO mostrar campos que realmente cambiaron
+      const cambioDiferente = c.valorAnterior !== c.valorNuevo;
+      return cambioDiferente; // Solo campos con cambios reales
+    });
+
+  // DEBUG: Log para ver todos los campos calculados
+  const isCrearAction = back.tipoAccion === "CREAR" || back.tipoAccion?.startsWith("CREAR");
+  const isEditarAction = back.tipoAccion === "EDITAR" || back.tipoAccion?.startsWith("EDITAR");
+  
+  if (isCrearAction || isEditarAction) {
+    console.log(`[useSolicitudes] ${back.tipoAccion} for ${back.entidadAfectada}:`, {
+      tipoAccion: back.tipoAccion,
+      desiredKeys: Object.keys(desired),
+      desiredValues: desired,
+      previousKeys: Object.keys(previous),
+      previousValues: previous,
+      camposCalculados: campos,
+    });
+  }
 
   // Intentar extraer un "nombre" o descripcion representativa
-  const desc = desired.nombre || previous.nombre || `${entityNombre} #${back.entidadId || 'Nueva'}`;
+  const desc = desired.nombreCompleto || desired.nombre || previous.nombreCompleto || previous.nombre || `${entityNombre} #${back.entidadId || 'Nueva'}`;
 
   // Es acción directa del admin cuando él mismo figura como operador y revisor
   const esAccionAdmin = !!back.revisadoPorAdminId && back.operadorId === back.revisadoPorAdminId;
