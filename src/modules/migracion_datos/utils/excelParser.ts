@@ -2,15 +2,82 @@ import * as xlsx from 'xlsx';
 
 export class ExcelParser {
   /**
-   * Lee un ArrayBuffer y devuelve un arreglo de objetos JSON con los datos de la primera hoja.
+   * Obtiene la lista de nombres de las hojas del archivo Excel.
+   */
+  static getSheetNames(buffer: ArrayBuffer): string[] {
+    try {
+      const workbook = xlsx.read(buffer, { type: 'array' });
+      return workbook.SheetNames;
+    } catch (e) {
+      console.error('[ExcelParser] Error al leer nombres de hojas:', e);
+      return [];
+    }
+  }
+
+  /**
+   * Busca entre todas las hojas del libro cuál es la que mejor se adapta a los encabezados esperados.
+   * @param buffer - El archivo Excel.
+   * @param expectedHeaders - Encabezados esperados.
+   * @returns El índice de la hoja más adecuada, o -1 si ninguna coincide.
+   */
+  static detectBestSheet(buffer: ArrayBuffer, expectedHeaders: string[]): number {
+    try {
+      const workbook = xlsx.read(buffer, { type: 'array' });
+      let bestSheetIndex = -1;
+      let maxMatches = 0;
+
+      const upperExpected = expectedHeaders.map(h => h.toUpperCase());
+
+      workbook.SheetNames.forEach((sheetName, index) => {
+        const sheet = workbook.Sheets[sheetName];
+        const ref = sheet['!ref'];
+        if (!ref) return;
+
+        const range = xlsx.utils.decode_range(ref);
+        const maxRowsToScan = Math.min(range.e.r, 15);
+
+        for (let r = 0; r <= maxRowsToScan; r++) {
+          const rowValues: string[] = [];
+          for (let c = range.s.c; c <= range.e.c; c++) {
+            const cellAddress = xlsx.utils.encode_cell({ c, r });
+            const cell = sheet[cellAddress];
+            if (cell && cell.v !== undefined && cell.v !== null) {
+              rowValues.push(cell.v.toString().trim().toUpperCase());
+            }
+          }
+
+          const matches = upperExpected.filter(header => 
+            rowValues.some(val => val === header || val.includes(header))
+          ).length;
+
+          if (matches > maxMatches) {
+            maxMatches = matches;
+            bestSheetIndex = index;
+          }
+        }
+      });
+
+      if (maxMatches >= 2) {
+        return bestSheetIndex;
+      }
+      return -1;
+    } catch (error) {
+      console.error('[ExcelParser] Error al detectar la mejor hoja:', error);
+      return -1;
+    }
+  }
+
+  /**
+   * Lee un ArrayBuffer y devuelve un arreglo de objetos JSON con los datos de la hoja especificada.
    * @param buffer - El contenido del archivo Excel.
    * @param expectedHeaders - Encabezados esperados (provistos por la estrategia) para detectar la fila correcta.
+   * @param sheetIndex - El índice de la hoja a procesar (por defecto 0).
    */
-  static async parse(buffer: ArrayBuffer, expectedHeaders: string[]): Promise<any[]> {
+  static async parse(buffer: ArrayBuffer, expectedHeaders: string[], sheetIndex: number = 0): Promise<any[]> {
     return new Promise((resolve, reject) => {
       try {
         const workbook = xlsx.read(buffer, { type: 'array' });
-        const sheetName = workbook.SheetNames[0];
+        const sheetName = workbook.SheetNames[sheetIndex];
 
         if (!sheetName) {
           throw new Error('El archivo Excel no contiene hojas de cálculo.');

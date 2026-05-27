@@ -126,7 +126,9 @@ export function ModalCrearJac({ onClose, onSave }: ModalCrearJacProps) {
       ...(form.numeroRUC.trim() ? { numeroRUC: form.numeroRUC.trim() } : {}),
     };
 
-    //Nueva cambio para que el admin use auditoria
+    // Enriquecer el payload con el nombre de la asocomunal para auditoría
+    const payloadAudit: any = { ...payload };
+    if (aso) payloadAudit.asocomunalId_nombre = aso.nombre;
 
     try {
       setSubmitting(true);
@@ -140,7 +142,7 @@ export function ModalCrearJac({ onClose, onSave }: ModalCrearJacProps) {
           await SolicitudesService.registrarAccionAdmin({
             entidadAfectada: "JAC",
             tipoAccion: "CREAR",
-            payloadDeseado: payload,
+            payloadDeseado: payloadAudit,
           });
         } catch {
           // Si falla el log de auditoría, no bloquear la operación
@@ -162,7 +164,7 @@ export function ModalCrearJac({ onClose, onSave }: ModalCrearJacProps) {
         await SolicitudesService.crear({
           entidadAfectada: "JAC",
           tipoAccion: "CREAR",
-          payloadDeseado: payload,
+          payloadDeseado: payloadAudit,
         });
 
         await Swal.fire({

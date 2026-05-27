@@ -36,7 +36,7 @@ function TablaCambios({ cambios, tipo }: { cambios: CambioCampo[]; tipo: Solicit
 
 function MisSolicitudes() {
   const { user } = useAuth();
-  const { filtered, crearSolicitud } = useSolicitudes(user?.id);
+  const { filtered, crearSolicitud } = useSolicitudes(true);
 
   const [showModal,    setShowModal]    = useState(false);
   const [expandidoId,  setExpandidoId]  = useState<number | null>(null);

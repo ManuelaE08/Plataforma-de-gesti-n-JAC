@@ -20,7 +20,7 @@ const iconMap: Record<string, React.ElementType> = {
   "/": LayoutDashboard, "/jac": Building2, "/asocomunales": Users,
   "/analiticas": BarChart2, "/alertas": AlertTriangle, "/reportes": FileText,
   "/solicitudes": GitPullRequest, "/mis-solicitudes": GitPullRequest,
-  "/migracion": Upload, "/usuarios": UserCog, "/configuracion": Settings,
+  "/migracion": Upload, "/migracion-afiliados": Upload, "/usuarios": UserCog, "/configuracion": Settings,
 };
 
 const nivelIcon = {

@@ -15,6 +15,7 @@ export const menuByRole: MenuByRole = {
     { name: "Reportes", path: "/reportes" },
     { name: "Mis Solicitudes", path: "/mis-solicitudes" },
     { name: "Migración de Datos", path: "/migracion" },
+    { name: "Migración de Afiliados", path: "/migracion-afiliados" },
     { name: "Configuración", path: "/configuracion" },
   ],
   admin: [
@@ -26,6 +27,7 @@ export const menuByRole: MenuByRole = {
     { name: "Reportes", path: "/reportes" },
     { name: "Solicitudes Pendientes", path: "/solicitudes" },
     { name: "Migración de Datos", path: "/migracion" },
+    { name: "Migración de Afiliados", path: "/migracion-afiliados" },
     { name: "Administración de Usuarios", path: "/usuarios" },
     { name: "Configuración", path: "/configuracion" },
   ],
@@ -38,6 +40,7 @@ export const menuByRole: MenuByRole = {
     { name: "Reportes", path: "/reportes" },
     { name: "Solicitudes Pendientes", path: "/solicitudes" },
     { name: "Migración de Datos", path: "/migracion" },
+    { name: "Migración de Afiliados", path: "/migracion-afiliados" },
     { name: "Administración de Usuarios", path: "/usuarios" },
     { name: "Configuración", path: "/configuracion" },
   ],

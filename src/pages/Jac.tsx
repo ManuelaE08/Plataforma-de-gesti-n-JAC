@@ -1,14 +1,23 @@
-import { Plus, RotateCcw, Ellipsis, Trash2 } from "lucide-react";
-import { useState } from "react";
+import { Plus, RotateCcw, Ellipsis, Edit, Pencil } from "lucide-react";
+import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
+import Swal from "sweetalert2";
+import "sweetalert2/dist/sweetalert2.min.css";
 import PageHeader from "../components/ui/PageHeader";
 import SearchBar from "../components/ui/SearchBar";
 import { OrganizativoStatus } from "../components/ui/OrganizativoStatus";
 import EmptyState from "../components/ui/EmptyState";
 import { ModalCrearJac } from "../components/ui/ModalCrearJac";
+import { ModalEditarJac } from "../modules/jac/components/ModalEditarJac";
 import MunicipioCombobox from "../components/ui/MunicipioCombobox";
-import { useJac, columns, orgVariant, type EstadoDocumental, type EstadoOrganizativo } from "../hooks/useJac";
+import { useJac, columns, type EstadoDocumental, type EstadoOrganizativo } from "../hooks/useJac";
 import { useAuth } from "../context/AuthContext";
+import { JACService } from "../modules/jac/services/jacService";
+import { SolicitudesService } from "../modules/solicitudes/services/solicitudes.service";
+import { useSolicitudes } from "../modules/solicitudes/hooks/useSolicitudes";
+import { Permissions } from "../utils/permissions";
+import type { UpdateJACDto, JacItem } from "../modules/jac/types";
+import type { Asocomunal } from "../modules/asocomunales/types";
 
 const card = "bg-white dark:bg-gray-800 rounded-xl border border-gray-100 dark:border-gray-700 shadow-sm";
 
@@ -27,12 +36,109 @@ function Jac() {
 
   const navigate = useNavigate();
   const { user } = useAuth();
+  const { crearSolicitud: proponerCambio } = useSolicitudes(true);
+
   const [showModal, setShowModal] = useState(false);
+  const [editingJac, setEditingJac] = useState<JacItem | null>(null);
+  const [asocomunales, setAsocomunales] = useState<Asocomunal[]>([]);
+  const [fetchingJac, setFetchingJac] = useState(false);
 
   const esAdmin = user?.rol === "admin" || user?.rol === "superadmin";
   const canViewAfiliados = esAdmin || user?.rol === "operador";
-  const canDelete = esAdmin;
   const canCreate = esAdmin || user?.rol === "operador";
+  const canEdit = esAdmin || user?.rol === "operador";
+
+  // Obtener asocomunales disponibles
+  useEffect(() => {
+    const fetchAsocomunales = async () => {
+      try {
+        const data = await JACService.getAsocomunalesReplica();
+        setAsocomunales(data);
+      } catch (err) {
+        console.error("Error al obtener asocomunales:", err);
+      }
+    };
+    fetchAsocomunales();
+  }, []);
+
+  // Obtener JAC completa para edición
+  const handleOpenEditModal = async (id: number) => {
+    setFetchingJac(true);
+    try {
+      const jac = await JACService.findOne(id);
+      setEditingJac(jac);
+    } catch (err) {
+      console.error("Error al obtener la JAC:", err);
+      await Swal.fire({
+        icon: "error",
+        title: "Error",
+        text: "No se pudo cargar los datos de la JAC",
+        confirmButtonColor: "#1B7F4B"
+      });
+    } finally {
+      setFetchingJac(false);
+    }
+  };
+
+  const handleSaveEdit = async (id: number, jac: UpdateJACDto) => {
+    try {
+      // Enriquecer ambos payloads con información para la auditoría
+      const payloadAudit: any = { ...jac };
+      if (jac.asocomunalId) {
+        const aso = asocomunales.find(a => a.id === jac.asocomunalId);
+        if (aso) payloadAudit.asocomunalId_nombre = aso.nombre;
+      }
+
+      // Enriquecer payloadAnterior con nombre de asocomunal si aplica
+      const payloadAnteriorAudit: any = { ...editingJac };
+      if (editingJac?.asocomunalId) {
+        const aso = asocomunales.find(a => a.id === editingJac.asocomunalId);
+        if (aso) {
+          payloadAnteriorAudit.asocomunalId_nombre = aso.nombre;
+        }
+      }
+
+      if (Permissions.isAdmin(user)) {
+        await JACService.update(id, jac);
+        // Log fire-and-forget en auditoría (no bloquea la UI)
+        // Usar payloadAnteriorAudit enriquecido con nombres
+        SolicitudesService.registrarAccionAdmin({
+          entidadAfectada: "JAC",
+          tipoAccion: "EDITAR",
+          entidadId: String(id),
+          payloadAnterior: payloadAnteriorAudit,  // JAC completa con nombres enriquecidos
+          payloadDeseado: payloadAudit,
+        }).catch(err => console.warn("[Auditoría] No se pudo registrar el log:", err));
+        await Swal.fire({
+          icon: "success",
+          title: "JAC actualizada",
+          text: "La actualización se guardó correctamente.",
+          confirmButtonColor: "#1B7F4B",
+          timer: 2500,
+          timerProgressBar: true
+        });
+      } else {
+        // Usamos editingJac como payloadAnterior (tiene todos los campos)
+        await proponerCambio("JAC", "EDITAR", payloadAudit, editingJac, String(id));
+        await Swal.fire({
+          icon: "info",
+          title: "Propuesta enviada",
+          text: "Tu propuesta de edición ha sido enviada para revisión del administrador.",
+          confirmButtonColor: "#1B7F4B"
+        });
+      }
+      setEditingJac(null);
+      refetch();
+    } catch (err: unknown) {
+      console.error("Error al procesar la JAC:", err);
+      await Swal.fire({
+        icon: "error",
+        title: "Error",
+        text: err instanceof Error ? err.message : "No se pudo procesar la acción.",
+        confirmButtonColor: "#1B7F4B"
+      });
+    }
+  };
 
   const visibleColumns = canViewAfiliados
     ? columns
@@ -59,6 +165,15 @@ function Jac() {
         <ModalCrearJac
           onClose={() => setShowModal(false)}
           onSave={() => refetch()}
+        />
+      )}
+
+      {editingJac && (
+        <ModalEditarJac
+          jac={editingJac}
+          asocomunales={asocomunales}
+          onClose={() => setEditingJac(null)}
+          onSave={handleSaveEdit}
         />
       )}
 
@@ -182,8 +297,8 @@ function Jac() {
                       <OrganizativoStatus
                         estado={
                           jac.organizativo === "Activa" ||
-                          jac.organizativo === "Inactiva" ||
-                          jac.organizativo === "Cancelada"
+                            jac.organizativo === "Inactiva" ||
+                            jac.organizativo === "Cancelada"
                             ? jac.organizativo
                             : "Inactiva"
                         }
@@ -200,12 +315,14 @@ function Jac() {
                           >
                             <Ellipsis size={20} />
                           </button>
-                          {canDelete && (
+                          {canEdit && (
                             <button
-                              className="p-1.5 rounded-lg hover:bg-red-50 dark:hover:bg-red-900/20 text-gray-400 dark:text-gray-500 hover:text-red-500 dark:hover:text-red-400 transition-colors"
-                              title="Eliminar"
+                              onClick={() => handleOpenEditModal(jac.id)}
+                              disabled={fetchingJac}
+                              className="p-1.5 rounded-lg hover:bg-[#1B7F4B]/10 dark:hover:bg-[#1B7F4B]/20 text-gray-500 dark:text-gray-400 hover:text-[#1B7F4B] dark:hover:text-emerald-400 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+                              title="Editar"
                             >
-                              <Trash2 size={20} />
+                              <Pencil size={16} />
                             </button>
                           )}
                         </div>
