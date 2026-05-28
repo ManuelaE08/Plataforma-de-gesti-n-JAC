@@ -104,23 +104,20 @@ function DashboardUsuario() {
 
         <section className="mt-8 grid gap-4 xl:grid-cols-3">
           <StatCard
-            title="Total JACs Activas"
-            value={stats.activeJacsCount}
-            label="Estado Activa"
+            title="Juntas de Accion Comunal"
+            value={stats.totalJACS}
             icon={Building2}
             accentClass="bg-[#F0FDF4] dark:bg-emerald-950/20"
           />
           <StatCard
             title="Asocomunales"
             value={stats.totalAsocomunales}
-            label="Organizaciones públicas"
             icon={Building2}
             accentClass="bg-white dark:bg-gray-800"
           />
           <StatCard
-            title="Municipios"
+            title="Municipios Cauca"
             value={42}
-            label="Cobertura Cauca"
             icon={MapPin}
             accentClass="bg-white dark:bg-gray-800"
           />

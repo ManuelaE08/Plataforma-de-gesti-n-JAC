@@ -1,5 +1,5 @@
 :root {
-  color-scheme: dark;
+  /* color-scheme eliminado de aquí para controlar el scrollbar manualmente */
   --primary: #1B7F4B;
   --chart-1: #1B7F4B;
   --chart-2: #22C55E;
@@ -38,3 +38,59 @@ input, button, textarea, select {
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
+
+/* --- Personalización de las Barras de Desplazamiento --- */
+@layer base {
+  /* 1. Motores basados en Webkit (Chrome, Safari, Edge, Opera) */
+  ::-webkit-scrollbar {
+    width: 8px;
+    height: 8px;
+  }
+
+  /* Fondo del canal de la barra (Gris muy claro / Transparente) */
+  ::-webkit-scrollbar-track {
+    background: rgba(243, 244, 246, 0.6); /* Equivalente a un gray-100 sutil */
+    border-radius: 9999px;
+  }
+
+  /* El indicador/pastilla (Gris suave para que sea sutil) */
+  ::-webkit-scrollbar-thumb {
+    background: #cbd5e1; /* Gris claro estilizado */
+    border-radius: 9999px;
+    border: 2px solid transparent; /* Efecto de padding interno */
+    background-clip: padding-box;
+  }
+
+  ::-webkit-scrollbar-thumb:hover {
+    background: #94a3b8; /* Se oscurece ligeramente al pasar el cursor */
+    border: 2px solid transparent;
+    background-clip: padding-box;
+  }
+
+  /* Adaptación para cuando tu app activa el modo oscuro real mediante la clase .dark */
+  .dark ::-webkit-scrollbar-track {
+    background: #1f2937; /* bg-gray-800 */
+  }
+
+  .dark ::-webkit-scrollbar-thumb {
+    background: #4b5563; /* bg-gray-600 */
+    border: 2px solid transparent;
+    background-clip: padding-box;
+  }
+
+  .dark ::-webkit-scrollbar-thumb:hover {
+    background: #6b7280; /* bg-gray-500 */
+    border: 2px solid transparent;
+    background-clip: padding-box;
+  }
+
+  /* 2. Soporte nativo para Firefox */
+  * {
+    scrollbar-width: thin;
+    scrollbar-color: #cbd5e1 rgba(243, 244, 246, 0.6);
+  }
+
+  .dark * {
+    scrollbar-color: #4b5563 #1f2937;
+  }
+}
