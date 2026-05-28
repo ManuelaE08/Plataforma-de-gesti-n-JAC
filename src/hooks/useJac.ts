@@ -107,6 +107,16 @@ export function useJac() {
 
   const getJacById = (id: number) => jacData.find((item) => item.id === id) ?? null;
 
+  /**
+   * Eliminación lógica de una JAC.
+   * El backend cambia su estado a `inactiva` (no se borra de la BD); por eso
+   * después llamamos `fetchJacs()` para que la lista refleje el nuevo estado.
+   */
+  const deleteJac = useCallback(async (id: number): Promise<void> => {
+    await JACService.remove(id);
+    await fetchJacs();
+  }, [fetchJacs]);
+
   return {
     // datos
     jacData,
@@ -118,6 +128,7 @@ export function useJac() {
     refetch: fetchJacs,
     handleClear,
     getJacById,
+    deleteJac,
     // setters de filtros
     filters,
     setBusqueda: (v: string) => setFilters((p) => ({ ...p, busqueda: v })),
