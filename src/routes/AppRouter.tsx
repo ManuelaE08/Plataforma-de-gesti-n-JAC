@@ -14,7 +14,6 @@ import MisSolicitudes from "../modules/solicitudes/pages/MisSolicitudes";
 import JacDetalle from "../pages/JacDetalle";
 import AsocomunalDetalle from "../modules/asocomunales/pages/AsocomunalDetalle";
 import Migracion from "../pages/Migracion";
-import MigracionAfiliados from "../modules/migracion_afiliados/pages/MigracionAfiliados";
 import { useAuth } from "../context/AuthContext";
 import { Permissions } from "../utils/permissions";
 import Configuracion from "../pages/Configuracion";
@@ -39,6 +38,18 @@ function ProtectedLayout({ children }: { children: ReactNode }) {
   );
 }
 
+/**
+ * Restringe el acceso a rutas exclusivas de admin/superadmin. Si llega un
+ * operador o un usuario público (escribiendo la URL a mano), lo redirige
+ * a la raíz silenciosamente.
+ */
+function AdminOnlyLayout({ children }: { children: ReactNode }) {
+  const { user, isAuthLoading } = useAuth();
+  if (isAuthLoading) return null;
+  if (!Permissions.isAdmin(user)) return <Navigate to="/" replace />;
+  return <Layout>{children}</Layout>;
+}
+
 function AppRouter() {
   const { isAuthLoading } = useAuth();
   if (isAuthLoading) return null;
@@ -56,8 +67,7 @@ function AppRouter() {
       <Route path="/alertas" element={<ProtectedLayout><Alertas /></ProtectedLayout>} />
       <Route path="/solicitudes" element={<Layout><SolicitudesAdmin /></Layout>} />
       <Route path="/mis-solicitudes" element={<Layout><MisSolicitudes /></Layout>} />
-      <Route path="/migracion" element={<ProtectedLayout><Migracion /></ProtectedLayout>} />
-      <Route path="/migracion-afiliados" element={<ProtectedLayout><MigracionAfiliados /></ProtectedLayout>} />
+      <Route path="/migracion" element={<AdminOnlyLayout><Migracion /></AdminOnlyLayout>} />
       <Route path="/configuracion" element={<Layout><Configuracion /></Layout>} />
       <Route path="*" element={<Navigate to="/" replace />} />
     </Routes>

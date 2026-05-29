@@ -1,10 +1,13 @@
 import { useEffect, useRef, useState } from "react";
+import { useSearchParams } from "react-router-dom";
 import { AlertCircle, CheckCircle2, Database, Download, Eye, FileSpreadsheet, FileWarning, IdCard, Loader2, MapPin, RefreshCw, Search, Upload, Building2, Users, X, XCircle } from "lucide-react";
 import PageHeader from "../components/ui/PageHeader";
 import Badge from "../components/ui/Badge";
 import { useAuth } from "../context/AuthContext";
 import { formatBytes, useMigracion } from "../hooks/useMigracion";
 import type { MigrationEntity } from "../modules/migracion_datos/types";
+import { JACService } from "../modules/jac/services/jacService";
+import type { JacListItem } from "../modules/jac/types";
 
 // Plantillas Excel descargables. Si en `src/assets` no existe el archivo correspondiente,
 // la entrada simplemente no aparecerá en el glob y el botón mostrará el aviso de "no disponible".
@@ -71,6 +74,48 @@ function Migracion() {
 
   const [resultadosAbiertos, setResultadosAbiertos] = useState(false);
   const buscadorJacRef = useRef<HTMLDivElement | null>(null);
+  const [searchParams, setSearchParams] = useSearchParams();
+
+  // Pre-selección al llegar desde otra pantalla (ej. botón "Importar Excel" en
+  // JacDetalle, que navega a `/migracion?tipo=afiliados&jacId=N`).
+  // Se ejecuta una sola vez por carga; tras aplicar, limpiamos los query params
+  // para que un cambio manual posterior no se pise.
+  useEffect(() => {
+    const tipo = searchParams.get("tipo");
+    const jacIdParam = searchParams.get("jacId");
+
+    if (tipo !== "afiliados" && !jacIdParam) return;
+
+    if (tipo === "afiliados" && tipoEntidad !== "afiliados") {
+      setTipoEntidad("afiliados");
+    }
+
+    if (jacIdParam) {
+      const jacId = Number(jacIdParam);
+      if (!Number.isNaN(jacId) && !jacSeleccionada) {
+        JACService.findOne(jacId)
+          .then((detalle) => {
+            const asListItem: JacListItem = {
+              id: detalle.id,
+              nombre: detalle.nombre,
+              municipio: detalle.municipio,
+              barrio: detalle.barrio,
+              afiliados: detalle.afiliados,
+              organizativo: detalle.estado,
+            };
+            seleccionarJAC(asListItem);
+          })
+          .catch((err) => {
+            console.warn("[Migracion] No se pudo precargar la JAC:", err);
+          });
+      }
+    }
+
+    // Limpiamos los params para que recargar no re-dispare el efecto y para
+    // que un "Cambiar JAC" manual del usuario no se pise con la pre-selección.
+    setSearchParams({}, { replace: true });
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
 
   // Debounce de la búsqueda de JAC (350ms).
   useEffect(() => {
