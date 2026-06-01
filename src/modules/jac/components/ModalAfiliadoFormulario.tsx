@@ -37,7 +37,6 @@ export function ModalAfiliadoFormulario({
     grupoEtnico: "",
     fechaNacimiento: "",
     ocupacion: "",
-    direccion: "",
     discapacitado: false,
   });
 
@@ -66,7 +65,6 @@ export function ModalAfiliadoFormulario({
             grupoEtnico: afiliado.grupoEtnico || "",
             fechaNacimiento: afiliado.fechaNacimiento ? afiliado.fechaNacimiento.split('T')[0] : "",
             ocupacion: afiliado.ocupacion || "",
-            direccion: afiliado.direccion || "",
             discapacitado: afiliado.discapacitado || false,
           });
         })
@@ -85,7 +83,6 @@ export function ModalAfiliadoFormulario({
         grupoEtnico: "",
         fechaNacimiento: "",
         ocupacion: "",
-        direccion: "",
         discapacitado: false,
       });
       setError(null);
@@ -121,7 +118,6 @@ export function ModalAfiliadoFormulario({
           grupoEtnico: formData.grupoEtnico || undefined,
           fechaNacimiento: formData.fechaNacimiento || undefined,
           ocupacion: formData.ocupacion || undefined,
-          direccion: formData.direccion || undefined,
           discapacitado: formData.discapacitado,
         });
         await Swal.fire({ icon: "success", title: "Afiliado actualizado", text: "La información ha sido guardada correctamente.", confirmButtonColor: "#1B7F4B", timer: 2000, timerProgressBar: true });
@@ -140,7 +136,6 @@ export function ModalAfiliadoFormulario({
           grupoEtnico: formData.grupoEtnico || undefined,
           fechaNacimiento: formData.fechaNacimiento || undefined,
           ocupacion: formData.ocupacion || undefined,
-          direccion: formData.direccion || undefined,
           discapacitado: formData.discapacitado,
         } as CreateAfiliadoDto);
         await Swal.fire({ icon: "success", title: "Afiliado registrado", text: "El nuevo afiliado ha sido creado exitosamente.", confirmButtonColor: "#1B7F4B", timer: 2000, timerProgressBar: true });
@@ -239,11 +234,6 @@ export function ModalAfiliadoFormulario({
               <label className="block text-xs font-semibold text-gray-600 dark:text-gray-400 mb-2">Ocupación</label>
               <input type="text" name="ocupacion" value={formData.ocupacion} onChange={handleChange} className="w-full px-3 py-2 border border-gray-200 dark:border-gray-600 rounded text-sm bg-white dark:bg-gray-700 text-gray-800 dark:text-gray-100" />
             </div>
-          </div>
-
-          <div>
-            <label className="block text-xs font-semibold text-gray-600 dark:text-gray-400 mb-2">Dirección</label>
-            <input type="text" name="direccion" value={formData.direccion} onChange={handleChange} className="w-full px-3 py-2 border border-gray-200 dark:border-gray-600 rounded text-sm bg-white dark:bg-gray-700 text-gray-800 dark:text-gray-100" />
           </div>
 
           <div className="flex items-center gap-2 mt-2 mb-4">

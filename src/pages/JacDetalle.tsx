@@ -470,7 +470,7 @@ function JacDetalle() {
                 <Plus size={14} /> Agregar
               </button>
               <button
-                onClick={() => navigate(`/migracion?tipo=afiliados&jacId=${jac.id}`)}
+                onClick={() => navigate(`/migracion?jacId=${jac.id}`)}
                 className="inline-flex items-center gap-1.5 bg-[#1B7F4B] hover:bg-[#166040] text-white text-sm px-3 py-2 rounded-lg transition-colors shrink-0 font-semibold"
                 title="Importar afiliados desde Excel"
               >

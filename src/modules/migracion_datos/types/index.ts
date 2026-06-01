@@ -1,4 +1,4 @@
-export type MigrationEntity = 'jacs' | 'asocomunales' | 'afiliados';
+export type MigrationEntity = 'asocomunales' | 'afiliados';
 
 export interface MigrationOptions {
   file?: File;

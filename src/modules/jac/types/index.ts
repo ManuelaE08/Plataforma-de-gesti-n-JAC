@@ -85,7 +85,7 @@ export interface JacItem {
  * - `asocomunalId` y `tipo` son obligatorios.
  * - El backend siempre crea la JAC con estado `inactiva`,
  *   por lo que el campo no se envía desde el frontend.
- * - `nombreCorto` y `numeroRUC` son opcionales.
+ * - `nombreCorto`, `numeroRUC`, `nit` y `numeroPersoneriaJuridica` son opcionales.
  */
 export interface CreateJACDto {
   asocomunalId: number;
@@ -93,6 +93,8 @@ export interface CreateJACDto {
   nombreCompleto: string;
   nombreCorto?: string;
   numeroRUC?: string;
+  nit?: string;
+  numeroPersoneriaJuridica?: string;
 }
 
 export interface UpdateJACDto {

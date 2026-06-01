@@ -9,16 +9,12 @@ import {
 const baseEndpoint = import.meta.env.VITE_API_BASE_URL?.replace(/\/$/, "");
 
 export class MigrationService {
-  static async uploadExcel({ file, entity }: MigrationOptions): Promise<MigrationResponse> {
+  static async uploadExcel({ file }: MigrationOptions): Promise<MigrationResponse> {
     if (!file) throw new Error("No file provided");
     const formData = new FormData();
     formData.append("file", file);
 
-    const endpoint = entity === "asocomunales"
-      ? `${baseEndpoint}/asocomunales/import-file`
-      : `${baseEndpoint}/jacs/import`;
-
-    const response = await fetch(endpoint, {
+    const response = await fetch(`${baseEndpoint}/asocomunales/import-file`, {
       method: "POST",
       body: formData,
       credentials: "include",
@@ -32,14 +28,10 @@ export class MigrationService {
     return await response.json();
   }
 
-  static async uploadJSON({ data, entity }: MigrationOptions): Promise<MigrationResponse> {
+  static async uploadJSON({ data }: MigrationOptions): Promise<MigrationResponse> {
     if (!data) throw new Error("No data provided");
 
-    const endpoint = entity === "asocomunales"
-      ? `${baseEndpoint}/asocomunales/import`
-      : `${baseEndpoint}/jacs/import`;
-
-    const response = await fetch(endpoint, {
+    const response = await fetch(`${baseEndpoint}/asocomunales/import`, {
       method: "POST",
       headers: {
         "Content-Type": "application/json",

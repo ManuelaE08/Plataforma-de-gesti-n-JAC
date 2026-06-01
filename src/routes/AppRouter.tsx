@@ -1,7 +1,6 @@
 import type { ReactNode } from "react";
 import { Navigate, Route, Routes } from "react-router-dom";
 import Layout from "../components/Layout";
-import Dashboard from "../pages/Dashboard";
 import DashboardUsuario from "../pages/DashboardUsuario";
 import Jac from "../pages/Jac";
 import Asocomunales from "../modules/asocomunales/pages/Asocomunales";
@@ -17,11 +16,6 @@ import Migracion from "../pages/Migracion";
 import { useAuth } from "../context/AuthContext";
 import { Permissions } from "../utils/permissions";
 import Configuracion from "../pages/Configuracion";
-
-function RootDashboard() {
-  const { user } = useAuth();
-  return Permissions.isRegularUser(user) || user === null ? <DashboardUsuario /> : <Dashboard />;
-}
 
 function ProtectedRoute({ children }: { children: ReactNode }) {
   const { user, isAuthLoading } = useAuth();
@@ -56,7 +50,7 @@ function AppRouter() {
 
   return (
     <Routes>
-      <Route path="/" element={<Layout><RootDashboard /></Layout>} />
+      <Route path="/" element={<Layout><DashboardUsuario /></Layout>} />
       <Route path="/jac" element={<Layout><Jac /></Layout>} />
       <Route path="/jac/:id" element={<Layout><JacDetalle /></Layout>} />
       <Route path="/asocomunales" element={<Layout><Asocomunales /></Layout>} />
