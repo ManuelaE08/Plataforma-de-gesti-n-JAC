@@ -1,4 +1,4 @@
-import { FileText, RotateCcw, Download, Eye, Plus } from "lucide-react";
+import { FileText, RotateCcw, Download, Eye, Plus, TriangleAlert } from "lucide-react";
 import PageHeader from "../components/ui/PageHeader";
 import SearchBar from "../components/ui/SearchBar";
 import EmptyState from "../components/ui/EmptyState";
@@ -57,6 +57,16 @@ function Reportes() {
           Generar reporte
         </button>
       </PageHeader>
+
+      {/* Aviso de módulo en desarrollo */}
+      <div className="flex items-start gap-3 rounded-lg px-4 py-3 mb-4 border bg-amber-50 text-amber-800 border-amber-200 dark:bg-amber-900/20 dark:text-amber-300 dark:border-amber-800">
+        <TriangleAlert size={18} className="shrink-0 mt-0.5" />
+        <p className="text-base">
+          <span className="font-semibold">Módulo en desarrollo.</span> Esta sección aún se encuentra en
+          construcción y la información que está viendo es de demostración, <span className="font-semibold">no
+          corresponde a datos reales</span>.
+        </p>
+      </div>
 
       {/* KPIs */}
       <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-4">

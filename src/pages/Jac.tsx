@@ -1,4 +1,4 @@
-import { Plus, RotateCcw, Ellipsis, Edit, Pencil } from "lucide-react";
+import { Plus, RotateCcw, Ellipsis, Edit, Pencil, Info } from "lucide-react";
 import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import Swal from "sweetalert2";
@@ -160,6 +160,16 @@ function Jac() {
           </button>
         )}
       </PageHeader>
+
+      {/* Aviso de actualización de datos por parte de la Gobernación */}
+      <div className="flex items-start gap-3 rounded-lg px-4 py-3 mb-4 border bg-blue-50 text-blue-800 border-blue-200 dark:bg-blue-900/20 dark:text-blue-300 dark:border-blue-800">
+        <Info size={18} className="shrink-0 mt-0.5" />
+        <p className="text-base">
+          La Gobernación se encuentra <span className="font-semibold">actualizando la información</span> de las
+          Juntas de Acción Comunal. Es posible que vea datos que aún no corresponden con el libro de afiliados
+          o con la información más reciente. Agradecemos su comprensión mientras finaliza el proceso.
+        </p>
+      </div>
 
       {showModal && (
         <ModalCrearJac

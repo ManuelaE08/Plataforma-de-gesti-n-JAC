@@ -34,6 +34,16 @@ function Analiticas() {
         description="Consulte métricas clave, distribución territorial y niveles de riesgo"
       />
 
+      {/* Aviso de módulo en desarrollo */}
+      <div className="flex items-start gap-3 rounded-lg px-4 py-3 border bg-amber-50 text-amber-800 border-amber-200 dark:bg-amber-900/20 dark:text-amber-300 dark:border-amber-800">
+        <TriangleAlert size={18} className="shrink-0 mt-0.5" />
+        <p className="text-base">
+          <span className="font-semibold">Módulo en desarrollo.</span> Esta sección aún se encuentra en
+          construcción y la información que está viendo es de demostración, <span className="font-semibold">no
+          corresponde a datos reales</span>.
+        </p>
+      </div>
+
       {/* Contenedor de Filtros */}
       <div className={`${card} p-4`}>
         {/* Label de sección adaptado a 'text-sm font-semibold uppercase' */}
