@@ -1,197 +1,175 @@
-import { useMemo, useState } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
+import { JACService } from "../modules/jac/services/jacService";
+import type {
+  AlertaCategoria,
+  AlertasResumen,
+  AlertaJacItem,
+  AlertasJacPage,
+} from "../modules/jac/types";
 
-export type NivelAlerta = "Alta" | "Media" | "Baja";
-export type EstadoAlerta = "Activa" | "En seguimiento" | "Resuelta";
-export type TipoAlerta = | "Documental" | "Organizativa" | "Aprobación" | "Inactividad";
+/** Severidad visual de cada categoría, para pintar tarjetas y badges. */
+export type AlertaSeveridad = "critica" | "alta" | "media" | "info";
 
-export interface AlertaItem {
-  id: number;
-  entidad: string;
-  tipoEntidad: "JAC" | "Asocomunal";
-  municipio: string;
-  tipo: TipoAlerta;
-  nivel: NivelAlerta;
-  estado: EstadoAlerta;
-  fecha: string;
+export interface CategoriaMeta {
+  categoria: AlertaCategoria;
+  titulo: string;
   descripcion: string;
+  severidad: AlertaSeveridad;
 }
 
-interface AlertasFilters {
-  busqueda: string;
-  municipio: string;
-  tipo: string;
-  nivel: string;
-  estado: string;
-}
-
-const initialFilters: AlertasFilters = {
-  busqueda: "",
-  municipio: "",
-  tipo: "",
-  nivel: "",
-  estado: "",
-};
-
-const alertasData: AlertaItem[] = [
+/**
+ * Metadatos de cada categoría de alerta. El orden define cómo se muestran:
+ * primero lo más crítico (riesgo de pérdida de personería), luego lo documental.
+ */
+export const categoriasAlerta: CategoriaMeta[] = [
   {
-    id: 1,
-    entidad: "JAC Vereda El Porvenir",
-    tipoEntidad: "JAC",
-    municipio: "Piendamó",
-    tipo: "Documental",
-    nivel: "Alta",
-    estado: "Activa",
-    fecha: "2026-03-29",
-    descripcion: "Documentación vencida y sin actualización reciente.",
+    categoria: "riesgo_activa",
+    titulo: "Activas en riesgo",
+    descripcion: "Activas pero por debajo del mínimo legal de afiliados. Pueden perder su condición de activa.",
+    severidad: "critica",
   },
   {
-    id: 2,
-    entidad: "Asocomunal Timbío",
-    tipoEntidad: "Asocomunal",
-    municipio: "Timbío",
-    tipo: "Organizativa",
-    nivel: "Media",
-    estado: "En seguimiento",
-    fecha: "2026-03-28",
-    descripcion: "Disminución en actividad organizativa reportada.",
+    categoria: "riesgo_inactiva",
+    titulo: "Inactivas por afiliados",
+    descripcion: "Inactivas que no alcanzan el mínimo legal de afiliados para activarse.",
+    severidad: "alta",
   },
   {
-    id: 3,
-    entidad: "JAC Barrio Centro",
-    tipoEntidad: "JAC",
-    municipio: "Timbío",
-    tipo: "Aprobación",
-    nivel: "Baja",
-    estado: "Activa",
-    fecha: "2026-03-27",
-    descripcion: "Pendiente validación final del proceso de aprobación.",
+    categoria: "sin_ruc",
+    titulo: "Sin número de RUC",
+    descripcion: "JAC sin Registro Único Comunal registrado.",
+    severidad: "media",
   },
   {
-    id: 4,
-    entidad: "JAC La Esmeralda",
-    tipoEntidad: "JAC",
-    municipio: "Popayán",
-    tipo: "Inactividad",
-    nivel: "Media",
-    estado: "Activa",
-    fecha: "2026-03-26",
-    descripcion: "Sin novedades registradas en el último periodo.",
+    categoria: "sin_ruc_nit",
+    titulo: "Sin RUC ni NIT",
+    descripcion: "JAC que no tienen ni RUC ni NIT. Prioridad de formalización.",
+    severidad: "alta",
   },
   {
-    id: 5,
-    entidad: "Asocomunal Norte del Cauca",
-    tipoEntidad: "Asocomunal",
-    municipio: "Santander",
-    tipo: "Documental",
-    nivel: "Alta",
-    estado: "En seguimiento",
-    fecha: "2026-03-24",
-    descripcion: "Soportes vencidos y observaciones sin subsanar.",
-  },
-  {
-    id: 6,
-    entidad: "JAC Los Pinos",
-    tipoEntidad: "JAC",
-    municipio: "Patía",
-    tipo: "Organizativa",
-    nivel: "Baja",
-    estado: "Resuelta",
-    fecha: "2026-03-21",
-    descripcion: "Se normalizó el estado organizativo tras revisión.",
+    categoria: "sin_nit",
+    titulo: "Sin NIT",
+    descripcion: "JAC sin NIT registrado (la mayoría del directorio).",
+    severidad: "info",
   },
 ];
 
-export const columns: string[] = [
-  "Entidad",
-  "Tipo",
-  "Municipio",
-  "Categoría",
-  "Nivel",
-  "Estado",
-  "Fecha",
-  "Acciones",
-];
-
-export const nivelVariant: Record<NivelAlerta, "red" | "amber" | "green"> = {
-  Alta: "red",
-  Media: "amber",
-  Baja: "green",
-};
-
-export const estadoVariant: Record<EstadoAlerta, "red" | "blue" | "green"> = {
-  Activa: "red",
-  "En seguimiento": "blue",
-  Resuelta: "green",
-};
+const PAGE_SIZE = 10;
 
 export function useAlertas() {
-  const [filters, setFilters] = useState<AlertasFilters>(initialFilters);
-  const [appliedFilters, setAppliedFilters] =
-    useState<AlertasFilters>(initialFilters);
+  // ── Resumen (conteos agregados) ──────────────────────────────────────────
+  const [resumen, setResumen] = useState<AlertasResumen | null>(null);
+  const [loadingResumen, setLoadingResumen] = useState(true);
+  const [errorResumen, setErrorResumen] = useState<string | null>(null);
 
-  const resumen = useMemo(() => {
-    const activas = alertasData.filter((item) => item.estado === "Activa").length;
-    const seguimiento = alertasData.filter(
-      (item) => item.estado === "En seguimiento"
-    ).length;
-    const altas = alertasData.filter((item) => item.nivel === "Alta").length;
-
-    return { activas, seguimiento, altas };
+  const fetchResumen = useCallback(async () => {
+    setLoadingResumen(true);
+    setErrorResumen(null);
+    try {
+      const data = await JACService.getAlertasResumen();
+      setResumen(data);
+    } catch (err) {
+      setErrorResumen(err instanceof Error ? err.message : "Error al cargar el resumen de alertas");
+    } finally {
+      setLoadingResumen(false);
+    }
   }, []);
 
-  const filtered = useMemo(() => {
-    return alertasData.filter((item) => {
-      const matchBusqueda =
-        !appliedFilters.busqueda ||
-        [item.entidad, item.municipio, item.tipo].some((value) =>
-          value.toLowerCase().includes(appliedFilters.busqueda.toLowerCase())
-        );
+  useEffect(() => {
+    fetchResumen();
+  }, [fetchResumen]);
 
-      const matchMunicipio =
-        !appliedFilters.municipio || item.municipio === appliedFilters.municipio;
+  // ── Detalle de una categoría (bajo demanda, paginado) ──────────────────────
+  const [categoriaAbierta, setCategoriaAbierta] = useState<AlertaCategoria | null>(null);
+  const [page, setPage] = useState(1);
+  const [busqueda, setBusqueda] = useState("");
+  const [debouncedBusqueda, setDebouncedBusqueda] = useState("");
+  const [detalle, setDetalle] = useState<AlertasJacPage | null>(null);
+  const [loadingDetalle, setLoadingDetalle] = useState(false);
+  const [errorDetalle, setErrorDetalle] = useState<string | null>(null);
+  const debounceRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 
-      const matchTipo = !appliedFilters.tipo || item.tipo === appliedFilters.tipo;
+  // Debounce del buscador del detalle.
+  useEffect(() => {
+    if (debounceRef.current) clearTimeout(debounceRef.current);
+    debounceRef.current = setTimeout(() => {
+      setDebouncedBusqueda(busqueda);
+      setPage(1);
+    }, 350);
+    return () => { if (debounceRef.current) clearTimeout(debounceRef.current); };
+  }, [busqueda]);
 
-      const matchNivel =
-        !appliedFilters.nivel || item.nivel === appliedFilters.nivel;
+  // Carga el detalle cuando hay categoría abierta, cambia la página o la búsqueda.
+  useEffect(() => {
+    if (!categoriaAbierta) {
+      setDetalle(null);
+      return;
+    }
+    let cancelled = false;
+    setLoadingDetalle(true);
+    setErrorDetalle(null);
 
-      const matchEstado =
-        !appliedFilters.estado || item.estado === appliedFilters.estado;
+    JACService.getAlertasJacs({
+      categoria: categoriaAbierta,
+      page,
+      limit: PAGE_SIZE,
+      busqueda: debouncedBusqueda || undefined,
+    })
+      .then((data) => { if (!cancelled) setDetalle(data); })
+      .catch((err) => { if (!cancelled) setErrorDetalle(err instanceof Error ? err.message : "Error al cargar el detalle"); })
+      .finally(() => { if (!cancelled) setLoadingDetalle(false); });
 
-      return (
-        matchBusqueda &&
-        matchMunicipio &&
-        matchTipo &&
-        matchNivel &&
-        matchEstado
-      );
-    });
-  }, [appliedFilters]);
+    return () => { cancelled = true; };
+  }, [categoriaAbierta, page, debouncedBusqueda]);
 
-  const handleSearch = () => {
-    setAppliedFilters(filters);
-  };
+  const abrirCategoria = useCallback((categoria: AlertaCategoria) => {
+    setCategoriaAbierta((prev) => (prev === categoria ? prev : categoria));
+    setPage(1);
+    setBusqueda("");
+    setDebouncedBusqueda("");
+  }, []);
 
-  const handleClear = () => {
-    setFilters(initialFilters);
-    setAppliedFilters(initialFilters);
-  };
+  const cerrarCategoria = useCallback(() => {
+    setCategoriaAbierta(null);
+    setDetalle(null);
+    setBusqueda("");
+    setDebouncedBusqueda("");
+    setPage(1);
+  }, []);
+
+  /** Devuelve el conteo de una categoría a partir del resumen ya cargado. */
+  const conteoDe = useCallback((categoria: AlertaCategoria): number => {
+    if (!resumen) return 0;
+    switch (categoria) {
+      case "riesgo_activa":   return resumen.riesgoActiva;
+      case "riesgo_inactiva": return resumen.riesgoInactiva;
+      case "sin_ruc":         return resumen.sinRuc;
+      case "sin_nit":         return resumen.sinNit;
+      case "sin_ruc_nit":     return resumen.sinRucNit;
+    }
+  }, [resumen]);
 
   return {
-    filters,
-    filtered,
+    // resumen
     resumen,
-    handleSearch,
-    handleClear,
-    setBusqueda: (value: string) =>
-      setFilters((prev) => ({ ...prev, busqueda: value })),
-    setMunicipio: (value: string) =>
-      setFilters((prev) => ({ ...prev, municipio: value })),
-    setTipo: (value: string) =>
-      setFilters((prev) => ({ ...prev, tipo: value })),
-    setNivel: (value: string) =>
-      setFilters((prev) => ({ ...prev, nivel: value })),
-    setEstado: (value: string) =>
-      setFilters((prev) => ({ ...prev, estado: value })),
+    loadingResumen,
+    errorResumen,
+    refetchResumen: fetchResumen,
+    conteoDe,
+    categorias: categoriasAlerta,
+    // detalle
+    categoriaAbierta,
+    abrirCategoria,
+    cerrarCategoria,
+    detalle,
+    loadingDetalle,
+    errorDetalle,
+    page,
+    setPage,
+    busqueda,
+    setBusqueda,
+    pageSize: PAGE_SIZE,
   };
 }
+
+export type { AlertaCategoria, AlertaJacItem };

@@ -1,4 +1,7 @@
-import type { JacItem, JacListItem, JacPublicItem, CreateJACDto, UpdateJACDto, SearchJACDto } from "../types";
+import type {
+  JacItem, JacListItem, JacPublicItem, CreateJACDto, UpdateJACDto, SearchJACDto,
+  AlertasResumen, AlertasJacPage, AlertasQuery,
+} from "../types";
 import { JACAdapter } from "../adapters/jac.adapter";
 
 const baseEndpoint = import.meta.env.VITE_API_BASE_URL?.replace(/\/$/, "");
@@ -169,6 +172,39 @@ export class JACService {
       credentials: "include",
     });
     return handleResponse<PublicStats>(res);
+  }
+
+  /**
+   * GET /jacs/alertas/resumen — Conteos agregados de cada categoría de alerta.
+   * Una sola llamada barata (COUNT en backend); no descarga filas.
+   */
+  static async getAlertasResumen(): Promise<AlertasResumen> {
+    const res = await fetch(`${base()}/alertas/resumen`, {
+      method: "GET",
+      headers: defaultHeaders,
+      credentials: "include",
+    });
+    return handleResponse<AlertasResumen>(res);
+  }
+
+  /**
+   * GET /jacs/alertas?categoria=&page=&limit=&busqueda=
+   * Detalle paginado de las JAC de una categoría de alerta. Se invoca solo
+   * cuando el usuario abre una tarjeta; nunca se trae todo de golpe.
+   */
+  static async getAlertasJacs(query: AlertasQuery): Promise<AlertasJacPage> {
+    const params = new URLSearchParams();
+    params.set("categoria", query.categoria);
+    params.set("page",  String(query.page  ?? 1));
+    params.set("limit", String(query.limit ?? 10));
+    if (query.busqueda?.trim()) params.set("busqueda", query.busqueda.trim().toLowerCase());
+
+    const res = await fetch(`${base()}/alertas?${params.toString()}`, {
+      method: "GET",
+      headers: defaultHeaders,
+      credentials: "include",
+    });
+    return handleResponse<AlertasJacPage>(res);
   }
 }
 

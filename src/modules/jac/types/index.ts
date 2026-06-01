@@ -114,6 +114,70 @@ export interface SearchJACDto {
   limite?: number;
 }
 
+// ── Alertas y riesgo organizativo ─────────────────────────────────────────────
+
+/**
+ * Categorías de alerta que el backend puede contar y listar.
+ * - `riesgo_activa`   → afiliados < mínimo legal Y estado Activa (CRÍTICO, rojo).
+ * - `riesgo_inactiva` → afiliados < mínimo legal Y estado Inactiva (naranja).
+ * - `sin_ruc`         → sin número de RUC registrado.
+ * - `sin_nit`         → sin NIT registrado.
+ * - `sin_ruc_nit`     → sin RUC y sin NIT a la vez.
+ */
+export type AlertaCategoria =
+  | "riesgo_activa"
+  | "riesgo_inactiva"
+  | "sin_ruc"
+  | "sin_nit"
+  | "sin_ruc_nit";
+
+/**
+ * Conteos agregados de cada categoría de alerta. Es lo único que se pide al
+ * cargar la pantalla: una sola llamada barata (COUNT en el backend), sin traer
+ * las filas. Evita descargar miles de JAC (sobre todo "sin NIT", que son todas).
+ */
+export interface AlertasResumen {
+  riesgoActiva: number;
+  riesgoInactiva: number;
+  sinRuc: number;
+  sinNit: number;
+  sinRucNit: number;
+  /** Total de JAC en el sistema, para dar contexto a los porcentajes. */
+  totalJacs: number;
+}
+
+/** Fila de detalle de una JAC en alerta (se pide solo bajo demanda y paginada). */
+export interface AlertaJacItem {
+  id: number;
+  nombre: string;
+  municipio: string;
+  barrio: string;
+  tipo: TipoJac;
+  afiliados: number;
+  minimoAfiliados: number;
+  estado: EstadoOrganizativo;
+  numeroRUC: string | null;
+  nit: string | null;
+}
+
+/** Respuesta paginada del detalle de una categoría de alerta. */
+export interface AlertasJacPage {
+  items: AlertaJacItem[];
+  total: number;
+  page: number;
+  limit: number;
+  totalPages: number;
+}
+
+/** Parámetros para pedir el detalle paginado de una categoría. */
+export interface AlertasQuery {
+  categoria: AlertaCategoria;
+  page?: number;
+  limit?: number;
+  /** Búsqueda libre por nombre o municipio (filtra en el backend). */
+  busqueda?: string;
+}
+
 // ── Filtros del hook ──────────────────────────────────────────────────────────
 
 export interface JACFilters {
