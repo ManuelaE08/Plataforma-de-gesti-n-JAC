@@ -43,6 +43,8 @@ interface FormState {
   nombreCompleto: string;
   nombreCorto: string;
   numeroRUC: string;
+  nit: string;
+  numeroPersoneriaJuridica: string;
 }
 
 const initialForm: FormState = {
@@ -51,7 +53,17 @@ const initialForm: FormState = {
   nombreCompleto: "",
   nombreCorto: "",
   numeroRUC: "",
+  nit: "",
+  numeroPersoneriaJuridica: "",
 };
+
+const MAX = {
+  nombreCompleto: 100,
+  nombreCorto: 100,
+  numeroRUC: 30,
+  nit: 30,
+  numeroPersoneriaJuridica: 50,
+} as const;
 
 export function ModalCrearJac({ onClose, onSave }: ModalCrearJacProps) {
   const { user } = useAuth();
@@ -72,9 +84,26 @@ export function ModalCrearJac({ onClose, onSave }: ModalCrearJacProps) {
     const e: Record<string, string> = {};
     if (!form.asocomunalId) e.asocomunalId = "La Asocomunal responsable es obligatoria";
     if (!form.tipo) e.tipo = "Seleccione el tipo (barrio o vereda)";
-    if (!form.nombreCompleto.trim()) e.nombreCompleto = "El nombre completo es obligatorio";
-    else if (form.nombreCompleto.trim().length < 3)
+
+    const nombreCompleto = form.nombreCompleto.trim();
+    if (!nombreCompleto) e.nombreCompleto = "El nombre completo es obligatorio";
+    else if (nombreCompleto.length < 3)
       e.nombreCompleto = "El nombre completo debe tener al menos 3 caracteres";
+    else if (nombreCompleto.length > MAX.nombreCompleto)
+      e.nombreCompleto = `El nombre completo no puede superar ${MAX.nombreCompleto} caracteres`;
+
+    if (form.nombreCorto.trim().length > MAX.nombreCorto)
+      e.nombreCorto = `El nombre corto no puede superar ${MAX.nombreCorto} caracteres`;
+    if (form.numeroRUC.trim().length > MAX.numeroRUC)
+      e.numeroRUC = `El número de RUC no puede superar ${MAX.numeroRUC} caracteres`;
+    if (form.nit.trim().length > MAX.nit)
+      e.nit = `El NIT no puede superar ${MAX.nit} caracteres`;
+    const numeroPersoneria = form.numeroPersoneriaJuridica.trim();
+    if (!numeroPersoneria)
+      e.numeroPersoneriaJuridica = "El número de personería jurídica es obligatorio";
+    else if (numeroPersoneria.length > MAX.numeroPersoneriaJuridica)
+      e.numeroPersoneriaJuridica = `El número de personería jurídica no puede superar ${MAX.numeroPersoneriaJuridica} caracteres`;
+
     return e;
   }
 
@@ -100,6 +129,8 @@ export function ModalCrearJac({ onClose, onSave }: ModalCrearJacProps) {
             <li><b>Asocomunal:</b> ${escapeHtml(aso?.nombre ?? "—")}${aso?.municipioNombre ? ` (${escapeHtml(aso.municipioNombre)})` : ""}</li>
             ${form.nombreCorto.trim() ? `<li><b>Nombre corto:</b> ${escapeHtml(form.nombreCorto.trim())}</li>` : ""}
             ${form.numeroRUC.trim() ? `<li><b>Número RUC:</b> ${escapeHtml(form.numeroRUC.trim())}</li>` : "<li><b>Número RUC:</b> <i>no registrado</i></li>"}
+            ${form.nit.trim() ? `<li><b>NIT:</b> ${escapeHtml(form.nit.trim())}</li>` : ""}
+            ${form.numeroPersoneriaJuridica.trim() ? `<li><b>Personería jurídica:</b> ${escapeHtml(form.numeroPersoneriaJuridica.trim())}</li>` : ""}
           </ul>
           <p style="margin-top:12px; color:#92400e;">
             La JAC se creará con estado <b>Inactiva</b>. Pasará a <b>Activa</b>
@@ -124,6 +155,8 @@ export function ModalCrearJac({ onClose, onSave }: ModalCrearJacProps) {
       nombreCompleto: form.nombreCompleto.trim(),
       ...(form.nombreCorto.trim() ? { nombreCorto: form.nombreCorto.trim() } : {}),
       ...(form.numeroRUC.trim() ? { numeroRUC: form.numeroRUC.trim() } : {}),
+      ...(form.nit.trim() ? { nit: form.nit.trim() } : {}),
+      numeroPersoneriaJuridica: form.numeroPersoneriaJuridica.trim(),
     };
 
     // Enriquecer el payload con el nombre de la asocomunal para auditoría
@@ -250,8 +283,8 @@ export function ModalCrearJac({ onClose, onSave }: ModalCrearJacProps) {
               className={selectCls(!!errors.tipo)}
             >
               <option value="">Seleccione el tipo...</option>
-              <option value="barrio">Barrio (mínimo 38 afiliados)</option>
-              <option value="vereda">Vereda (mínimo 10 afiliados)</option>
+              <option value="barrio">Barrio (mínimo 50 afiliados)</option>
+              <option value="vereda">Vereda (mínimo 20 afiliados)</option>
             </select>
             {errors.tipo && <p className="text-xs text-red-500 dark:text-red-400">{errors.tipo}</p>}
           </div>
@@ -281,8 +314,10 @@ export function ModalCrearJac({ onClose, onSave }: ModalCrearJacProps) {
               value={form.nombreCorto}
               onChange={(e) => setField("nombreCorto", e.target.value)}
               placeholder="JAC El Pino"
-              className={inputCls(false)}
+              maxLength={MAX.nombreCorto}
+              className={inputCls(!!errors.nombreCorto)}
             />
+            {errors.nombreCorto && <p className="text-xs text-red-500 dark:text-red-400">{errors.nombreCorto}</p>}
           </div>
 
           {/* RUC — opcional */}
@@ -295,8 +330,43 @@ export function ModalCrearJac({ onClose, onSave }: ModalCrearJacProps) {
               value={form.numeroRUC}
               onChange={(e) => setField("numeroRUC", e.target.value)}
               placeholder="Sin registrar"
-              className={inputCls(false)}
+              maxLength={MAX.numeroRUC}
+              className={inputCls(!!errors.numeroRUC)}
             />
+            {errors.numeroRUC && <p className="text-xs text-red-500 dark:text-red-400">{errors.numeroRUC}</p>}
+          </div>
+
+          {/* NIT — opcional */}
+          <div className="flex flex-col gap-1">
+            <label className="text-xs font-medium text-gray-600 dark:text-gray-400">
+              NIT <span className="text-gray-400 font-normal">(opcional)</span>
+            </label>
+            <input
+              type="text"
+              value={form.nit}
+              onChange={(e) => setField("nit", e.target.value)}
+              placeholder="Sin registrar"
+              maxLength={MAX.nit}
+              className={inputCls(!!errors.nit)}
+            />
+            {errors.nit && <p className="text-xs text-red-500 dark:text-red-400">{errors.nit}</p>}
+          </div>
+
+          {/* Personería jurídica — opcional */}
+          <div className="flex flex-col gap-1">
+            <label className="text-xs font-medium text-gray-600 dark:text-gray-400">
+              Número de personería jurídica <span className="text-red-500">*</span>
+            </label>
+            <input
+              type="text"
+              value={form.numeroPersoneriaJuridica}
+              onChange={(e) => setField("numeroPersoneriaJuridica", e.target.value)}
+              placeholder="Sin registrar"
+              maxLength={MAX.numeroPersoneriaJuridica}
+              required
+              className={inputCls(!!errors.numeroPersoneriaJuridica)}
+            />
+            {errors.numeroPersoneriaJuridica && <p className="text-xs text-red-500 dark:text-red-400">{errors.numeroPersoneriaJuridica}</p>}
           </div>
 
           <div className="flex items-center justify-end gap-3 pt-2 border-t border-gray-100 dark:border-gray-700 mt-1">
