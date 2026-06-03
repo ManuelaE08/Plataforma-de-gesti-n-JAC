@@ -1,6 +1,6 @@
 import { Plus, RotateCcw, Ellipsis, Edit, Pencil, Info } from "lucide-react";
 import { useState, useEffect } from "react";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useSearchParams } from "react-router-dom";
 import Swal from "sweetalert2";
 import "sweetalert2/dist/sweetalert2.min.css";
 import PageHeader from "../components/ui/PageHeader";
@@ -29,10 +29,13 @@ const selectCls = "appearance-none w-full bg-white dark:bg-gray-900 border borde
 const inputCls = "w-full bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-600 text-base text-gray-600 dark:text-gray-300 placeholder:text-gray-400 dark:placeholder:text-gray-500 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-[#1B7F4B]/30 focus:border-[#1B7F4B] transition-all";
 
 function Jac() {
+  const [searchParams] = useSearchParams();
+  const municipioParam = searchParams.get("municipio") ?? "";
+
   const {
     filters, filtered, loading, error, refetch, handleClear, totalLoaded,
     setBusqueda, setMunicipio, setEstado, setMinAfiliados, setLimite, setDocumental,
-  } = useJac();
+  } = useJac(municipioParam);
 
   const navigate = useNavigate();
   const { user } = useAuth();
