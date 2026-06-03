@@ -5,6 +5,7 @@ import { AuthProvider } from "./context/AuthContext";
 import { TemaProvider } from "./context/TemaContext";
 import App from "./App";
 import "./index.css";
+import "leaflet/dist/leaflet.css";
 
 const rootElement = document.getElementById("root");
 
