@@ -8,7 +8,7 @@ import MunicipioSearch from "../components/MunicipioSearch";
 import PopInNumber from "../components/transitions/PopInNumber";
 import RevealText from "../components/transitions/RevealText";
 import HoverSpringGroup from "../components/transitions/HoverSpringGroup";
-import { JACService, type PublicStats } from "../modules/jac/services/jacService";
+import { JACService, type PublicStats, type EstadosJacResumen } from "../modules/jac/services/jacService";
 import type { JacListItem } from "../modules/jac/types";
 
 const EMPTY_STATS: PublicStats = {
@@ -66,6 +66,7 @@ function DashboardUsuario() {
 
   const [stats, setStats] = useState<PublicStats | null>(null);
   const [jacs, setJacs] = useState<JacListItem[]>([]);
+  const [estados, setEstados] = useState<EstadosJacResumen | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
@@ -77,10 +78,12 @@ function DashboardUsuario() {
     let active = true;
     const fetchData = async () => {
       try {
-        // Las estadísticas son críticas; el listado para el mapa es opcional.
-        const [statsResult, jacsResult] = await Promise.allSettled([
+        // Las estadísticas son críticas; el listado (mapa) y el resumen de
+        // estados son opcionales y degradan con elegancia si fallan.
+        const [statsResult, jacsResult, estadosResult] = await Promise.allSettled([
           JACService.getPublicStats(),
           JACService.findAllPublic(2000),
+          JACService.getEstadosResumen(),
         ]);
 
         if (!active) return;
@@ -91,6 +94,9 @@ function DashboardUsuario() {
         setStats(statsResult.value);
         if (jacsResult.status === "fulfilled") {
           setJacs(jacsResult.value);
+        }
+        if (estadosResult.status === "fulfilled") {
+          setEstados(estadosResult.value);
         }
         setLoading(false);
       } catch (err) {
@@ -120,16 +126,26 @@ function DashboardUsuario() {
     };
   }, [loading, error, stats]);
 
-  // Conteo de estados a partir del listado público (para el donut de estado).
-  const estadoCounts = useMemo(() => {
-    const counts = { activa: 0, inactiva: 0, cancelada: 0 };
+  // Conteo de estados: usa el endpoint dedicado si está disponible; si no,
+  // cae al cálculo desde el listado público (que puede traer solo activas).
+  const estadoData = useMemo(() => {
+    if (estados) {
+      return {
+        activa: estados.activa,
+        inactiva: estados.inactiva,
+        cancelada: estados.cancelada,
+        total: estados.total,
+      };
+    }
+    const counts = { activa: 0, inactiva: 0, cancelada: 0, total: 0 };
     for (const j of jacs) {
       if (j.organizativo === "Activa") counts.activa++;
       else if (j.organizativo === "Inactiva") counts.inactiva++;
       else if (j.organizativo === "Cancelada") counts.cancelada++;
     }
+    counts.total = counts.activa + counts.inactiva + counts.cancelada;
     return counts;
-  }, [jacs]);
+  }, [estados, jacs]);
 
   // Municipios únicos para el buscador (nombres tal cual los devuelve el backend).
   const municipios = useMemo(() => {
@@ -237,14 +253,16 @@ function DashboardUsuario() {
 
             {/* Fila 1: Mapa + Distribución Urbano / Rural */}
             <section className="mt-4 grid grid-cols-1 gap-6 lg:grid-cols-[1.4fr_1fr]">
-              <CaucaMapGeoJSON jacs={jacs} onSelect={goToMunicipio} />
+              {/* key fuerza el remontaje cuando llegan los datos para que
+                  Leaflet recalcule conteos/tooltips (se montan una sola vez). */}
+              <CaucaMapGeoJSON key={jacs.length} jacs={jacs} onSelect={goToMunicipio} />
               <SegmentedDonut
                 title="Distribución Urbano / Rural"
                 subtitle="Origen de las JAC activas"
                 badge={`${data.activeJacsCount} JAC`}
                 segments={[
-                  { label: "Urbanas", value: data.urbanCount, color: "#1B7F4B" },
-                  { label: "Rurales", value: data.ruralCount, color: "#34D399" },
+                  { label: "Urbanas", value: data.urbanCount, color: "#34D399" },
+                  { label: "Rurales", value: data.ruralCount, color: "#A7F3D0" },
                 ]}
               />
             </section>
@@ -255,11 +273,11 @@ function DashboardUsuario() {
               <SegmentedDonut
                 title="Estado de las JAC"
                 subtitle="Activas, inactivas y canceladas"
-                badge={`${jacs.length} JAC`}
+                badge={`${estadoData.total} JAC`}
                 segments={[
-                  { label: "Activas", value: estadoCounts.activa, color: "#1B7F4B" },
-                  { label: "Inactivas", value: estadoCounts.inactiva, color: "#F59E0B" },
-                  { label: "Canceladas", value: estadoCounts.cancelada, color: "#EF4444" },
+                  { label: "Activas", value: estadoData.activa, color: "#4ADE80" },
+                  { label: "Inactivas", value: estadoData.inactiva, color: "#FBBF24" },
+                  { label: "Canceladas", value: estadoData.cancelada, color: "#F87171" },
                 ]}
               />
             </section>

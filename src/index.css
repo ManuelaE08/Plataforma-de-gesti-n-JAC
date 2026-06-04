@@ -250,6 +250,18 @@ input, button, textarea, select {
   .t-skel-skeleton.is-pulsing > * { animation: none !important; }
 }
 
+/* Attention pulse — anillo pulsante para destacar la tarjeta del dashboard */
+@keyframes attention-pulse {
+  0%, 100% { box-shadow: 0 0 0 0 rgba(27, 127, 75, 0.45); }
+  50%      { box-shadow: 0 0 0 12px rgba(27, 127, 75, 0); }
+}
+.attention-pulse {
+  animation: attention-pulse 2.2s ease-out infinite;
+}
+@media (prefers-reduced-motion: reduce) {
+  .attention-pulse { animation: none !important; }
+}
+
 /* Avatar group hover (#11) */
 .t-avatar {
   transform-origin: center;

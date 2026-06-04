@@ -17,7 +17,7 @@ import {
 interface LayoutProps { children: ReactNode; }
 
 const iconMap: Record<string, React.ElementType> = {
-  "/": LayoutDashboard, "/jac": Building2, "/asocomunales": Users,
+  "/": LayoutDashboard, "/inicio": LayoutDashboard, "/jac": Building2, "/asocomunales": Users,
   "/analiticas": BarChart2, "/alertas": AlertTriangle, "/reportes": FileText,
   "/solicitudes": GitPullRequest, "/mis-solicitudes": GitPullRequest,
   "/migracion": Upload, "/usuarios": UserCog, "/configuracion": Settings,

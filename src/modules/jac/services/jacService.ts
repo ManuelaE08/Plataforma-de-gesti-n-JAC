@@ -175,6 +175,19 @@ export class JACService {
   }
 
   /**
+   * GET /jacs/public/estados/resumen — Conteo público de JAC por estado
+   * organizativo (activa / inactiva / cancelada). Endpoint barato (COUNT en
+   * backend); no descarga filas. Público, sin autenticación.
+   */
+  static async getEstadosResumen(): Promise<EstadosJacResumen> {
+    const res = await fetch(`${base()}/public/estados/resumen`, {
+      method: "GET",
+      headers: defaultHeaders,
+    });
+    return handleResponse<EstadosJacResumen>(res);
+  }
+
+  /**
    * GET /jacs/alertas/resumen — Conteos agregados de cada categoría de alerta.
    * Una sola llamada barata (COUNT en backend); no descarga filas.
    */
@@ -216,4 +229,12 @@ export interface PublicStats {
   ruralCount: number;
   totalAsocomunales: number;
   topMunicipios: Array<{ municipio: string; count: number }>;
+}
+
+/** Conteo de JAC por estado organizativo (salida de GET /jacs/public/estados/resumen). */
+export interface EstadosJacResumen {
+  activa: number;
+  inactiva: number;
+  cancelada: number;
+  total: number;
 }

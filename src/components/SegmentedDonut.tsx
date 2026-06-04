@@ -1,7 +1,7 @@
 export interface DonutSegment {
   label: string;
   value: number;
-  /** Color del arco (hex). */
+  /** Color del arco (hex). Conviene un tono claro para que el % en negro sea legible. */
   color: string;
 }
 
@@ -13,16 +13,16 @@ interface SegmentedDonutProps {
   badge?: string;
 }
 
-const SIZE = 220;
+const SIZE = 240;
 const CENTER = SIZE / 2;
-const RADIUS = 78;
-const STROKE = 22;
-const GAP = 30; // separación (en unidades de longitud) entre segmentos
+const RADIUS = 80;
+const STROKE = 40; // aro más grueso: el % cabe holgado dentro de la rebanada
+const GAP = 48; // separación (en unidades de longitud) entre segmentos
 const CIRC = 2 * Math.PI * RADIUS;
 
 /**
  * Donut segmentado con gaps redondeados, porcentaje sobre cada arco y
- * leyenda inferior — estilo "Traffic by channel".
+ * leyenda inferior. Estilo inspirado en tarjetas de "breakdown" de dashboards.
  */
 function SegmentedDonut({ title, subtitle, segments, badge }: SegmentedDonutProps) {
   const total = segments.reduce((sum, s) => sum + s.value, 0);
@@ -49,7 +49,7 @@ function SegmentedDonut({ title, subtitle, segments, badge }: SegmentedDonutProp
     <div className="rounded-2xl border border-slate-200 dark:border-gray-700 bg-white dark:bg-gray-800 shadow-sm p-6 flex flex-col h-full">
       <div className="flex items-start justify-between gap-3">
         <div>
-          <p className="text-lg font-bold text-slate-900 dark:text-white">{title}</p>
+          <p className="text-lg font-bold tracking-tight text-slate-900 dark:text-white">{title}</p>
           {subtitle && (
             <p className="mt-1 text-sm text-slate-500 dark:text-slate-400">{subtitle}</p>
           )}
@@ -61,8 +61,13 @@ function SegmentedDonut({ title, subtitle, segments, badge }: SegmentedDonutProp
         )}
       </div>
 
-      <div className="flex flex-1 items-center justify-center my-4">
-        <svg viewBox={`0 0 ${SIZE} ${SIZE}`} className="h-[240px] w-[240px] sm:h-[260px] sm:w-[260px]">
+      <div className="flex flex-1 items-center justify-center my-2">
+        <svg
+          viewBox={`0 0 ${SIZE} ${SIZE}`}
+          className="h-[250px] w-[250px] sm:h-[270px] sm:w-[270px]"
+          role="img"
+          aria-label={title}
+        >
           {/* Pista de fondo */}
           <circle
             cx={CENTER}
@@ -70,7 +75,7 @@ function SegmentedDonut({ title, subtitle, segments, badge }: SegmentedDonutProp
             r={RADIUS}
             fill="none"
             strokeWidth={STROKE}
-            className="stroke-slate-100 dark:stroke-gray-700/60"
+            className="stroke-slate-100 dark:stroke-gray-700/50"
           />
 
           {/* Segmentos */}
@@ -87,12 +92,12 @@ function SegmentedDonut({ title, subtitle, segments, badge }: SegmentedDonutProp
                 strokeLinecap="round"
                 strokeDasharray={arc.dashArray}
                 strokeDashoffset={arc.dashOffset}
-                className="transition-all duration-700"
+                className="transition-all duration-700 ease-out"
               />
             ))}
           </g>
 
-          {/* Porcentajes sobre cada arco */}
+          {/* Porcentajes sobre cada arco (en negro, segmentos claros) */}
           {arcs.map((arc) =>
             arc.fraction >= 0.05 ? (
               <text
@@ -101,7 +106,7 @@ function SegmentedDonut({ title, subtitle, segments, badge }: SegmentedDonutProp
                 y={arc.labelY}
                 textAnchor="middle"
                 dominantBaseline="central"
-                className="text-[15px] font-extrabold"
+                className="text-[16px] font-extrabold tabular-nums"
                 fill="#000000"
               >
                 {Math.round(arc.fraction * 100)}%
@@ -111,12 +116,19 @@ function SegmentedDonut({ title, subtitle, segments, badge }: SegmentedDonutProp
         </svg>
       </div>
 
-      <div className="flex flex-wrap items-center justify-center gap-x-5 gap-y-2">
+      <div className="mt-2 flex flex-wrap items-center justify-center gap-x-6 gap-y-2.5">
         {segments.map((seg) => (
           <div key={seg.label} className="flex items-center gap-2">
-            <span className="inline-block h-3 w-3 rounded" style={{ backgroundColor: seg.color }} />
-            <span className="text-sm font-semibold text-slate-700 dark:text-slate-300">{seg.label}</span>
-            <span className="text-sm font-bold text-slate-400 dark:text-slate-500">{seg.value}</span>
+            <span
+              className="inline-block h-2.5 w-2.5 rounded-[3px]"
+              style={{ backgroundColor: seg.color }}
+            />
+            <span className="text-sm font-semibold text-slate-600 dark:text-slate-300">
+              {seg.label}
+            </span>
+            <span className="text-sm font-bold tabular-nums text-slate-900 dark:text-white">
+              {seg.value}
+            </span>
           </div>
         ))}
       </div>

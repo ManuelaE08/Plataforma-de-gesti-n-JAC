@@ -2,12 +2,12 @@ import type { MenuByRole } from "../types/menu";
 
 export const menuByRole: MenuByRole = {
   usuario: [
-    { name: "Dashboard", path: "/" },
+    { name: "Dashboard", path: "/inicio" },
     { name: "Juntas de Acción Comunal", path: "/jac" },
     { name: "Asocomunales", path: "/asocomunales" },
   ],
   operador: [
-    { name: "Dashboard", path: "/" },
+    { name: "Dashboard", path: "/inicio" },
     { name: "Juntas de Acción Comunal", path: "/jac" },
     { name: "Asocomunales", path: "/asocomunales" },
     { name: "Analítica y Estadísticas", path: "/analiticas" },
@@ -17,7 +17,7 @@ export const menuByRole: MenuByRole = {
     { name: "Configuración", path: "/configuracion" },
   ],
   admin: [
-    { name: "Dashboard", path: "/" },
+    { name: "Dashboard", path: "/inicio" },
     { name: "Juntas de Acción Comunal", path: "/jac" },
     { name: "Asocomunales", path: "/asocomunales" },
     { name: "Analítica y Estadísticas", path: "/analiticas" },
@@ -29,7 +29,7 @@ export const menuByRole: MenuByRole = {
     { name: "Configuración", path: "/configuracion" },
   ],
   superadmin: [
-    { name: "Dashboard", path: "/" },
+    { name: "Dashboard", path: "/inicio" },
     { name: "Juntas de Acción Comunal", path: "/jac" },
     { name: "Asocomunales", path: "/asocomunales" },
     { name: "Analítica y Estadísticas", path: "/analiticas" },
