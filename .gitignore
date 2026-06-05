@@ -26,3 +26,6 @@ dist-ssr
 
 # Local-only docs for Claude Code
 CLAUDE.md
+
+# Skills and tools
+.agents/*

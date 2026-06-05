@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { Plus, Search, X, Pencil, UserX, UserCheck, ShieldCheck, Trash2, RefreshCw, Loader2, Eye, EyeOff } from "lucide-react";
+import { Plus, Search, X, Pencil, UserX, UserCheck, ShieldCheck, Trash2, RefreshCw, Loader2, Eye, EyeOff, Check } from "lucide-react";
 import Swal from "sweetalert2";
 import PageHeader from "../components/ui/PageHeader";
 import { useUsuarios, rolesInfo, type UsuarioItem, type CrearUsuarioInput } from "../hooks/useUsuarios";
@@ -57,13 +57,24 @@ function ModalCrearUsuario({
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
 
+  // Requisitos de la contraseña: 8+ caracteres, al menos una mayúscula y un número.
+  const reglasPassword = [
+    { label: "Mínimo 8 caracteres", cumple: passwordTemporal.length >= 8 },
+    { label: "Al menos una letra mayúscula", cumple: /[A-Z]/.test(passwordTemporal) },
+    { label: "Al menos un número", cumple: /[0-9]/.test(passwordTemporal) },
+  ];
+  const passwordValida = reglasPassword.every((r) => r.cumple);
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!nombre.trim()) { setError("El nombre es obligatorio"); return; }
     if (!apellido.trim()) { setError("El apellido es obligatorio"); return; }
     if (!correo.trim()) { setError("El correo es obligatorio"); return; }
     if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(correo)) { setError("Ingresa un correo válido"); return; }
-    if (passwordTemporal.length < 8) { setError("La contraseña debe tener al menos 8 caracteres"); return; }
+    if (!passwordValida) {
+      setError("La contraseña debe tener al menos 8 caracteres, una mayúscula y un número");
+      return;
+    }
 
     setLoading(true);
     setError("");
@@ -188,7 +199,7 @@ function ModalCrearUsuario({
                 type={showPassword ? "text" : "password"}
                 value={passwordTemporal}
                 onChange={(e) => { setPasswordTemporal(e.target.value); setError(""); }}
-                placeholder="Mínimo 8 caracteres"
+                placeholder="8+ caracteres, 1 mayúscula y 1 número"
                 className={`${inputCls} pr-10`}
                 disabled={loading}
                 autoComplete="new-password"
@@ -202,7 +213,33 @@ function ModalCrearUsuario({
                 {showPassword ? <EyeOff size={16} /> : <Eye size={16} />}
               </button>
             </div>
-            <p className="text-base text-gray-500 dark:text-gray-400">
+
+            {/* Requisitos de la contraseña con verificación en vivo */}
+            <ul className="flex flex-col gap-1 mt-1">
+              {reglasPassword.map((regla) => (
+                <li
+                  key={regla.label}
+                  className={`flex items-center gap-2 text-sm transition-colors ${
+                    regla.cumple
+                      ? "text-[#1B7F4B] dark:text-emerald-400"
+                      : "text-gray-500 dark:text-gray-400"
+                  }`}
+                >
+                  <span
+                    className={`flex items-center justify-center w-4 h-4 rounded-full shrink-0 border transition-colors ${
+                      regla.cumple
+                        ? "bg-[#1B7F4B] border-[#1B7F4B] text-white"
+                        : "border-gray-300 dark:border-gray-600 text-transparent"
+                    }`}
+                  >
+                    <Check size={11} strokeWidth={3} />
+                  </span>
+                  {regla.label}
+                </li>
+              ))}
+            </ul>
+
+            <p className="text-base text-gray-500 dark:text-gray-400 mt-1">
               El usuario deberá cambiarla obligatoriamente en su primer inicio de sesión.
             </p>
           </div>
@@ -220,8 +257,8 @@ function ModalCrearUsuario({
             </button>
             <button
               type="submit"
-              disabled={loading}
-              className={`flex items-center gap-2 px-4 py-2 text-base font-semibold text-white bg-[#1B7F4B] hover:bg-[#166340] rounded-lg transition disabled:opacity-60 ${focusRing}`}
+              disabled={loading || !passwordValida}
+              className={`flex items-center gap-2 px-4 py-2 text-base font-semibold text-white bg-[#1B7F4B] hover:bg-[#166340] rounded-lg transition disabled:opacity-60 disabled:cursor-not-allowed ${focusRing}`}
             >
               {loading && <Loader2 size={16} className="animate-spin" />}
               {loading ? "Creando…" : "Crear usuario"}

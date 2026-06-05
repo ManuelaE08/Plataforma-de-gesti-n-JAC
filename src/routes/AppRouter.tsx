@@ -1,6 +1,7 @@
 import type { ReactNode } from "react";
 import { Navigate, Route, Routes } from "react-router-dom";
 import Layout from "../components/Layout";
+import Home from "../pages/Home";
 import DashboardUsuario from "../pages/DashboardUsuario";
 import Jac from "../pages/Jac";
 import Asocomunales from "../modules/asocomunales/pages/Asocomunales";
@@ -50,7 +51,8 @@ function AppRouter() {
 
   return (
     <Routes>
-      <Route path="/" element={<Layout><DashboardUsuario /></Layout>} />
+      <Route path="/" element={<Home />} />
+      <Route path="/inicio" element={<Layout><DashboardUsuario /></Layout>} />
       <Route path="/jac" element={<Layout><Jac /></Layout>} />
       <Route path="/jac/:id" element={<Layout><JacDetalle /></Layout>} />
       <Route path="/asocomunales" element={<Layout><Asocomunales /></Layout>} />
