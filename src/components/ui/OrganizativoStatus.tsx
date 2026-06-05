@@ -25,8 +25,13 @@ interface OrganizativoStatusProps {
 
 /** Indicador de estado alineado con la tabla de JAC (punto + texto). */
 export function OrganizativoStatus({ estado, className = "" }: OrganizativoStatusProps) {
-  const label =
+  const labelRaw =
     typeof estado === "boolean" ? booleanToOrganizativo(estado) : estado;
+
+  // Normalizar capitalización para soportar "activa", "inactiva", "cancelada"
+  const label = typeof labelRaw === "string"
+    ? (labelRaw.charAt(0).toUpperCase() + labelRaw.slice(1).toLowerCase()) as EstadoOrganizativoLabel
+    : labelRaw;
 
   return (
     <div
