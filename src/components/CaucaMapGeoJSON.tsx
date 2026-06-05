@@ -1,5 +1,6 @@
 import { useMemo, useState } from "react";
 import { MapContainer, TileLayer, GeoJSON } from "react-leaflet";
+import type { FeatureCollection } from "geojson";
 import type { JacListItem } from "../modules/jac/types";
 import caucaGeoData from "../data/cauca.json";
 import L from "leaflet";
@@ -34,6 +35,22 @@ function normalizeName(name: string): string {
 
 function CaucaMapGeoJSON({ jacs, selectedMunicipio, onSelect }: CaucaMapGeoJSONProps) {
   const [hoveredMunicipio, setHoveredMunicipio] = useState<string | null>(null);
+  const [searchTerm, setSearchTerm] = useState<string>("");
+
+  const geoJsonData = useMemo(() => caucaGeoData as FeatureCollection, []);
+
+  const allMunicipios = useMemo(() => {
+    return Array.from(new Set(geoJsonData.features
+      .map((feature: any) => feature?.properties?.MPIO_CNMBR || "")
+      .filter(Boolean)))
+      .sort((a: string, b: string) => a.localeCompare(b, "es", { sensitivity: "base" }));
+  }, [geoJsonData]);
+
+  const normalizedSearchTerm = normalizeName(searchTerm);
+  const filteredMunicipios = useMemo(() => {
+    if (!normalizedSearchTerm) return allMunicipios;
+    return allMunicipios.filter((name) => normalizeName(name).includes(normalizedSearchTerm));
+  }, [allMunicipios, normalizedSearchTerm]);
 
   // Contar JAC por municipio
   const municipioCounts = useMemo(() => {
@@ -46,10 +63,6 @@ function CaucaMapGeoJSON({ jacs, selectedMunicipio, onSelect }: CaucaMapGeoJSONP
   }, [jacs]);
 
   const maxCount = useMemo(() => Math.max(...Object.values(municipioCounts), 1), [municipioCounts]);
-
-  const geoJsonData = useMemo(() => {
-    return caucaGeoData;
-  }, []);
 
   // Estilo dinámico para cada municipio
   const getStyle = (feature: any) => {
@@ -84,6 +97,14 @@ function CaucaMapGeoJSON({ jacs, selectedMunicipio, onSelect }: CaucaMapGeoJSONP
       className: "rounded-lg border border-slate-200 bg-white/95 px-3 py-2 text-xs font-medium text-slate-800 shadow-lg",
     });
 
+    const element = (layer as any).getElement?.();
+    if (element instanceof Element) {
+      element.setAttribute("tabindex", "-1");
+      if (element instanceof HTMLElement || element instanceof SVGElement) {
+        (element as HTMLElement | SVGElement).style.outline = "none";
+      }
+    }
+
     layer.on({
       mouseover: () => {
         setHoveredMunicipio(displayName);
@@ -93,17 +114,96 @@ function CaucaMapGeoJSON({ jacs, selectedMunicipio, onSelect }: CaucaMapGeoJSONP
       },
       click: () => {
         onSelect(displayName);
+        if (element instanceof HTMLElement || element instanceof SVGElement) {
+          (element as HTMLElement | SVGElement).blur?.();
+        }
       },
     });
   };
 
+  const getLegendItems = () => {
+    const band1 = Math.max(1, Math.ceil(maxCount * 0.25));
+    const band2 = Math.max(band1 + 1, Math.ceil(maxCount * 0.5));
+    const band3 = Math.max(band2 + 1, Math.ceil(maxCount * 0.75));
+
+    const makeLabel = (lower: number, upper?: number) => {
+      if (upper === undefined || lower > upper) {
+        return `${lower}+ JAC${lower === 1 ? "" : "s"}`;
+      }
+      if (lower === upper) {
+        return `${lower} JAC${lower === 1 ? "" : "s"}`;
+      }
+      return `${lower}-${upper} JACs`;
+    };
+
+    const legendBuckets = [
+      { label: "Sin JACs", value: 0 },
+      { label: makeLabel(1, band1), value: band1 },
+      { label: makeLabel(band1 + 1, band2), value: band2 },
+      { label: makeLabel(band2 + 1, band3), value: band3 },
+      { label: makeLabel(band3 + 1), value: maxCount },
+    ];
+
+    return legendBuckets.map((bucket) => ({
+      label: bucket.label,
+      color: getDensityColor(bucket.value, maxCount),
+    }));
+  };
+
   return (
     <div className="rounded-[24px] border border-white/40 bg-white/60 backdrop-blur-xl shadow-[0_20px_60px_rgba(0,0,0,0.08)] p-6">
-      <div className="mb-6 flex items-center justify-between gap-3">
+      <div className="mb-6 flex flex-col gap-4 lg:flex-row lg:items-start lg:justify-between">
         <div>
           <p className="text-sm font-semibold uppercase tracking-[0.18em] text-slate-500">Mapa interactivo</p>
           <p className="mt-2 text-2xl font-bold text-slate-900">Municipios del Cauca</p>
-          <p className="mt-1 text-sm text-slate-600">42 municipios con presencia de JAC. Haz clic para filtrar.</p>
+          <p className="mt-1 text-sm text-slate-600">42 municipios con presencia de JAC. Usa la búsqueda o haz clic en el mapa.</p>
+        </div>
+        <div className="w-full lg:w-96">
+          <div className="relative">
+            <label htmlFor="municipio-search" className="sr-only">Buscar municipio</label>
+            <input
+              id="municipio-search"
+              type="search"
+              value={searchTerm}
+              onChange={(event) => setSearchTerm(event.target.value)}
+              placeholder="Buscar municipio..."
+              className="w-full rounded-2xl border border-slate-200 bg-white px-4 py-3 text-base text-slate-900 shadow-sm outline-none transition focus:border-indigo-400 focus:ring-2 focus:ring-indigo-200"
+            />
+            {searchTerm && (
+              <div className="absolute left-0 right-0 z-50 mt-2 rounded-2xl border border-slate-200 bg-white p-3 text-sm text-slate-700 shadow-2xl">
+                <div className="mb-3 flex items-center justify-between gap-3">
+                  <p className="font-semibold text-slate-800">Resultados de búsqueda ({filteredMunicipios.length})</p>
+                  <button
+                    type="button"
+                    onClick={() => setSearchTerm("")}
+                    className="rounded-full bg-slate-50 px-3 py-1.5 text-xs font-semibold uppercase tracking-[0.16em] text-indigo-700 shadow-sm transition hover:bg-indigo-100"
+                  >
+                    Limpiar
+                  </button>
+                </div>
+                <div className="max-h-48 overflow-auto space-y-2">
+                  {filteredMunicipios.length > 0 ? (
+                    filteredMunicipios.slice(0, 10).map((name) => (
+                      <button
+                        key={name}
+                        type="button"
+                        onClick={() => {
+                          onSelect(name);
+                          setSearchTerm("");
+                        }}
+                        className="w-full rounded-2xl border border-slate-200 bg-slate-50 px-3 py-3 text-base font-medium text-slate-800 text-left transition hover:border-indigo-300 hover:bg-indigo-50"
+                      >
+                        {name}
+                      </button>
+                    ))
+                  ) : (
+                    <p className="text-sm text-slate-500">No se encontró ningún municipio.</p>
+                  )}
+                </div>
+              </div>
+            )}
+          </div>
+          <p className="mt-2 text-sm text-slate-500">Filtra municipios por nombre y selecciona uno para ver sus JAC.</p>
         </div>
       </div>
 
@@ -129,15 +229,9 @@ function CaucaMapGeoJSON({ jacs, selectedMunicipio, onSelect }: CaucaMapGeoJSONP
       </div>
 
       <div className="mt-6 grid gap-2 sm:grid-cols-2 md:grid-cols-5">
-        {[
-          { label: "Sin JACs", color: "bg-slate-300" },
-          { label: "1-2 JACs", color: "bg-[#86EFAC]" },
-          { label: "3-5 JACs", color: "bg-[#4ADE80]" },
-          { label: "6-10 JACs", color: "bg-[#22C55E]" },
-          { label: "11+ JACs", color: "bg-[#166534]" },
-        ].map((item) => (
+        {getLegendItems().map((item) => (
           <div key={item.label} className="flex items-center gap-2 rounded-2xl border border-slate-200 bg-white/80 px-3 py-2 text-xs font-medium text-slate-700">
-            <span className={`inline-flex h-3 w-3 rounded-full ${item.color}`} />
+            <span className="inline-flex h-3 w-3 rounded-full" style={{ backgroundColor: item.color }} />
             <span>{item.label}</span>
           </div>
         ))}

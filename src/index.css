@@ -275,3 +275,10 @@ input, button, textarea, select {
 @media (prefers-reduced-motion: reduce) {
   .t-avatar { transition: none !important; transform: none !important; }
 }
+.leaflet-container .leaflet-interactive:focus,
+.leaflet-container .leaflet-interactive:focus-visible,
+.leaflet-container svg path:focus,
+.leaflet-container svg path:focus-visible {
+  outline: none !important;
+  box-shadow: none !important;
+}
