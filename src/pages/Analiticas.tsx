@@ -1,13 +1,13 @@
 import { useEffect, useMemo, useState } from "react";
-import { 
-  Building2, 
-  CalendarDays, 
-  MapPin, 
-  ShieldCheck, 
-  Users, 
-  XCircle, 
-  GraduationCap, 
-  Briefcase, 
+import {
+  Building2,
+  CalendarDays,
+  MapPin,
+  ShieldCheck,
+  Users,
+  XCircle,
+  GraduationCap,
+  Briefcase,
   Layers,
   FileDown
 } from "lucide-react";
@@ -26,7 +26,7 @@ type Periodo = (typeof PERIOD_OPTIONS)[number];
 
 function formatNumber(value: number) {
   return new Intl.NumberFormat("es-CO").format(value);
-} 
+}
 
 function normalizeMunicipioName(name: string): string {
   return String(name)
@@ -199,23 +199,37 @@ export default function Analiticas() {
     const nombreLugar = demografiaMunicipio ?? "Todo el Departamento (Cauca)";
     const afiliadosFiltrados = demografiaMunicipio
       ? afiliados.filter((a) => {
-          const municipio = getMunicipioFromAfiliado(a, jacs);
-          return municipio && normalizeMunicipioName(municipio) === normalizeMunicipioName(demografiaMunicipio);
-        })
+        const municipio = getMunicipioFromAfiliado(a, jacs);
+        return municipio && normalizeMunicipioName(municipio) === normalizeMunicipioName(demografiaMunicipio);
+      })
       : afiliados;
 
     const total = afiliadosFiltrados.length || 1;
     const generoCount: Record<string, number> = { Femenino: 0, Masculino: 0, "LGTBIQ+": 0 };
     const etniaCount: Record<string, number> = { Afro: 0, Indigena: 0, Mestizo: 0, Campesino: 0 };
     const edadCount = { jovenes: 0, adultos: 0, maduros: 0, mayores: 0 };
-    const estudiosCount: Record<string, number> = { Primaria: 0, "Secundaria / Bachillerato": 0, "Técnico / Tecnólogo": 0, "Profesional / Posgrado": 0 };
-    const ocupacionCount: Record<string, number> = {
-      "Agricultura / Campo": 0,
-      "Independiente / Comercio": 0,
-      "Hogar / Labores de Cuidado": 0,
-      "Empleado / Servicios": 0,
-    };
+    const estudiosCount: Record<string, number> = { Ninguno: 0, Primaria: 0, Secundaria: 0, Tecnico: 0, Tecnologo: 0, Pregrado: 0, Postgrado: 0 };
     let discapacitadosCount = 0;
+    let noDiscapacitadosCount = 0;
+    let sinReportarCount = 0;
+
+    const esDiscapacitado = (val: any): boolean => {
+      if (val === true || val === 1) return true;
+      if (typeof val === 'string') {
+        const clean = val.trim().toLowerCase();
+        return clean === 'true' || clean === '1' || clean === 't' || clean === 'si';
+      }
+      return false;
+    };
+
+    const esNoDiscapacitado = (val: any): boolean => {
+      if (val === false || val === 0) return true;
+      if (typeof val === 'string') {
+        const clean = val.trim().toLowerCase();
+        return clean === 'false' || clean === '0' || clean === 'f' || clean === 'no';
+      }
+      return false;
+    };
 
     afiliadosFiltrados.forEach((a) => {
       if (a.genero && generoCount[a.genero] !== undefined) {
@@ -234,15 +248,25 @@ export default function Analiticas() {
       if (a.estudiosRealizados && estudiosCount[a.estudiosRealizados] !== undefined) {
         estudiosCount[a.estudiosRealizados]++;
       }
-
-      if (a.ocupacion && ocupacionCount[a.ocupacion] !== undefined) {
-        ocupacionCount[a.ocupacion]++;
+      if (esDiscapacitado(a.discapacitado)) {
+        discapacitadosCount++;
+      } else if (esNoDiscapacitado(a.discapacitado)) {
+        noDiscapacitadosCount++;
+      } else {
+        sinReportarCount++;
       }
-
-      if (Boolean(a.discapacitado)) discapacitadosCount++;
     });
 
-    const obtenerPct = (val: number) => Math.round((val / total) * 100);
+    const obtenerPct = (val: number) => {
+      const pct = (val / total) * 100;
+      if (pct > 0 && pct < 1) {
+        return parseFloat(pct.toFixed(1));
+      }
+      if (pct > 99 && pct < 100) {
+        return parseFloat(pct.toFixed(1));
+      }
+      return Math.round(pct);
+    };
 
     return {
       lugar: nombreLugar,
@@ -265,20 +289,46 @@ export default function Analiticas() {
         { label: "65+ años (Adulto Mayor)", porcentaje: obtenerPct(edadCount.mayores), count: edadCount.mayores, color: "bg-violet-500" },
       ],
       estudios: [
-        { label: "Primaria", porcentaje: obtenerPct(estudiosCount.Primaria), count: estudiosCount.Primaria },
-        { label: "Secundaria / Bachillerato", porcentaje: obtenerPct(estudiosCount.Secundaria), count: estudiosCount.Secundaria },
-        { label: "Técnico / Tecnólogo", porcentaje: obtenerPct(estudiosCount.Tecnico), count: estudiosCount.Tecnico },
-        { label: "Profesional / Posgrado", porcentaje: obtenerPct(estudiosCount.Profesional), count: estudiosCount.Profesional },
-      ],
-      ocupacion: [
-        { label: "Agricultura / Campo", porcentaje: obtenerPct(ocupacionCount.Agricultura), count: ocupacionCount.Agricultura },
-        { label: "Independiente / Comercio", porcentaje: obtenerPct(ocupacionCount.Comercio), count: ocupacionCount.Comercio },
-        { label: "Hogar / Labores de Cuidado", porcentaje: obtenerPct(ocupacionCount.Hogar), count: ocupacionCount.Hogar },
-        { label: "Empleado / Servicios", porcentaje: obtenerPct(ocupacionCount.Empleado), count: ocupacionCount.Empleado },
+        {
+          label: "Ninguno",
+          porcentaje: obtenerPct(estudiosCount.Ninguno),
+          count: estudiosCount.Ninguno,
+        },
+        {
+          label: "Primaria",
+          porcentaje: obtenerPct(estudiosCount.Primaria),
+          count: estudiosCount.Primaria,
+        },
+        {
+          label: "Secundaria",
+          porcentaje: obtenerPct(estudiosCount.Secundaria),
+          count: estudiosCount.Secundaria,
+        },
+        {
+          label: "Tecnico",
+          porcentaje: obtenerPct(estudiosCount.Tecnico),
+          count: estudiosCount.Tecnico
+        },
+        {
+          label: "Tecnologo",
+          porcentaje: obtenerPct(estudiosCount.Tecnologo),
+          count: estudiosCount.Tecnologo
+        },
+        {
+          label: "Pregado",
+          porcentaje: obtenerPct(estudiosCount.Pregrado),
+          count: estudiosCount.Pregrado
+        },
+        {
+          label: "Postgrado",
+          porcentaje: obtenerPct(estudiosCount.Postgrado),
+          count: estudiosCount.Postgrado,
+        },
       ],
       discapacidad: [
         { label: "Población con Discapacidad", porcentaje: obtenerPct(discapacitadosCount), count: discapacitadosCount, color: "bg-rose-500" },
-        { label: "Sin condición reportada", porcentaje: obtenerPct(total - discapacitadosCount), count: total - discapacitadosCount, color: "bg-slate-200 dark:bg-gray-700" },
+        { label: "Población sin Discapacidad", porcentaje: obtenerPct(noDiscapacitadosCount), count: noDiscapacitadosCount, color: "bg-emerald-500" },
+        { label: "Sin condición reportada", porcentaje: obtenerPct(sinReportarCount), count: sinReportarCount, color: "bg-slate-400" },
       ],
     };
   }, [afiliados, jacs, demografiaMunicipio]);
@@ -379,17 +429,17 @@ export default function Analiticas() {
                     <div className="flex flex-col h-full justify-between gap-6">
                       <div>
                         <div className="mb-4 flex flex-col gap-4 sm:flex-row sm:items-start sm:justify-between">
-                        <div>
-                          <p className="text-sm font-semibold uppercase tracking-[0.18em] text-slate-500 dark:text-slate-400">Municipio seleccionado</p>
-                          <p className="mt-1 text-2xl font-extrabold text-slate-900 dark:text-white">{selectedMunicipio}</p>
+                          <div>
+                            <p className="text-sm font-semibold uppercase tracking-[0.18em] text-slate-500 dark:text-slate-400">Municipio seleccionado</p>
+                            <p className="mt-1 text-2xl font-extrabold text-slate-900 dark:text-white">{selectedMunicipio}</p>
+                          </div>
+                          <button
+                            onClick={() => setSelectedMunicipio(null)}
+                            className="inline-flex items-center gap-2 rounded-full border border-red-200 bg-red-50 px-4 py-2 text-sm font-semibold text-red-700 transition hover:bg-red-100 hover:text-red-800"
+                          >
+                            <XCircle size={16} /> Quitar filtro
+                          </button>
                         </div>
-                        <button
-                          onClick={() => setSelectedMunicipio(null)}
-                          className="inline-flex items-center gap-2 rounded-full border border-red-200 bg-red-50 px-4 py-2 text-sm font-semibold text-red-700 transition hover:bg-red-100 hover:text-red-800"
-                        >
-                          <XCircle size={16} /> Quitar filtro
-                        </button>
-                      </div>
                         <div className="grid gap-3">
                           <div className="rounded-2xl bg-white p-4 dark:bg-gray-950 shadow-sm border border-slate-100 dark:border-gray-800">
                             <p className="text-sm font-medium text-slate-500 dark:text-slate-400">JAC registradas</p>
@@ -515,7 +565,7 @@ export default function Analiticas() {
 
               {/* Grid Principal Temático */}
               <div className="grid gap-6 md:grid-cols-2 xl:grid-cols-3">
-                
+
                 {/* Bloque 1: Género y Grupo Étnico */}
                 <div className="rounded-3xl border border-slate-100 dark:border-gray-700 bg-slate-50/40 dark:bg-gray-900/30 p-6 flex flex-col justify-between">
                   <div>
@@ -523,7 +573,7 @@ export default function Analiticas() {
                       <Layers size={18} className="text-indigo-500" />
                       <span className="text-xl">GENERO</span>
                     </div>
-                    
+
                     {/* Subgrup: Género */}
                     <div className="mb-6">
                       <div className="space-y-4">
@@ -597,13 +647,18 @@ export default function Analiticas() {
                       </div>
                       <div className="space-y-4 mt-2">
                         <div className="flex h-4 w-full rounded-full overflow-hidden bg-slate-200 dark:bg-gray-700">
-                          <div className="bg-rose-500 h-full" style={{ width: `${demografiaReal.discapacidad[0].porcentaje}%` }}></div>
-                          <div className="bg-emerald-500 h-full" style={{ width: `${demografiaReal.discapacidad[1].porcentaje}%` }}></div>
+                          {demografiaReal.discapacidad.map((d) => (
+                            <div
+                              key={d.label}
+                              className={d.color}
+                              style={{ width: `${d.porcentaje}%` }}
+                            ></div>
+                          ))}
                         </div>
                         <div className="flex flex-col gap-3 pt-3 sm:flex-row sm:items-center sm:justify-between">
-                          {demografiaReal.discapacidad.map((d, index) => (
+                          {demografiaReal.discapacidad.map((d) => (
                             <div key={d.label} className="flex items-center gap-2 text-base">
-                              <span className={`w-3 h-3 rounded-full ${index === 0 ? 'bg-rose-500' : 'bg-emerald-500'}`}></span>
+                              <span className={`w-3 h-3 rounded-full ${d.color}`}></span>
                               <span className="text-slate-500 dark:text-slate-300">{d.label}: <strong>{d.porcentaje}%</strong> ({d.count})</span>
                             </div>
                           ))}
@@ -637,27 +692,6 @@ export default function Analiticas() {
                         ))}
                       </div>
                     </div>
-
-                    {/* Subgrup: Ocupación */}
-                    <div>
-                      <div className="flex items-center gap-3 font-bold text-slate-800 dark:text-slate-200 mb-5">
-                        <Briefcase size={16} className="text-indigo-500" />
-                        <span className="text-xl">OCUPACION PRINCIPAL</span>
-                      </div>
-                      <div className="space-y-4">
-                        {demografiaReal.ocupacion.map((oc) => (
-                          <div key={oc.label} className="flex items-center justify-between text-base">
-                            <span className="text-slate-600 dark:text-slate-400 flex items-center gap-2">
-                              <Briefcase size={16} className="text-slate-400" />
-                              {oc.label}
-                            </span>
-                            <span className="font-bold text-slate-900 dark:text-white bg-slate-200/60 dark:bg-gray-800 px-4 py-1.5 rounded-md">
-                              {oc.porcentaje}% · {oc.count}
-                            </span>
-                          </div>
-                        ))}
-                      </div>
-                    </div>
                   </div>
                 </div>
 
@@ -666,7 +700,7 @@ export default function Analiticas() {
 
             {/* Fila 4: Tarjetas de estadísticas de soporte/análisis en 2 columnas principales */}
             <section className="mt-6 grid gap-4 grid-cols-1 lg:grid-cols-2 items-stretch">
-              
+
               {/* TARJETA 1: Estado Organizativo */}
               <div className="rounded-3xl border border-slate-200 dark:border-gray-700 bg-white dark:bg-gray-800 p-6 shadow-sm flex flex-col justify-between">
                 <div>
@@ -679,7 +713,7 @@ export default function Analiticas() {
                       Cauca
                     </div>
                   </div>
-                  
+
                   <div className="mt-6 space-y-4">
                     <div>
                       <div className="flex items-center justify-between text-sm text-slate-500 dark:text-slate-400">
@@ -727,7 +761,7 @@ export default function Analiticas() {
                       ))}
                     </select>
                   </div>
-                  
+
                   <div className="mt-6 grid gap-4">
                     <div className="rounded-3xl bg-slate-50 p-4 text-sm text-slate-700 dark:bg-gray-900 dark:text-slate-300">
                       <p className="font-semibold">Solicitudes pendientes</p>

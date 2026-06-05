@@ -3,6 +3,7 @@ import autoTable from "jspdf-autotable";
 import { IReporteAnalitico, ITerritorioItem, IDemografiaItem } from "../dtos/ReporteAnalitico.dto";
 import type { JacListItem } from "../../jac/types";
 import type { AfiliadoResponse } from "../../jac/services/afiliadosService";
+import logoGobernacion from "../../../assets/logo-gobernacion.png";
 
 export class ReporteAnaliticoService {
   /**
@@ -71,15 +72,22 @@ export class ReporteAnaliticoService {
     let cursorY = 50;
 
     // --- PORTADA Y CABECERA ---
+    try {
+      // Dibujar logo de la gobernacion en la cabecera
+      doc.addImage(logoGobernacion, "PNG", 480, 35, 90, 45);
+    } catch (e) {
+      console.error("Error al cargar o dibujar el logo de la gobernacion:", e);
+    }
+
     doc.setFontSize(22);
     doc.setFont("helvetica", "bold");
-    doc.setTextColor(30, 58, 138); // slate-900 / blue-800
+    doc.setTextColor(0, 0, 0); // Texto negro
     doc.text("Informe Ejecutivo de Analíticas", marginX, cursorY);
 
     cursorY += 20;
     doc.setFontSize(10);
     doc.setFont("helvetica", "normal");
-    doc.setTextColor(100, 116, 139);
+    doc.setTextColor(0, 0, 0); // Texto negro
     doc.text(
       `Generado el: ${data.fechaGeneracion.toLocaleDateString("es-CO", {
         day: "2-digit",
@@ -97,7 +105,7 @@ export class ReporteAnaliticoService {
     // --- SECCIÓN 1: RESUMEN EJECUTIVO ---
     doc.setFontSize(14);
     doc.setFont("helvetica", "bold");
-    doc.setTextColor(15, 23, 42);
+    doc.setTextColor(0, 0, 0); // Texto negro
     doc.text("1. Resumen Ejecutivo", marginX, cursorY);
     cursorY += 20;
 
@@ -108,8 +116,6 @@ export class ReporteAnaliticoService {
       ["Total Asocomunales", String(data.resumenEjecutivo.totalAsocomunales)],
       ["Total Afiliados", String(data.resumenEjecutivo.totalAfiliados)],
       ["Promedio Afiliados / JAC", String(data.resumenEjecutivo.promedioAfiliados)],
-      ["Solicitudes Pendientes", String(data.resumenEjecutivo.solicitudesPendientes)],
-      ["Solicitudes Aprobadas (Mes)", String(data.resumenEjecutivo.solicitudesAprobadasMes)],
     ];
 
     autoTable(doc, {
@@ -117,8 +123,8 @@ export class ReporteAnaliticoService {
       head: [["Indicador", "Valor"]],
       body: resumenData,
       theme: "grid",
-      headStyles: { fillColor: [30, 58, 138] },
-      styles: { fontSize: 10, cellPadding: 6 },
+      headStyles: { fillColor: [135, 206, 235], textColor: [0, 0, 0] },
+      styles: { fontSize: 10, cellPadding: 6, textColor: [0, 0, 0] },
       columnStyles: { 0: { fontStyle: "bold" } },
       margin: { left: marginX, right: marginX },
     });
@@ -128,13 +134,13 @@ export class ReporteAnaliticoService {
     // --- SECCIÓN 2: COBERTURA TERRITORIAL ---
     doc.setFontSize(14);
     doc.setFont("helvetica", "bold");
-    doc.setTextColor(15, 23, 42);
+    doc.setTextColor(0, 0, 0); // Texto negro
     doc.text("2. Cobertura Territorial", marginX, cursorY);
     cursorY += 15;
 
     doc.setFontSize(10);
     doc.setFont("helvetica", "normal");
-    doc.setTextColor(71, 85, 105);
+    doc.setTextColor(0, 0, 0); // Texto negro
     doc.text("Municipios ordenados por mayor cantidad de afiliados.", marginX, cursorY);
     cursorY += 15;
 
@@ -153,8 +159,8 @@ export class ReporteAnaliticoService {
       head: [["Municipio", "Total JAC", "Activas", "Inactivas", "Afiliados"]],
       body: territorioData,
       theme: "grid",
-      headStyles: { fillColor: [27, 127, 75] }, // verde
-      styles: { fontSize: 9, cellPadding: 5 },
+      headStyles: { fillColor: [135, 206, 235], textColor: [0, 0, 0] }, // Cabecera gris con texto negro
+      styles: { fontSize: 9, cellPadding: 5, textColor: [0, 0, 0] },
       margin: { left: marginX, right: marginX },
     });
 
@@ -169,35 +175,35 @@ export class ReporteAnaliticoService {
     // --- SECCIÓN 3: CARACTERIZACIÓN DEMOGRÁFICA ---
     doc.setFontSize(14);
     doc.setFont("helvetica", "bold");
-    doc.setTextColor(15, 23, 42);
+    doc.setTextColor(0, 0, 0); // Texto negro
     doc.text(`3. Caracterización Demográfica - ${data.demografia.lugar}`, marginX, cursorY);
     cursorY += 15;
 
     const createDemographyTable = (title: string, items: IDemografiaItem[], startY: number) => {
       doc.setFontSize(11);
       doc.setFont("helvetica", "bold");
-      doc.setTextColor(51, 65, 85);
+      doc.setTextColor(0, 0, 0); // Texto negro
       doc.text(title, marginX, startY);
-      
+
       autoTable(doc, {
         startY: startY + 10,
         head: [["Categoría", "Porcentaje", "Cantidad"]],
         body: items.map((i) => [i.label, `${i.porcentaje}%`, String(i.count)]),
         theme: "plain",
-        headStyles: { fillColor: [241, 245, 249], textColor: [15, 23, 42] },
-        styles: { fontSize: 9, cellPadding: 4, lineColor: [226, 232, 240], lineWidth: 0.5 },
+        headStyles: { fillColor: [135, 206, 235], textColor: [0, 0, 0] }, // Cabecera gris con texto negro
+        styles: { fontSize: 9, cellPadding: 4, lineColor: [226, 232, 240], lineWidth: 0.5, textColor: [0, 0, 0] },
         margin: { left: marginX, right: marginX },
       });
       return (doc as any).lastAutoTable.finalY + 20;
     };
 
     cursorY = createDemographyTable("Género", data.demografia.genero, cursorY);
-    
+
     if (cursorY > 600) {
       doc.addPage();
       cursorY = 50;
     }
-    
+
     cursorY = createDemographyTable("Grupo Étnico", data.demografia.etnia, cursorY);
     cursorY = createDemographyTable("Edad", data.demografia.edad, cursorY);
 
@@ -205,9 +211,14 @@ export class ReporteAnaliticoService {
       doc.addPage();
       cursorY = 50;
     }
-    
+
     cursorY = createDemographyTable("Nivel Educativo", data.demografia.estudios, cursorY);
-    cursorY = createDemographyTable("Ocupación", data.demografia.ocupacion, cursorY);
+    if (data.demografia.ocupacion) {
+      cursorY = createDemographyTable("Ocupación", data.demografia.ocupacion, cursorY);
+    }
+    if (data.demografia.discapacidad) {
+      cursorY = createDemographyTable("Inclusión y Discapacidad", data.demografia.discapacidad, cursorY);
+    }
 
     if (cursorY > 600) {
       doc.addPage();
@@ -217,22 +228,22 @@ export class ReporteAnaliticoService {
     // --- SECCIÓN 4: CONCLUSIONES AUTOMÁTICAS ---
     doc.setFontSize(14);
     doc.setFont("helvetica", "bold");
-    doc.setTextColor(15, 23, 42);
+    doc.setTextColor(0, 0, 0); // Texto negro
     doc.text("4. Conclusiones y Hallazgos", marginX, cursorY);
     cursorY += 20;
 
     doc.setFontSize(11);
     doc.setFont("helvetica", "normal");
-    doc.setTextColor(15, 23, 42);
+    doc.setTextColor(0, 0, 0); // Texto negro
 
     const conclusiones = this.generarConclusionesAutomaticas(data);
-    
+
     conclusiones.forEach((conclusion) => {
       // Split text to fit width
       const lines = doc.splitTextToSize(`• ${conclusion}`, doc.internal.pageSize.width - marginX * 2);
       doc.text(lines, marginX, cursorY);
       cursorY += (lines.length * 15) + 5;
-      
+
       if (cursorY > 750) {
         doc.addPage();
         cursorY = 50;
@@ -244,7 +255,7 @@ export class ReporteAnaliticoService {
     for (let i = 1; i <= pageCount; i++) {
       doc.setPage(i);
       doc.setFontSize(8);
-      doc.setTextColor(150);
+      doc.setTextColor(0, 0, 0); // Texto negro para el pie de página
       doc.text(
         `Página ${i} de ${pageCount} - Generado por Plataforma JAC y Asocomunales`,
         doc.internal.pageSize.width / 2,
