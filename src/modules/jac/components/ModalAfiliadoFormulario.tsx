@@ -25,6 +25,10 @@ export function ModalAfiliadoFormulario({
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [cargos, setCargos] = useState<CargoResponse[]>([]);
+  const [departamentos, setDepartamentos] = useState<string[]>([]);
+  const [municipiosMap, setMunicipiosMap] = useState<Record<string, string[]>>({});
+  const [selectedDepto, setSelectedDepto] = useState<string>("");
+
   const [formData, setFormData] = useState({
     nombre: "",
     apellido: "",
@@ -37,6 +41,7 @@ export function ModalAfiliadoFormulario({
     grupoEtnico: "",
     fechaNacimiento: "",
     ocupacion: "",
+    estudiosRealizados: "",
     discapacitado: false,
   });
 
@@ -46,6 +51,32 @@ export function ModalAfiliadoFormulario({
       AfiliadosService.findAllCargos()
         .then(setCargos)
         .catch((err) => console.error("Error cargando cargos:", err));
+
+      // Cargar Departamentos y Municipios desde Datos Abiertos Colombia (Divipola)
+      if (departamentos.length === 0) {
+        fetch('https://www.datos.gov.co/resource/gdxc-w37w.json?$limit=2000')
+          .then(res => res.json())
+          .then(data => {
+            if (!Array.isArray(data)) {
+              throw new Error("Formato de datos incorrecto desde Divipola");
+            }
+            const map: Record<string, string[]> = {};
+            data.forEach((item: any) => {
+              const depto = item.dpto;
+              const muni = item.nom_mpio;
+              if (depto && muni) {
+                if (!map[depto]) map[depto] = [];
+                if (!map[depto].includes(muni)) {
+                  map[depto].push(muni);
+                }
+              }
+            });
+            Object.keys(map).forEach(k => map[k].sort());
+            setDepartamentos(Object.keys(map).sort());
+            setMunicipiosMap(map);
+          })
+          .catch(err => console.error("Error cargando Divipola:", err));
+      }
     }
 
     // Cargar datos del afiliado si es edición
@@ -65,6 +96,7 @@ export function ModalAfiliadoFormulario({
             grupoEtnico: afiliado.grupoEtnico || "",
             fechaNacimiento: afiliado.fechaNacimiento ? afiliado.fechaNacimiento.split('T')[0] : "",
             ocupacion: afiliado.ocupacion || "",
+            estudiosRealizados: afiliado.estudiosRealizados || "",
             discapacitado: afiliado.discapacitado || false,
           });
         })
@@ -83,11 +115,25 @@ export function ModalAfiliadoFormulario({
         grupoEtnico: "",
         fechaNacimiento: "",
         ocupacion: "",
+        estudiosRealizados: "",
         discapacitado: false,
       });
+      setSelectedDepto("");
       setError(null);
     }
   }, [isOpen, isEdit, afiliadoId]);
+
+  // Intentar autoseleccionar el departamento si estamos en edición y el municipio existe en la lista
+  useEffect(() => {
+    if (formData.lugarExpedicionCedula && Object.keys(municipiosMap).length > 0 && !selectedDepto) {
+      for (const [depto, munis] of Object.entries(municipiosMap)) {
+        if (munis.includes(formData.lugarExpedicionCedula)) {
+          setSelectedDepto(depto);
+          break;
+        }
+      }
+    }
+  }, [formData.lugarExpedicionCedula, municipiosMap, selectedDepto]);
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
     const { name, value, type } = e.target;
@@ -118,6 +164,7 @@ export function ModalAfiliadoFormulario({
           grupoEtnico: formData.grupoEtnico || undefined,
           fechaNacimiento: formData.fechaNacimiento || undefined,
           ocupacion: formData.ocupacion || undefined,
+          estudiosRealizados: formData.estudiosRealizados || undefined,
           discapacitado: formData.discapacitado,
         });
         await Swal.fire({ icon: "success", title: "Afiliado actualizado", text: "La información ha sido guardada correctamente.", confirmButtonColor: "#1B7F4B", timer: 2000, timerProgressBar: true });
@@ -136,6 +183,7 @@ export function ModalAfiliadoFormulario({
           grupoEtnico: formData.grupoEtnico || undefined,
           fechaNacimiento: formData.fechaNacimiento || undefined,
           ocupacion: formData.ocupacion || undefined,
+          estudiosRealizados: formData.estudiosRealizados || undefined,
           discapacitado: formData.discapacitado,
         } as CreateAfiliadoDto);
         await Swal.fire({ icon: "success", title: "Afiliado registrado", text: "El nuevo afiliado ha sido creado exitosamente.", confirmButtonColor: "#1B7F4B", timer: 2000, timerProgressBar: true });
@@ -188,9 +236,36 @@ export function ModalAfiliadoFormulario({
             <input type="text" name="cedula" value={formData.cedula} onChange={handleChange} className="w-full px-3 py-2 border border-gray-200 dark:border-gray-600 rounded text-sm bg-white dark:bg-gray-700 text-gray-800 dark:text-gray-100" />
           </div>
 
-          <div>
-            <label className="block text-xs font-semibold text-gray-600 dark:text-gray-400 mb-2">Lugar Expedición Cédula</label>
-            <input type="text" name="lugarExpedicionCedula" value={formData.lugarExpedicionCedula} onChange={handleChange} className="w-full px-3 py-2 border border-gray-200 dark:border-gray-600 rounded text-sm bg-white dark:bg-gray-700 text-gray-800 dark:text-gray-100" />
+          <div className="grid grid-cols-2 gap-4">
+            <div>
+              <label className="block text-xs font-semibold text-gray-600 dark:text-gray-400 mb-2">Dpto. Expedición Cédula</label>
+              <select 
+                value={selectedDepto} 
+                onChange={(e) => {
+                  setSelectedDepto(e.target.value);
+                  setFormData(prev => ({ ...prev, lugarExpedicionCedula: "" }));
+                }}
+                className="w-full px-3 py-2 border border-gray-200 dark:border-gray-600 rounded text-sm bg-white dark:bg-gray-700 text-gray-800 dark:text-gray-100"
+              >
+                <option value="">Seleccionar...</option>
+                {departamentos.map(d => <option key={d} value={d}>{d}</option>)}
+              </select>
+            </div>
+            <div>
+              <label className="block text-xs font-semibold text-gray-600 dark:text-gray-400 mb-2">Mpio. Expedición Cédula</label>
+              <select 
+                name="lugarExpedicionCedula" 
+                value={formData.lugarExpedicionCedula} 
+                onChange={handleChange}
+                disabled={!selectedDepto}
+                className="w-full px-3 py-2 border border-gray-200 dark:border-gray-600 rounded text-sm bg-white dark:bg-gray-700 text-gray-800 dark:text-gray-100 disabled:opacity-50"
+              >
+                <option value="">Seleccionar...</option>
+                {selectedDepto && (municipiosMap[selectedDepto] || []).map(m => (
+                  <option key={m} value={m}>{m}</option>
+                ))}
+              </select>
+            </div>
           </div>
 
           <div>
@@ -233,6 +308,19 @@ export function ModalAfiliadoFormulario({
             <div>
               <label className="block text-xs font-semibold text-gray-600 dark:text-gray-400 mb-2">Ocupación</label>
               <input type="text" name="ocupacion" value={formData.ocupacion} onChange={handleChange} className="w-full px-3 py-2 border border-gray-200 dark:border-gray-600 rounded text-sm bg-white dark:bg-gray-700 text-gray-800 dark:text-gray-100" />
+            </div>
+            <div>
+              <label className="block text-xs font-semibold text-gray-600 dark:text-gray-400 mb-2">Estudios Realizados</label>
+              <select name="estudiosRealizados" value={formData.estudiosRealizados} onChange={handleChange} className="w-full px-3 py-2 border border-gray-200 dark:border-gray-600 rounded text-sm bg-white dark:bg-gray-700 text-gray-800 dark:text-gray-100">
+                <option value="">Seleccionar...</option>
+                <option value="Ninguno">Ninguno</option>
+                <option value="Primaria">Primaria</option>
+                <option value="Secundaria">Secundaria</option>
+                <option value="Técnico">Técnico</option>
+                <option value="Tecnólogo">Tecnólogo</option>
+                <option value="Pregrado">Pregrado</option>
+                <option value="Postgrado">Postgrado</option>
+              </select>
             </div>
           </div>
 
