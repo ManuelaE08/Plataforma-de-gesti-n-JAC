@@ -94,3 +94,11 @@ input, button, textarea, select {
     scrollbar-color: #4b5563 #1f2937;
   }
 }
+
+.leaflet-container .leaflet-interactive:focus,
+.leaflet-container .leaflet-interactive:focus-visible,
+.leaflet-container svg path:focus,
+.leaflet-container svg path:focus-visible {
+  outline: none !important;
+  box-shadow: none !important;
+}
