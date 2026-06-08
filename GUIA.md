@@ -29,7 +29,7 @@ Equivalencia Angular:
 Cada pagina esta en [src/pages](src/pages):
 - [src/pages/Dashboard.jsx](src/pages/Dashboard.jsx) muestra KPIs, grafica de barras, donut y un bloque de mapa (mock).
 - [src/pages/Jac.jsx](src/pages/Jac.jsx) tiene filtros, tabla y estado local con `useState`.
-- [src/pages/Asocomunales.jsx](src/pages/Asocomunales.jsx), [src/pages/Usuarios.jsx](src/pages/Usuarios.jsx), [src/pages/Reportes.jsx](src/pages/Reportes.jsx) son placeholders.
+- [src/pages/Asocomunales.jsx](src/pages/Asocomunales.jsx), [src/pages/Usuarios.jsx](src/pages/Usuarios.jsx) son placeholders.
 - [src/pages/Login.jsx](src/pages/Login.jsx) contiene el formulario de acceso y navega a `/` al enviar.
 
 ## 5) Componentes UI reutilizables

@@ -9,7 +9,7 @@ import { useNotificaciones } from "../hooks/useNotificaciones";
 import { useJac } from "../hooks/useJac";
 import {
   LayoutDashboard, Building2, Users, BarChart2, AlertTriangle,
-  FileText, GitPullRequest, Upload, UserCog, Settings,
+  GitPullRequest, Upload, UserCog, Settings,
   Bell, LogOut, CheckCircle, AlertCircle, Info, XCircle, X,
   Moon, Sun, Menu,
 } from "lucide-react";
@@ -18,7 +18,7 @@ interface LayoutProps { children: ReactNode; }
 
 const iconMap: Record<string, React.ElementType> = {
   "/": LayoutDashboard, "/inicio": LayoutDashboard, "/jac": Building2, "/asocomunales": Users,
-  "/analiticas": BarChart2, "/alertas": AlertTriangle, "/reportes": FileText,
+  "/analiticas": BarChart2, "/alertas": AlertTriangle,
   "/solicitudes": GitPullRequest, "/mis-solicitudes": GitPullRequest,
   "/migracion": Upload, "/usuarios": UserCog, "/configuracion": Settings,
 };
