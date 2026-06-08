@@ -260,8 +260,8 @@ function JacDetalle() {
     return (
       <div>
         <PageHeader title="Acceso denegado" subtitle="Acceso restringido" description="No tiene permisos para ver este recurso">
-          <button 
-            onClick={() => navigate("/jac")} 
+          <button
+            onClick={() => navigate("/jac")}
             className={`flex items-center gap-2 bg-white dark:bg-gray-800 hover:bg-gray-50 dark:hover:bg-gray-700 text-gray-700 dark:text-gray-200 text-base font-semibold px-4 py-2.5 rounded-lg border border-gray-200 dark:border-gray-600 transition-colors ${focusRing}`}
           >
             <ArrowLeft size={16} /> Volver
@@ -278,8 +278,8 @@ function JacDetalle() {
     return (
       <div>
         <PageHeader title="Detalle de JAC" subtitle="Información detallada" description="Cargando información de la junta...">
-          <button 
-            onClick={() => navigate("/jac")} 
+          <button
+            onClick={() => navigate("/jac")}
             className={`flex items-center gap-2 bg-white dark:bg-gray-800 hover:bg-gray-50 dark:hover:bg-gray-700 text-gray-700 dark:text-gray-200 text-base font-semibold px-4 py-2.5 rounded-lg border border-gray-200 dark:border-gray-600 transition-colors ${focusRing}`}
           >
             <ArrowLeft size={16} /> Volver
@@ -296,8 +296,8 @@ function JacDetalle() {
     return (
       <div>
         <PageHeader title="Detalle de JAC" subtitle="Información detallada" description="No se encontró la JAC solicitada">
-          <button 
-            onClick={() => navigate("/jac")} 
+          <button
+            onClick={() => navigate("/jac")}
             className={`flex items-center gap-2 bg-white dark:bg-gray-800 hover:bg-gray-50 dark:hover:bg-gray-700 text-gray-700 dark:text-gray-200 text-base font-semibold px-4 py-2.5 rounded-lg border border-gray-200 dark:border-gray-600 transition-colors ${focusRing}`}
           >
             <ArrowLeft size={16} /> Volver
@@ -469,13 +469,15 @@ function JacDetalle() {
               <button onClick={handleAgregarAfiliado} className={`inline-flex items-center gap-1.5 bg-[#1B7F4B] hover:bg-[#166340] text-white text-base px-3 py-2 rounded-lg transition-colors shrink-0 ${focusRing}`}>
                 <Plus size={14} /> Agregar
               </button>
-              <button
-                onClick={() => navigate(`/migracion?jacId=${jac.id}`)}
-                className="inline-flex items-center gap-1.5 bg-[#1B7F4B] hover:bg-[#166040] text-white text-sm px-3 py-2 rounded-lg transition-colors shrink-0 font-semibold"
-                title="Importar afiliados desde Excel"
-              >
-                <Upload size={14} /> Importar Excel
-              </button>
+              {esAdmin && (
+                <button
+                  onClick={() => navigate(`/migracion?jacId=${jac.id}`)}
+                  className="inline-flex items-center gap-1.5 bg-[#1B7F4B] hover:bg-[#166040] text-white text-sm px-3 py-2 rounded-lg transition-colors shrink-0 font-semibold"
+                  title="Importar afiliados desde Excel"
+                >
+                  <Upload size={14} /> Importar Excel
+                </button>
+              )}
               <span className="text-xs text-gray-400 dark:text-gray-500 shrink-0">
                 {miembrosFiltrados.length} de {(jac.miembros || []).length}
               </span>
