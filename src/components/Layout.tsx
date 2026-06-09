@@ -9,16 +9,16 @@ import { useNotificaciones } from "../hooks/useNotificaciones";
 import { useJac } from "../hooks/useJac";
 import {
   LayoutDashboard, Building2, Users, BarChart2, AlertTriangle,
-  FileText, GitPullRequest, Upload, UserCog, Settings,
+  GitPullRequest, Upload, UserCog, Settings,
   Bell, LogOut, CheckCircle, AlertCircle, Info, XCircle, X,
-  Moon, Sun,
+  Moon, Sun, Menu,
 } from "lucide-react";
 
 interface LayoutProps { children: ReactNode; }
 
 const iconMap: Record<string, React.ElementType> = {
-  "/": LayoutDashboard, "/jac": Building2, "/asocomunales": Users,
-  "/analiticas": BarChart2, "/alertas": AlertTriangle, "/reportes": FileText,
+  "/": LayoutDashboard, "/inicio": LayoutDashboard, "/jac": Building2, "/asocomunales": Users,
+  "/analiticas": BarChart2, "/alertas": AlertTriangle,
   "/solicitudes": GitPullRequest, "/mis-solicitudes": GitPullRequest,
   "/migracion": Upload, "/usuarios": UserCog, "/configuracion": Settings,
 };
@@ -37,9 +37,9 @@ const nivelBg = {
   info: "bg-blue-50 dark:bg-blue-950/30",
 };
 
-interface NavItemProps { path: string; name: string; }
+interface NavItemProps { path: string; name: string; onNavigate?: () => void; }
 
-function NavItem({ path, name }: NavItemProps) {
+function NavItem({ path, name, onNavigate }: NavItemProps) {
   const location = useLocation();
   const Icon = iconMap[path] || LayoutDashboard;
   const isActive = location.pathname === path;
@@ -47,6 +47,7 @@ function NavItem({ path, name }: NavItemProps) {
   return (
     <Link
       to={path}
+      onClick={onNavigate}
       className={`flex items-center gap-3 px-3 py-2.5 rounded-lg text-[13px] font-medium transition-all group ${
         isActive ? "bg-white/20 text-white" : "text-white/70 hover:bg-white/10 hover:text-white"
       }`}
@@ -81,6 +82,8 @@ function Layout({ children }: LayoutProps) {
   const displayName = user?.nombre ?? "Invitado";
   const menu = menuByRole[activeRole];
 
+  const [sidebarOpen, setSidebarOpen] = useState(false);
+
   const { jacData } = useJac();
   const { notifs } = useNotificaciones(activeRole, user?.id, jacData);
 
@@ -112,18 +115,39 @@ function Layout({ children }: LayoutProps) {
   }, []);
 
   const handleLogout = () => { logout(); };
-  const mostrarBell  = isLoggedIn && (activeRole === "admin" || activeRole === "operador");
+  const mostrarBell  = false//isLoggedIn && (activeRole === "admin" || activeRole === "operador");
 
   return (
     
       <div className="flex h-screen overflow-hidden bg-[#F5F7FA] dark:bg-gray-900">
-        <aside className="w-64 flex flex-col bg-[#1B7F4B] text-white shrink-0 overflow-y-auto">
-          <div className="px-5 py-5 border-b border-white/10">
-            <p className="text-sm font-bold leading-tight">Plataforma de Gestión JAC</p>
-            <p className="text-[11px] text-white/60 mt-0.5">Gobernación del Cauca</p>
+        {/* Fondo oscuro detrás del drawer en móvil (<992px) */}
+        {sidebarOpen && (
+          <div
+            onClick={() => setSidebarOpen(false)}
+            className="fixed inset-0 z-40 bg-black/50 min-[992px]:hidden"
+            aria-hidden="true"
+          />
+        )}
+        <aside
+          className={`fixed inset-y-0 left-0 z-50 w-64 flex flex-col bg-[#1B7F4B] text-white overflow-y-auto transition-transform duration-300 shrink-0 min-[992px]:static min-[992px]:z-auto min-[992px]:translate-x-0 ${
+            sidebarOpen ? "translate-x-0" : "-translate-x-full"
+          }`}
+        >
+          <div className="px-5 py-5 border-b border-white/10 flex items-center justify-between gap-2">
+            <div className="min-w-0">
+              <p className="text-sm font-bold leading-tight">Plataforma de Gestión JAC</p>
+              <p className="text-[11px] text-white/60 mt-0.5">Gobernación del Cauca</p>
+            </div>
+            <button
+              onClick={() => setSidebarOpen(false)}
+              className="min-[992px]:hidden shrink-0 p-1.5 rounded-lg text-white/80 hover:bg-white/10 hover:text-white transition-colors"
+              aria-label="Cerrar menú"
+            >
+              <X size={18} />
+            </button>
           </div>
           <nav className="flex-1 py-3 px-2 flex flex-col gap-0.5">
-            {menu.map((item) => <NavItem key={item.path} path={item.path} name={item.name} />)}
+            {menu.map((item) => <NavItem key={item.path} path={item.path} name={item.name} onNavigate={() => setSidebarOpen(false)} />)}
           </nav>
           <div className="px-2 py-3 border-t border-white/10">
             {isLoggedIn ? (
@@ -152,7 +176,15 @@ function Layout({ children }: LayoutProps) {
 
       <div className="flex-1 flex flex-col overflow-hidden">
         <header className="h-14 bg-white dark:bg-gray-800 border-b border-gray-100 dark:border-gray-700 flex items-center justify-between px-6 shrink-0 gap-4">
-          <div className="flex items-center gap-2 text-sm text-gray-500 min-w-0" />
+          <div className="flex items-center gap-2 text-sm text-gray-500 min-w-0">
+            <button
+              onClick={() => setSidebarOpen(true)}
+              className="min-[992px]:hidden p-2 rounded-lg text-gray-600 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors"
+              aria-label="Abrir menú"
+            >
+              <Menu size={20} />
+            </button>
+          </div>
           <div className="flex items-center gap-3 shrink-0">
             <ThemeToggle />
 

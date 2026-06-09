@@ -115,7 +115,20 @@ const mapearSolicitud = (back: any): SolicitudItem => {
     descripcion: "Descripción",
     barrio: "Barrio/Vereda",
     asocomunalId: "Asocomunal",
-    asocomunalId_nombre: "Asocomunal"
+    asocomunalId_nombre: "Asocomunal",
+    // Campos de Afiliado (Persona)
+    apellido: "Apellido",
+    cedula: "Cédula",
+    documento: "Documento",
+    lugarExpedicionCedula: "Lugar expedición cédula",
+    cargoId: "Cargo",
+    cargoId_nombre: "Cargo",
+    genero: "Género",
+    grupoEtnico: "Grupo étnico",
+    fechaNacimiento: "Fecha de nacimiento",
+    ocupacion: "Ocupación",
+    estudiosRealizados: "Estudios realizados",
+    discapacitado: "¿Discapacidad?",
   };
 
   // Mapeo de equivalencias entre nombres de campo en payloads anteriores vs nuevos
@@ -136,6 +149,9 @@ const mapearSolicitud = (back: any): SolicitudItem => {
       // Si existe el campo _nombre, ignorar el ID correspondiente
       if (key === 'municipioId' && desired.municipioId_nombre) return false;
       if (key === 'asocomunalId' && desired.asocomunalId_nombre) return false;
+      if (key === 'cargoId' && desired.cargoId_nombre) return false;
+      // jacId es enlace interno del afiliado, no aporta al revisor
+      if (key === 'jacId') return false;
       return true;
     })
     .map(key => {
@@ -200,6 +216,12 @@ const mapearSolicitud = (back: any): SolicitudItem => {
         if (valNue === 'vereda') valNue = 'Vereda';
         if (valAnt === 'barrio') valAnt = 'Barrio';
         if (valAnt === 'vereda') valAnt = 'Vereda';
+      }
+
+      // Discapacidad: Sí/No en lugar de Activo/Inactivo
+      if (key === 'discapacitado') {
+        valNue = valNue === true ? "Sí" : valNue === false ? "No" : valNue;
+        valAnt = valAnt === true ? "Sí" : valAnt === false ? "No" : valAnt;
       }
 
       // Intentar convertir booleanos a texto amigable

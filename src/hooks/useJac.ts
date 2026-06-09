@@ -40,14 +40,14 @@ export const rolVariant: Record<string, "green" | "blue" | "amber" | "gray"> = {
 
 // ── Hook principal ────────────────────────────────────────────────────────────
 
-export function useJac() {
+export function useJac(initialMunicipio: string = "") {
   const { user, isAuthLoading } = useAuth();
   const privileged = isPrivilegedUser(user);
 
   const [jacData,  setJacData]  = useState<JacListItem[]>([]);
   const [loading,  setLoading]  = useState(true);
   const [error,    setError]    = useState<string | null>(null);
-  const [filters,  setFilters]  = useState<JacFilters>(initialFilters);
+  const [filters,  setFilters]  = useState<JacFilters>({ ...initialFilters, municipio: initialMunicipio });
   const [debouncedBusqueda, setDebouncedBusqueda] = useState("");
   const debounceRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 

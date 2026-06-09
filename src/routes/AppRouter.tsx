@@ -1,11 +1,11 @@
 import type { ReactNode } from "react";
 import { Navigate, Route, Routes } from "react-router-dom";
 import Layout from "../components/Layout";
+import Home from "../pages/Home";
 import DashboardUsuario from "../pages/DashboardUsuario";
 import Jac from "../pages/Jac";
 import Asocomunales from "../modules/asocomunales/pages/Asocomunales";
 import Usuarios from "../pages/Usuarios";
-import Reportes from "../pages/Reportes";
 import Analiticas from "../pages/Analiticas";
 import Alertas from "../pages/Alertas";
 import SolicitudesAdmin from "../modules/solicitudes/pages/SolicitudesAdmin";
@@ -50,13 +50,13 @@ function AppRouter() {
 
   return (
     <Routes>
-      <Route path="/" element={<Layout><DashboardUsuario /></Layout>} />
+      <Route path="/" element={<Home />} />
+      <Route path="/inicio" element={<Layout><DashboardUsuario /></Layout>} />
       <Route path="/jac" element={<Layout><Jac /></Layout>} />
       <Route path="/jac/:id" element={<Layout><JacDetalle /></Layout>} />
       <Route path="/asocomunales" element={<Layout><Asocomunales /></Layout>} />
       <Route path="/asocomunales/:id" element={<Layout><AsocomunalDetalle /></Layout>} />
       <Route path="/usuarios" element={<ProtectedLayout><Usuarios /></ProtectedLayout>} />
-      <Route path="/reportes" element={<ProtectedLayout><Reportes /></ProtectedLayout>} />
       <Route path="/analiticas" element={<ProtectedLayout><Analiticas /></ProtectedLayout>} />
       <Route path="/alertas" element={<ProtectedLayout><Alertas /></ProtectedLayout>} />
       <Route path="/solicitudes" element={<Layout><SolicitudesAdmin /></Layout>} />
