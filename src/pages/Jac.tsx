@@ -21,11 +21,8 @@ import type { Asocomunal } from "../modules/asocomunales/types";
 
 const card = "bg-white dark:bg-gray-800 rounded-xl border border-gray-100 dark:border-gray-700 shadow-sm";
 
-// Inputs y selects adaptados a 'text-base' según la guía global
-// Select con flecha personalizada integrada vía SVG en el fondo
 const selectCls = "appearance-none w-full bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-600 text-base text-gray-600 dark:text-gray-300 rounded-lg pl-3 pr-10 py-2 focus:outline-none focus:ring-2 focus:ring-[#1B7F4B]/30 focus:border-[#1B7F4B] transition-all cursor-pointer bg-[url('data:image/svg+xml;charset=utf-8,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20fill%3D%22none%22%20viewBox%3D%220%200%2024%2024%22%20stroke%3D%22%239ca3af%22%20stroke-width%3D%222%22%3E%3Cpath%20stroke-linecap%3D%22round%22%20stroke-linejoin%3D%22round%22%20d%3D%22M19%209l-7%207-7-7%22%2F%3E%3C%2Fsvg%3E')] bg-[length:1.25rem_1.25rem] bg-[right_0.75rem_center] bg-no-repeat";
 
-// Input estándar limpio
 const inputCls = "w-full bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-600 text-base text-gray-600 dark:text-gray-300 placeholder:text-gray-400 dark:placeholder:text-gray-500 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-[#1B7F4B]/30 focus:border-[#1B7F4B] transition-all";
 
 function Jac() {
@@ -35,7 +32,8 @@ function Jac() {
   const {
     filters, filtered, loading, error, refetch, handleClear, totalLoaded,
     setBusqueda, setMunicipio, setEstado, setMinAfiliados, setLimite, setDocumental,
-  } = useJac(municipioParam);
+    setSinAsocomunal, // [AGREGADO] setter del nuevo filtro
+  } = useJac();
 
   const navigate = useNavigate();
   const { user } = useAuth();
@@ -51,7 +49,6 @@ function Jac() {
   const canCreate = esAdmin || user?.rol === "operador";
   const canEdit = esAdmin || user?.rol === "operador";
 
-  // Obtener asocomunales disponibles
   useEffect(() => {
     const fetchAsocomunales = async () => {
       try {
@@ -64,7 +61,6 @@ function Jac() {
     fetchAsocomunales();
   }, []);
 
-  // Obtener JAC completa para edición
   const handleOpenEditModal = async (id: number) => {
     setFetchingJac(true);
     try {
@@ -85,14 +81,12 @@ function Jac() {
 
   const handleSaveEdit = async (id: number, jac: UpdateJACDto) => {
     try {
-      // Enriquecer ambos payloads con información para la auditoría
       const payloadAudit: any = { ...jac };
       if (jac.asocomunalId) {
         const aso = asocomunales.find(a => a.id === jac.asocomunalId);
         if (aso) payloadAudit.asocomunalId_nombre = aso.nombre;
       }
 
-      // Enriquecer payloadAnterior con nombre de asocomunal si aplica
       const payloadAnteriorAudit: any = { ...editingJac };
       if (editingJac?.asocomunalId) {
         const aso = asocomunales.find(a => a.id === editingJac.asocomunalId);
@@ -103,13 +97,11 @@ function Jac() {
 
       if (Permissions.isAdmin(user)) {
         await JACService.update(id, jac);
-        // Log fire-and-forget en auditoría (no bloquea la UI)
-        // Usar payloadAnteriorAudit enriquecido con nombres
         SolicitudesService.registrarAccionAdmin({
           entidadAfectada: "JAC",
           tipoAccion: "EDITAR",
           entidadId: String(id),
-          payloadAnterior: payloadAnteriorAudit,  // JAC completa con nombres enriquecidos
+          payloadAnterior: payloadAnteriorAudit,
           payloadDeseado: payloadAudit,
         }).catch(err => console.warn("[Auditoría] No se pudo registrar el log:", err));
         await Swal.fire({
@@ -121,7 +113,6 @@ function Jac() {
           timerProgressBar: true
         });
       } else {
-        // Usamos editingJac como payloadAnterior (tiene todos los campos)
         await proponerCambio("JAC", "EDITAR", payloadAudit, editingJac, String(id));
         await Swal.fire({
           icon: "info",
@@ -149,7 +140,6 @@ function Jac() {
 
   return (
     <div>
-      {/* PageHeader por defecto debe manejar el text-2xl y text-base internamente para títulos y subtítulos */}
       <PageHeader
         title="Gestión de Juntas de Acción Comunal"
         subtitle="Administre y consulte la información de las JAC del departamento"
@@ -164,7 +154,6 @@ function Jac() {
         )}
       </PageHeader>
 
-      {/* Aviso de actualización de datos por parte de la Gobernación */}
       <div className="flex items-start gap-3 rounded-lg px-4 py-3 mb-4 border bg-blue-50 text-blue-800 border-blue-200 dark:bg-blue-900/20 dark:text-blue-300 dark:border-blue-800">
         <Info size={18} className="shrink-0 mt-0.5" />
         <p className="text-base">
@@ -192,7 +181,6 @@ function Jac() {
 
       {/* Filtros */}
       <div className={`${card} p-4 mb-4`}>
-        {/* Label de sección adaptado a 'text-sm font-semibold uppercase' */}
         <p className="text-sm font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wider mb-3">
           Filtros de búsqueda
         </p>
@@ -214,6 +202,19 @@ function Jac() {
             <option value="Vigente">Con RUC</option>
             <option value="Vencida">Sin RUC</option>
           </select>
+
+          {/* [AGREGADO] Solo visible para admin/operador — el endpoint requiere auth */}
+          {canViewAfiliados && (
+            <select
+              value={filters.sinAsocomunal ? "sin" : "todas"}
+              onChange={(e) => setSinAsocomunal(e.target.value === "sin")}
+              className={selectCls}
+            >
+              <option value="todas">Todas las JAC</option>
+              <option value="sin">Sin asocomunal asignada</option>
+            </select>
+          )}
+
           <input
             type="number"
             placeholder="Número mínimo de afiliados"
@@ -244,7 +245,6 @@ function Jac() {
         </div>
       </div>
 
-      {/* Banner de estado/alerta adaptado a 'text-base font-medium' */}
       {!loading && !error && (
         <div
           className={`rounded-lg px-4 py-2.5 text-base font-medium mb-4 border ${totalLoaded <= 100
@@ -267,12 +267,10 @@ function Jac() {
       {/* Tabla */}
       <div className={`${card} overflow-hidden`}>
         <div className="overflow-x-auto">
-          {/* El contenedor principal de la tabla cambia a text-base para las celdas */}
           <table className="w-full text-base">
             <thead>
               <tr className="border-b border-gray-100 dark:border-gray-700 bg-gray-50 dark:bg-gray-900/50">
                 {visibleColumns.map((col) => (
-                  // Encabezados (<th>) adaptados a 'text-sm font-semibold uppercase'
                   <th key={col} className="text-left text-sm font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wider px-4 py-3">
                     {col}
                   </th>
@@ -288,7 +286,6 @@ function Jac() {
                 <EmptyState message="No se encontraron JAC con los criterios seleccionados" />
               ) : (
                 filtered.map((jac) => (
-                  // Celdas (<td>) heredan 'text-base' de la tabla, con estilos específicos para fuentes secundarias si aplica
                   <tr key={jac.id} className="border-b border-gray-50 dark:border-gray-700 hover:bg-gray-50 dark:hover:bg-gray-700/40 transition-colors">
                     <td className="px-4 py-3 font-medium text-gray-800 dark:text-gray-100">
                       {canViewAfiliados ? (
@@ -306,7 +303,6 @@ function Jac() {
                     <td className="px-4 py-3 text-gray-600 dark:text-gray-300">{jac.barrio}</td>
                     <td className="px-4 py-3 text-gray-700 dark:text-gray-200 tabular-nums font-medium">{jac.afiliados}</td>
                     <td className="px-4 py-3">
-                      {/* El componente interno OrganizativoStatus debería renderizar texto con la clase 'text-sm font-medium' (Badges) */}
                       <OrganizativoStatus
                         estado={
                           jac.organizativo === "Activa" ||
@@ -317,7 +313,6 @@ function Jac() {
                         }
                       />
                     </td>
-
                     {canViewAfiliados && (
                       <td className="px-4 py-3">
                         <div className="flex items-center gap-2">

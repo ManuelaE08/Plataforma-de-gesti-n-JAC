@@ -219,6 +219,18 @@ export class JACService {
     });
     return handleResponse<AlertasJacPage>(res);
   }
+
+  /** GET /jacs/without-asocomunal — Lista JACs sin asocomunal asignada. */
+static async findAllWithoutAsocomunal(): Promise<JacListItem[]> {
+  const res = await fetch(`${base()}/without-asocomunal`, {
+    method: "GET",
+    headers: defaultHeaders,
+    credentials: "include",
+  });
+
+  const data = await handleResponse<JacListItem[]>(res);
+  return JACAdapter.mapJACs(data);
+}
 }
 
 export interface PublicStats {

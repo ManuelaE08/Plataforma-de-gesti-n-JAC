@@ -16,10 +16,12 @@ interface JacFilters {
   documental: EstadoDocumental | "";
   minAfiliados: string;
   limite: number;
+  sinAsocomunal: boolean; // [AGREGADO] Filtro para JACs sin asocomunal asignada
 }
 
 const initialFilters: JacFilters = {
   busqueda: "", municipio: "", estado: "", documental: "", minAfiliados: "", limite: 100,
+  sinAsocomunal: false, // [AGREGADO] Por defecto muestra todas las JAC
 };
 
 // ── Constantes de UI ──────────────────────────────────────────────────────────
@@ -51,7 +53,7 @@ export function useJac(initialMunicipio: string = "") {
 
   const fetchJacs = useCallback(async () => {
     if (isAuthLoading) return;
-
+    if (filters.sinAsocomunal && !user) return; // [AGREGADO] evita fetch a endpoint protegido sin sesión
     setLoading(true);
     setError(null);
     try {
@@ -67,20 +69,28 @@ export function useJac(initialMunicipio: string = "") {
         documental,
         limite: filters.limite,
       };
-      const data = privileged
-        ? hasSearch
-          ? await JACService.search(searchFilters)
-          : await JACService.findAll(filters.limite)
-        : hasSearch
-          ? await JACService.searchPublic(searchFilters)
-          : await JACService.findAllPublic(filters.limite);
+
+      // [AGREGADO] Si el filtro sinAsocomunal está activo, llama al endpoint dedicado
+      // ignorando los demás filtros del backend; de lo contrario, flujo normal.
+      const data = filters.sinAsocomunal
+        ? await JACService.findAllWithoutAsocomunal()
+        : privileged
+          ? hasSearch
+            ? await JACService.search(searchFilters)
+            : await JACService.findAll(filters.limite)
+          : hasSearch
+            ? await JACService.searchPublic(searchFilters)
+            : await JACService.findAllPublic(filters.limite);
+
       setJacData(data);
     } catch (err) {
       setError(err instanceof Error ? err.message : "Error al cargar las JAC");
     } finally {
       setLoading(false);
     }
-  }, [debouncedBusqueda, filters.estado, filters.municipio, filters.documental, filters.limite, privileged, isAuthLoading]);
+  // [AGREGADO] filters.sinAsocomunal incluido en dependencias para que el fetch
+  // se re-ejecute cada vez que cambie ese filtro
+  }, [debouncedBusqueda, filters.estado, filters.municipio, filters.documental, filters.limite, filters.sinAsocomunal, privileged, isAuthLoading]);
 
   useEffect(() => {
     fetchJacs();
@@ -96,22 +106,33 @@ export function useJac(initialMunicipio: string = "") {
   }, [filters.busqueda]);
 
   const handleClear = () => {
-    setFilters(initialFilters);
+    setFilters(initialFilters); // sinAsocomunal vuelve a false automáticamente
     setDebouncedBusqueda("");
   };
 
   // Filtrado local solo para el mínimo de afiliados (los demás filtros viajan al backend).
+ // Filtrado local — cuando sinAsocomunal está activo los demás filtros se aplican
+  // aquí en el frontend sobre las 262 JACs; de lo contrario solo aplica minAfiliados.
   const filtered = jacData.filter((j) => {
-    return !filters.minAfiliados || j.afiliados >= Number(filters.minAfiliados);
-  });
+      if (filters.minAfiliados && j.afiliados < Number(filters.minAfiliados)) return false;
+
+      if (filters.sinAsocomunal) {
+        if (filters.busqueda) {
+          const q = filters.busqueda.toLowerCase();
+          const matchNombre = j.nombre?.toLowerCase().includes(q);
+          const matchBarrio = j.barrio?.toLowerCase().includes(q);
+          if (!matchNombre && !matchBarrio) return false;
+        }
+        if (filters.municipio && j.municipio !== filters.municipio) return false;
+        if (filters.estado && j.organizativo !== filters.estado) return false;
+      }
+
+      return true;
+    // [AGREGADO] Aplica el límite cuando sinAsocomunal está activo
+    }).slice(0, filters.sinAsocomunal ? filters.limite : undefined);
 
   const getJacById = (id: number) => jacData.find((item) => item.id === id) ?? null;
 
-  /**
-   * Eliminación lógica de una JAC.
-   * El backend cambia su estado a `inactiva` (no se borra de la BD); por eso
-   * después llamamos `fetchJacs()` para que la lista refleje el nuevo estado.
-   */
   const deleteJac = useCallback(async (id: number): Promise<void> => {
     await JACService.remove(id);
     await fetchJacs();
@@ -123,7 +144,8 @@ export function useJac(initialMunicipio: string = "") {
     filtered,
     loading,
     error,
-    totalLoaded: jacData.length,
+    // [MODIFICADO] Refleja los registros filtrados, no los crudos del backend
+    totalLoaded: filtered.length,
     // acciones
     refetch: fetchJacs,
     handleClear,
@@ -137,5 +159,7 @@ export function useJac(initialMunicipio: string = "") {
     setDocumental: (v: EstadoDocumental | "") => setFilters((p) => ({ ...p, documental: v })),
     setMinAfiliados: (v: string) => setFilters((p) => ({ ...p, minAfiliados: v })),
     setLimite: (v: number) => setFilters((p) => ({ ...p, limite: v })),
+    // [AGREGADO] Setter para activar/desactivar el filtro de JACs sin asocomunal
+    setSinAsocomunal: (v: boolean) => setFilters((p) => ({ ...p, sinAsocomunal: v })),
   };
 }
