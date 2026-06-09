@@ -6,7 +6,6 @@ import DashboardUsuario from "../pages/DashboardUsuario";
 import Jac from "../pages/Jac";
 import Asocomunales from "../modules/asocomunales/pages/Asocomunales";
 import Usuarios from "../pages/Usuarios";
-import Reportes from "../pages/Reportes";
 import Analiticas from "../pages/Analiticas";
 import Alertas from "../pages/Alertas";
 import SolicitudesAdmin from "../modules/solicitudes/pages/SolicitudesAdmin";
@@ -58,7 +57,6 @@ function AppRouter() {
       <Route path="/asocomunales" element={<Layout><Asocomunales /></Layout>} />
       <Route path="/asocomunales/:id" element={<Layout><AsocomunalDetalle /></Layout>} />
       <Route path="/usuarios" element={<ProtectedLayout><Usuarios /></ProtectedLayout>} />
-      <Route path="/reportes" element={<ProtectedLayout><Reportes /></ProtectedLayout>} />
       <Route path="/analiticas" element={<ProtectedLayout><Analiticas /></ProtectedLayout>} />
       <Route path="/alertas" element={<ProtectedLayout><Alertas /></ProtectedLayout>} />
       <Route path="/solicitudes" element={<Layout><SolicitudesAdmin /></Layout>} />

@@ -148,7 +148,7 @@ function Home() {
             <img
               src={logoGobernacion}
               alt="Gobernación del Cauca"
-              className="h-10 w-10 shrink-0 object-contain"
+              className="h-14 w-14 shrink-0 object-contain"
             />
             <span className="hidden truncate text-sm font-bold text-slate-900 dark:text-white sm:block">
               Plataforma JAC · Cauca
