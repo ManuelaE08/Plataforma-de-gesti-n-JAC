@@ -115,7 +115,7 @@ function Layout({ children }: LayoutProps) {
   }, []);
 
   const handleLogout = () => { logout(); };
-  const mostrarBell  = isLoggedIn && (activeRole === "admin" || activeRole === "operador");
+  const mostrarBell  = false//isLoggedIn && (activeRole === "admin" || activeRole === "operador");
 
   return (
     
