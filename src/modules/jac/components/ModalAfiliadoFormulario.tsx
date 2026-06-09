@@ -3,6 +3,9 @@ import { X, Loader } from "lucide-react";
 import Swal from "sweetalert2";
 import "sweetalert2/dist/sweetalert2.min.css";
 import { AfiliadosService, CreateAfiliadoDto, CargoResponse } from "../services/afiliadosService";
+import { SolicitudesService } from "../../solicitudes/services/solicitudes.service";
+import { useAuth } from "../../../context/AuthContext";
+import { Permissions } from "../../../utils/permissions";
 
 interface ModalAfiliadoFormularioProps {
   isOpen: boolean;
@@ -22,6 +25,11 @@ export function ModalAfiliadoFormulario({
   onSuccess,
 }: ModalAfiliadoFormularioProps) {
   const isEdit = !!afiliadoId;
+  const { user } = useAuth();
+  // Maker-Checker: el operador propone (solicitud al MS Auditoría);
+  // el admin aplica el cambio directo y deja el registro de auditoría.
+  const isAdmin = Permissions.isAdmin(user);
+  const isOperador = user?.rol === "operador";
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [cargos, setCargos] = useState<CargoResponse[]>([]);
@@ -150,9 +158,14 @@ export function ModalAfiliadoFormulario({
     setIsLoading(true);
     setError(null);
 
+    // Nombre legible del cargo para enriquecer el payload de auditoría
+    const cargoNombre = formData.cargoId
+      ? cargos.find((c) => c.id === Number(formData.cargoId))?.nombre
+      : undefined;
+
     try {
       if (isEdit && afiliadoId) {
-        await AfiliadosService.update(afiliadoId, {
+        const updateDto = {
           nombre: formData.nombre,
           apellido: formData.apellido,
           cedula: formData.cedula || undefined,
@@ -166,17 +179,41 @@ export function ModalAfiliadoFormulario({
           ocupacion: formData.ocupacion || undefined,
           estudiosRealizados: formData.estudiosRealizados || undefined,
           discapacitado: formData.discapacitado,
-        });
-        await Swal.fire({ icon: "success", title: "Afiliado actualizado", text: "La información ha sido guardada correctamente.", confirmButtonColor: "#1B7F4B", timer: 2000, timerProgressBar: true });
+        };
+        const payloadAudit: Record<string, unknown> = { ...updateDto };
+        if (cargoNombre) payloadAudit.cargoId_nombre = cargoNombre;
+
+        if (isAdmin) {
+          await AfiliadosService.update(afiliadoId, updateDto);
+          try {
+            await SolicitudesService.registrarAccionAdmin({
+              entidadAfectada: "AFILIADO",
+              entidadId: String(afiliadoId),
+              tipoAccion: "EDITAR",
+              payloadDeseado: payloadAudit,
+            });
+          } catch {
+            console.warn("No se pudo registrar la acción en auditoría");
+          }
+          await Swal.fire({ icon: "success", title: "Afiliado actualizado", text: "La información ha sido guardada correctamente.", confirmButtonColor: "#1B7F4B", timer: 2000, timerProgressBar: true });
+        } else if (isOperador) {
+          await SolicitudesService.crear({
+            entidadAfectada: "AFILIADO",
+            entidadId: String(afiliadoId),
+            tipoAccion: "EDITAR",
+            payloadDeseado: payloadAudit,
+          });
+          await Swal.fire({ icon: "success", title: "Propuesta enviada", text: "Su solicitud de edición ha sido enviada para revisión del administrador.", confirmButtonColor: "#1B7F4B" });
+        }
       } else {
-        await AfiliadosService.create({
+        const createDto = {
           nombre: formData.nombre,
           apellido: formData.apellido,
           cedula: formData.cedula || undefined,
           lugarExpedicionCedula: formData.lugarExpedicionCedula || undefined,
           correo: formData.correo || undefined,
           telefono: formData.telefono || undefined,
-          cargoId: formData.cargoId ? parseInt(formData.cargoId) : undefined,
+          cargoId: formData.cargoId ? Number(formData.cargoId) : undefined,
           jacId,
           municipioId,
           genero: formData.genero || undefined,
@@ -185,8 +222,30 @@ export function ModalAfiliadoFormulario({
           ocupacion: formData.ocupacion || undefined,
           estudiosRealizados: formData.estudiosRealizados || undefined,
           discapacitado: formData.discapacitado,
-        } as CreateAfiliadoDto);
-        await Swal.fire({ icon: "success", title: "Afiliado registrado", text: "El nuevo afiliado ha sido creado exitosamente.", confirmButtonColor: "#1B7F4B", timer: 2000, timerProgressBar: true });
+        } as CreateAfiliadoDto;
+        const payloadAudit: Record<string, unknown> = { ...createDto };
+        if (cargoNombre) payloadAudit.cargoId_nombre = cargoNombre;
+
+        if (isAdmin) {
+          await AfiliadosService.create(createDto);
+          try {
+            await SolicitudesService.registrarAccionAdmin({
+              entidadAfectada: "AFILIADO",
+              tipoAccion: "CREAR",
+              payloadDeseado: payloadAudit,
+            });
+          } catch {
+            console.warn("No se pudo registrar la acción en auditoría");
+          }
+          await Swal.fire({ icon: "success", title: "Afiliado registrado", text: "El nuevo afiliado ha sido creado exitosamente.", confirmButtonColor: "#1B7F4B", timer: 2000, timerProgressBar: true });
+        } else if (isOperador) {
+          await SolicitudesService.crear({
+            entidadAfectada: "AFILIADO",
+            tipoAccion: "CREAR",
+            payloadDeseado: payloadAudit,
+          });
+          await Swal.fire({ icon: "success", title: "Propuesta enviada", text: "Su solicitud de creación ha sido enviada para revisión del administrador.", confirmButtonColor: "#1B7F4B" });
+        }
       }
 
       onSuccess();
@@ -354,7 +413,9 @@ export function ModalAfiliadoFormulario({
             </button>
             <button type="submit" disabled={isLoading} className="flex-1 px-3 py-2 bg-blue-600 text-white rounded text-sm font-medium hover:bg-blue-700 disabled:opacity-50 flex items-center justify-center gap-2">
               {isLoading && <Loader size={16} className="animate-spin" />}
-              {isEdit ? "Actualizar" : "Crear"}
+              {isOperador
+                ? (isEdit ? "Proponer edición" : "Proponer creación")
+                : (isEdit ? "Actualizar" : "Crear")}
             </button>
           </div>
         </form>
