@@ -82,7 +82,7 @@ function DashboardUsuario() {
         // estados son opcionales y degradan con elegancia si fallan.
         const [statsResult, jacsResult, estadosResult] = await Promise.allSettled([
           JACService.getPublicStats(),
-          JACService.findAllPublic(2000),
+          JACService.findAllPublic(4000),
           JACService.getEstadosResumen(),
         ]);
 
