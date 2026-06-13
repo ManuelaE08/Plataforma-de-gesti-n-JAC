@@ -325,9 +325,13 @@ function Asocomunales() {
                         <td className="px-4 py-3 text-gray-600 dark:text-gray-300">{item.presidente || "—"}</td>
                         <td className="px-4 py-3 text-gray-600 dark:text-gray-300">
                           {item.telefono ? (
-                            <button className="text-[#1B7F4B] dark:text-emerald-400 hover:underline font-medium transition-colors focus:outline-none focus:ring-2 focus:ring-[#1B7F4B]/30 rounded">
-                              {item.telefono}
-                            </button>
+                            <div className="flex flex-col">
+                              {item.telefono.split(/[,;]+/).map((tel, idx) => (
+                                <span key={idx} className="text-[#1B7F4B] dark:text-emerald-400 font-medium">
+                                  {tel.trim()}
+                                </span>
+                              ))}
+                            </div>
                           ) : (
                             "—"
                           )}

@@ -171,6 +171,10 @@ function AsocomunalDetalle() {
             <p className="text-gray-800 dark:text-gray-200">{asoc.presidente || "No especificado"}</p>
           </div>
           <div>
+            <p className={lbl}>Cédula Presidente</p>
+            <p className="text-gray-800 dark:text-gray-200">{asoc.cedula || "No especificado"}</p>
+          </div>
+          <div>
             <p className={lbl}>Teléfono</p>
             <div className="flex items-start gap-2">
               <Phone size={14} className="text-gray-400 dark:text-gray-500 mt-1 flex-shrink-0" />
