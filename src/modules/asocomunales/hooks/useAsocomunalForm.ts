@@ -15,6 +15,7 @@ export function useAsocomunalForm(initialData?: Partial<Asocomunal>) {
     estado: initialData?.estado ?? true,
     municipioId: initialData?.municipio?.id || 0,
     presidente: initialData?.presidente || "",
+    cedula: initialData?.cedula || "",
     telefono: initialData?.telefono || "",
     correo: initialData?.correo || "",
   });
@@ -33,6 +34,7 @@ export function useAsocomunalForm(initialData?: Partial<Asocomunal>) {
       estado: initialData?.estado ?? true,
       municipioId: initialData?.municipio?.id || 0,
       presidente: initialData?.presidente || "",
+      cedula: initialData?.cedula || "",
       telefono: initialData?.telefono || "",
       correo: initialData?.correo || "",
     });

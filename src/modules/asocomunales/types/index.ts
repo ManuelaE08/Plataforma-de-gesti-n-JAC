@@ -46,6 +46,7 @@ export interface Asocomunal {
   nombre: string;
   estado: boolean;
   presidente?: string | null;
+  cedula?: string | null;
   telefono?: string | null;
   correo?: string | null;
   municipio: Municipio;
@@ -61,6 +62,7 @@ export interface CreateAsocomunalDto {
   estado?: boolean;
   municipioId: number;
   presidente?: string | null;
+  cedula?: string | null;
   telefono?: string | null;
   correo?: string | null;
 }
@@ -71,6 +73,7 @@ export interface UpdateAsocomunalDto {
   estado?: boolean;
   municipioId?: number;
   presidente?: string | null;
+  cedula?: string | null;
   telefono?: string | null;
   correo?: string | null;
 }

@@ -64,6 +64,7 @@ export function AsocomunalForm({ municipios, onSubmit, loading = false, initialD
       {field("Nombre", "nombre", "text", "Nombre de la asocomunal")}
       {field("Municipio", "municipioId")}
       {field("Presidente", "presidente", "text", "Nombre del presidente")}
+      {field("Cédula Presidente", "cedula", "text", "Documento de identidad")}
       {field("Teléfono", "telefono", "text", "Ej: +57-310-123-4567 o 310-123-4567, 320-987-6543")}
       {field("Correo", "correo", "text", "Ej: contacto@example.com, info@example.com")}
       
