@@ -21,9 +21,9 @@ import type { Asocomunal } from "../modules/asocomunales/types";
 
 const card = "bg-white dark:bg-gray-800 rounded-xl border border-gray-100 dark:border-gray-700 shadow-sm";
 
-const selectCls = "appearance-none w-full bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-600 text-base text-gray-600 dark:text-gray-300 rounded-lg pl-3 pr-10 py-2 focus:outline-none focus:ring-2 focus:ring-[#1B7F4B]/30 focus:border-[#1B7F4B] transition-all cursor-pointer bg-[url('data:image/svg+xml;charset=utf-8,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20fill%3D%22none%22%20viewBox%3D%220%200%2024%2024%22%20stroke%3D%22%239ca3af%22%20stroke-width%3D%222%22%3E%3Cpath%20stroke-linecap%3D%22round%22%20stroke-linejoin%3D%22round%22%20d%3D%22M19%209l-7%207-7-7%22%2F%3E%3C%2Fsvg%3E')] bg-[length:1.25rem_1.25rem] bg-[right_0.75rem_center] bg-no-repeat";
+const selectCls = "appearance-none w-full bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-600 text-base text-gray-600 dark:text-gray-300 rounded-lg pl-3 pr-10 py-2 focus:outline-none focus:ring-2 focus:ring-[#E4B400]/30 focus:border-[#E4B400] transition-all cursor-pointer bg-[url('data:image/svg+xml;charset=utf-8,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20fill%3D%22none%22%20viewBox%3D%220%200%2024%2024%22%20stroke%3D%22%239ca3af%22%20stroke-width%3D%222%22%3E%3Cpath%20stroke-linecap%3D%22round%22%20stroke-linejoin%3D%22round%22%20d%3D%22M19%209l-7%207-7-7%22%2F%3E%3C%2Fsvg%3E')] bg-[length:1.25rem_1.25rem] bg-[right_0.75rem_center] bg-no-repeat";
 
-const inputCls = "w-full bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-600 text-base text-gray-600 dark:text-gray-300 placeholder:text-gray-400 dark:placeholder:text-gray-500 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-[#1B7F4B]/30 focus:border-[#1B7F4B] transition-all";
+const inputCls = "w-full bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-600 text-base text-gray-600 dark:text-gray-300 placeholder:text-gray-400 dark:placeholder:text-gray-500 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-[#E4B400]/30 focus:border-[#E4B400] transition-all";
 
 function Jac() {
   const [searchParams] = useSearchParams();
@@ -72,7 +72,7 @@ function Jac() {
         icon: "error",
         title: "Error",
         text: "No se pudo cargar los datos de la JAC",
-        confirmButtonColor: "#1B7F4B"
+        confirmButtonColor: "#E4B400"
       });
     } finally {
       setFetchingJac(false);
@@ -108,7 +108,7 @@ function Jac() {
           icon: "success",
           title: "JAC actualizada",
           text: "La actualización se guardó correctamente.",
-          confirmButtonColor: "#1B7F4B",
+          confirmButtonColor: "#E4B400",
           timer: 2500,
           timerProgressBar: true
         });
@@ -118,7 +118,7 @@ function Jac() {
           icon: "info",
           title: "Propuesta enviada",
           text: "Tu propuesta de edición ha sido enviada para revisión del administrador.",
-          confirmButtonColor: "#1B7F4B"
+          confirmButtonColor: "#E4B400"
         });
       }
       setEditingJac(null);
@@ -129,7 +129,7 @@ function Jac() {
         icon: "error",
         title: "Error",
         text: err instanceof Error ? err.message : "No se pudo procesar la acción.",
-        confirmButtonColor: "#1B7F4B"
+        confirmButtonColor: "#E4B400"
       });
     }
   };
@@ -147,7 +147,7 @@ function Jac() {
         {canCreate && (
           <button
             onClick={() => setShowModal(true)}
-            className="flex items-center gap-2 bg-[#1B7F4B] hover:bg-[#166340] text-white text-base font-semibold px-4 py-2.5 rounded-lg transition-colors shrink-0"
+            className="flex items-center gap-2 bg-[#E4B400] hover:bg-[#cfa200] text-white text-base font-semibold px-4 py-2.5 rounded-lg transition-colors shrink-0"
           >
             <Plus size={18} /> Crear nueva JAC
           </button>
@@ -248,7 +248,7 @@ function Jac() {
       {!loading && !error && (
         <div
           className={`rounded-lg px-4 py-2.5 text-base font-medium mb-4 border ${totalLoaded <= 100
-            ? "bg-green-50 text-green-700 border-green-200 dark:bg-green-900/20 dark:text-green-400 dark:border-green-800"
+            ? "bg-yellow-50 text-green-700 border-green-200 dark:bg-green-900/20 dark:text-green-400 dark:border-green-800"
             : totalLoaded <= 500
               ? "bg-orange-50 text-orange-700 border-orange-200 dark:bg-orange-900/20 dark:text-orange-400 dark:border-orange-800"
               : "bg-red-50 text-red-700 border-red-200 dark:bg-red-900/20 dark:text-red-400 dark:border-red-800"
@@ -291,7 +291,7 @@ function Jac() {
                       {canViewAfiliados ? (
                         <button
                           onClick={() => navigate(`/jac/${jac.id}`)}
-                          className="text-left hover:text-[#1B7F4B] dark:hover:text-emerald-400 transition-colors"
+                          className="text-left hover:text-[#E4B400] dark:hover:text-yellow-400 transition-colors"
                         >
                           {jac.nombre}
                         </button>
@@ -318,7 +318,7 @@ function Jac() {
                         <div className="flex items-center gap-2">
                           <button
                             onClick={() => navigate(`/jac/${jac.id}`)}
-                            className="p-1.5 rounded-lg hover:bg-[#1B7F4B]/10 dark:hover:bg-[#1B7F4B]/20 text-gray-500 dark:text-gray-400 hover:text-[#1B7F4B] dark:hover:text-emerald-400 transition-colors"
+                            className="p-1.5 rounded-lg hover:bg-[#E4B400]/10 dark:hover:bg-[#E4B400]/20 text-gray-500 dark:text-gray-400 hover:text-[#E4B400] dark:hover:text-yellow-400 transition-colors"
                             title="Ver detalle"
                           >
                             <Ellipsis size={20} />
@@ -327,7 +327,7 @@ function Jac() {
                             <button
                               onClick={() => handleOpenEditModal(jac.id)}
                               disabled={fetchingJac}
-                              className="p-1.5 rounded-lg hover:bg-[#1B7F4B]/10 dark:hover:bg-[#1B7F4B]/20 text-gray-500 dark:text-gray-400 hover:text-[#1B7F4B] dark:hover:text-emerald-400 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+                              className="p-1.5 rounded-lg hover:bg-[#E4B400]/10 dark:hover:bg-[#E4B400]/20 text-gray-500 dark:text-gray-400 hover:text-[#E4B400] dark:hover:text-yellow-400 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
                               title="Editar"
                             >
                               <Pencil size={16} />

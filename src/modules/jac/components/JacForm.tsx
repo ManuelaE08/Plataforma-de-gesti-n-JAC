@@ -29,7 +29,7 @@ export function JacForm({ asocomunales, onSubmit, initialData }: JacFormProps) {
             value={form[key] || ""}
             onChange={(e) => handleChange(key, e.target.value ? Number(e.target.value) : undefined)}
             onBlur={() => handleBlur(key)}
-            className="border border-gray-200 dark:border-gray-600 px-3 py-2.5 rounded-lg text-sm bg-gray-50 dark:bg-gray-900 text-gray-800 dark:text-gray-100 focus:bg-white dark:focus:bg-gray-800 focus:outline-none focus:ring-2 focus:ring-[#1B7F4B]/30 focus:border-[#1B7F4B] transition-all"
+            className="border border-gray-200 dark:border-gray-600 px-3 py-2.5 rounded-lg text-sm bg-gray-50 dark:bg-gray-900 text-gray-800 dark:text-gray-100 focus:bg-white dark:focus:bg-gray-800 focus:outline-none focus:ring-2 focus:ring-[#E4B400]/30 focus:border-[#E4B400] transition-all"
           >
             <option value="">Selecciona una asocomunal</option>
             {asocomunales.map((aso) => (
@@ -45,7 +45,7 @@ export function JacForm({ asocomunales, onSubmit, initialData }: JacFormProps) {
             value={String(form[key] || "")}
             onChange={(e) => handleChange(key, e.target.value)}
             onBlur={() => handleBlur(key)}
-            className="border border-gray-200 dark:border-gray-600 px-3 py-2.5 rounded-lg text-sm bg-gray-50 dark:bg-gray-900 text-gray-800 dark:text-gray-100 placeholder:text-gray-400 dark:placeholder:text-gray-500 focus:bg-white dark:focus:bg-gray-800 focus:outline-none focus:ring-2 focus:ring-[#1B7F4B]/30 focus:border-[#1B7F4B] transition-all"
+            className="border border-gray-200 dark:border-gray-600 px-3 py-2.5 rounded-lg text-sm bg-gray-50 dark:bg-gray-900 text-gray-800 dark:text-gray-100 placeholder:text-gray-400 dark:placeholder:text-gray-500 focus:bg-white dark:focus:bg-gray-800 focus:outline-none focus:ring-2 focus:ring-[#E4B400]/30 focus:border-[#E4B400] transition-all"
           />
         )}
         {showError && <span className="text-xs text-red-500 dark:text-red-400">{errors[key]}</span>}
@@ -65,7 +65,7 @@ export function JacForm({ asocomunales, onSubmit, initialData }: JacFormProps) {
           value={form.estado || ""}
           onChange={(e) => handleChange("estado", e.target.value as "activa" | "inactiva" | "cancelada" | "")}
           onBlur={() => handleBlur("estado")}
-          className="border border-gray-200 dark:border-gray-600 px-3 py-2.5 rounded-lg text-sm bg-gray-50 dark:bg-gray-900 text-gray-800 dark:text-gray-100 focus:bg-white dark:focus:bg-gray-800 focus:outline-none focus:ring-2 focus:ring-[#1B7F4B]/30 focus:border-[#1B7F4B] transition-all"
+          className="border border-gray-200 dark:border-gray-600 px-3 py-2.5 rounded-lg text-sm bg-gray-50 dark:bg-gray-900 text-gray-800 dark:text-gray-100 focus:bg-white dark:focus:bg-gray-800 focus:outline-none focus:ring-2 focus:ring-[#E4B400]/30 focus:border-[#E4B400] transition-all"
         >
           <option value="">Sin cambio</option>
           <option value="activa">Activa</option>
@@ -80,7 +80,7 @@ export function JacForm({ asocomunales, onSubmit, initialData }: JacFormProps) {
         <button
           type="submit"
           disabled={formLoading}
-          className="flex-1 px-4 py-2.5 text-sm font-medium text-white bg-[#1B7F4B] rounded-lg hover:bg-[#1B7F4B]/90 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+          className="flex-1 px-4 py-2.5 text-sm font-medium text-white bg-[#E4B400] rounded-lg hover:bg-[#E4B400]/90 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
         >
           {formLoading ? "Guardando..." : "Guardar"}
         </button>

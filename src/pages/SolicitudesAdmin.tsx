@@ -7,7 +7,7 @@ import { ModalRechazar } from "../components/ui/ModalRechazar";
 import { useSolicitudes, estadoVariant, type TipoAccion, type EstadoSolicitud, type CambioCampo, type SolicitudItem } from "../hooks/useSolicitudes";
 
 const card   = "bg-white dark:bg-gray-800 rounded-xl border border-gray-100 dark:border-gray-700 shadow-sm";
-const input  = "w-full border border-gray-200 dark:border-gray-600 bg-white dark:bg-gray-900 text-sm text-gray-600 dark:text-gray-300 placeholder:text-gray-400 dark:placeholder:text-gray-500 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-[#1B7F4B]/30 focus:border-[#1B7F4B] transition-all";
+const input  = "w-full border border-gray-200 dark:border-gray-600 bg-white dark:bg-gray-900 text-sm text-gray-600 dark:text-gray-300 placeholder:text-gray-400 dark:placeholder:text-gray-500 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-[#E4B400]/30 focus:border-[#E4B400] transition-all";
 const selectCls = `appearance-none ${input} cursor-pointer`;
 
 function TablaCambios({ cambios, tipo }: { cambios: CambioCampo[]; tipo: SolicitudItem["tipo"] }) {
@@ -26,7 +26,7 @@ function TablaCambios({ cambios, tipo }: { cambios: CambioCampo[]; tipo: Solicit
           <tr key={i} className="bg-white dark:bg-gray-800">
             <td className="px-3 py-2 text-gray-600 dark:text-gray-300 font-medium">{c.campo}</td>
             {esEdicion && <td className="px-3 py-2 text-red-500 dark:text-red-400">{c.valorAnterior ?? "—"}</td>}
-            <td className="px-3 py-2 text-[#1B7F4B] dark:text-emerald-400 font-medium">{c.valorNuevo}</td>
+            <td className="px-3 py-2 text-[#E4B400] dark:text-yellow-400 font-medium">{c.valorNuevo}</td>
           </tr>
         ))}
       </tbody>
@@ -85,7 +85,7 @@ function SolicitudesAdmin() {
               <button onClick={() => setAprobarId(null)} className="px-4 py-2 text-sm font-medium text-gray-600 dark:text-gray-300 bg-white dark:bg-gray-700 border border-gray-200 dark:border-gray-600 rounded-lg hover:bg-gray-50 dark:hover:bg-gray-600 transition-colors">
                 Cancelar
               </button>
-              <button onClick={() => { aprobar(aprobarId); setAprobarId(null); }} className="px-4 py-2 text-sm font-semibold text-white bg-[#1B7F4B] hover:bg-[#166340] rounded-lg transition-colors">
+              <button onClick={() => { aprobar(aprobarId); setAprobarId(null); }} className="px-4 py-2 text-sm font-semibold text-white bg-[#E4B400] hover:bg-[#cfa200] rounded-lg transition-colors">
                 Sí, aprobar
               </button>
             </div>
@@ -186,7 +186,7 @@ function SolicitudesAdmin() {
                         <button onClick={() => setRechazarId(s.id)} className="inline-flex items-center gap-1.5 px-4 py-2 rounded-lg text-sm font-medium text-red-600 dark:text-red-400 border border-red-200 dark:border-red-700/50 hover:bg-red-50 dark:hover:bg-red-900/20 transition">
                           <XCircle size={14} /> Rechazar
                         </button>
-                        <button onClick={() => setAprobarId(s.id)} className="inline-flex items-center gap-1.5 px-4 py-2 rounded-lg text-sm font-semibold text-white bg-[#1B7F4B] hover:bg-[#166040] transition">
+                        <button onClick={() => setAprobarId(s.id)} className="inline-flex items-center gap-1.5 px-4 py-2 rounded-lg text-sm font-semibold text-white bg-[#E4B400] hover:bg-[#cfa200] transition">
                           <CheckCircle size={14} /> Aprobar
                         </button>
                       </div>

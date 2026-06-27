@@ -8,7 +8,7 @@ interface SelectFilterProps {
 function SelectFilter({ placeholder, options }: SelectFilterProps) {
   return (
     <div className="relative">
-      <select className="appearance-none w-full bg-white border border-gray-200 text-sm text-gray-600 rounded-lg px-3 py-2 pr-8 focus:outline-none focus:ring-2 focus:ring-[#1B7F4B]/30 focus:border-[#1B7F4B] transition-all cursor-pointer">
+      <select className="appearance-none w-full bg-white border border-gray-200 text-sm text-gray-600 rounded-lg px-3 py-2 pr-8 focus:outline-none focus:ring-2 focus:ring-[#E4B400]/30 focus:border-[#E4B400] transition-all cursor-pointer">
         <option value="">{placeholder}</option>
         {options.map((option) => (
           <option key={option} value={option}>

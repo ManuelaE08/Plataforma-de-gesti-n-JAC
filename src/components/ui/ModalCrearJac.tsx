@@ -23,7 +23,7 @@ interface AsocomunalOption {
 }
 
 const inputCls = (hasError: boolean) =>
-  `w-full border text-sm rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-[#1B7F4B]/30 focus:border-[#1B7F4B] transition-all
+  `w-full border text-sm rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-[#E4B400]/30 focus:border-[#E4B400] transition-all
    text-gray-700 dark:text-gray-200
    bg-gray-50 dark:bg-gray-900 focus:bg-white dark:focus:bg-gray-800
    placeholder:text-gray-300 dark:placeholder:text-gray-600
@@ -32,7 +32,7 @@ const inputCls = (hasError: boolean) =>
     : "border-gray-200 dark:border-gray-600"}`;
 
 const selectCls = (hasError: boolean) =>
-  `appearance-none w-full border text-sm rounded-lg px-3 py-2 bg-gray-50 dark:bg-gray-900 focus:bg-white dark:focus:bg-gray-800 focus:outline-none focus:ring-2 focus:ring-[#1B7F4B]/30 focus:border-[#1B7F4B] transition-all cursor-pointer text-gray-700 dark:text-gray-200
+  `appearance-none w-full border text-sm rounded-lg px-3 py-2 bg-gray-50 dark:bg-gray-900 focus:bg-white dark:focus:bg-gray-800 focus:outline-none focus:ring-2 focus:ring-[#E4B400]/30 focus:border-[#E4B400] transition-all cursor-pointer text-gray-700 dark:text-gray-200
    ${hasError
     ? "border-red-300 dark:border-red-600"
     : "border-gray-200 dark:border-gray-600"}`;
@@ -143,7 +143,7 @@ export function ModalCrearJac({ onClose, onSave }: ModalCrearJacProps) {
       showCancelButton: true,
       confirmButtonText: "Sí, crear JAC",
       cancelButtonText: "Cancelar",
-      confirmButtonColor: "#1B7F4B",
+      confirmButtonColor: "#E4B400",
       cancelButtonColor: "#6b7280",
       reverseButtons: true,
     });
@@ -186,7 +186,7 @@ export function ModalCrearJac({ onClose, onSave }: ModalCrearJacProps) {
           title: "JAC creada",
           text: "La JAC quedó registrada con estado Inactiva.",
           icon: "success",
-          confirmButtonColor: "#1B7F4B",
+          confirmButtonColor: "#E4B400",
           timer: 2200,
           timerProgressBar: true,
         });
@@ -204,7 +204,7 @@ export function ModalCrearJac({ onClose, onSave }: ModalCrearJacProps) {
           title: "¡Propuesta enviada!",
           text: "Su solicitud ha sido enviada para revisión del administrador.",
           icon: "success",
-          confirmButtonColor: "#1B7F4B",
+          confirmButtonColor: "#E4B400",
         });
       }
 
@@ -216,7 +216,7 @@ export function ModalCrearJac({ onClose, onSave }: ModalCrearJacProps) {
         title: "No se pudo crear la JAC",
         text: mensaje,
         icon: "error",
-        confirmButtonColor: "#1B7F4B",
+        confirmButtonColor: "#E4B400",
       });
     } finally {
       setSubmitting(false);
@@ -265,7 +265,7 @@ export function ModalCrearJac({ onClose, onSave }: ModalCrearJacProps) {
               </select>
               {loadingAso && (
                 <div className="absolute right-8 top-2.5">
-                  <Loader2 className="animate-spin text-[#1B7F4B]" size={16} />
+                  <Loader2 className="animate-spin text-[#E4B400]" size={16} />
                 </div>
               )}
             </div>
@@ -381,7 +381,7 @@ export function ModalCrearJac({ onClose, onSave }: ModalCrearJacProps) {
             <button
               type="submit"
               disabled={loadingAso || submitting}
-              className="inline-flex items-center gap-2 px-4 py-2 text-sm font-semibold text-white bg-[#1B7F4B] hover:bg-[#166340] rounded-lg transition-colors disabled:opacity-50"
+              className="inline-flex items-center gap-2 px-4 py-2 text-sm font-semibold text-white bg-[#E4B400] hover:bg-[#cfa200] rounded-lg transition-colors disabled:opacity-50"
             >
               {submitting && <Loader2 size={14} className="animate-spin" />}
               {submitting ? "Creando..." : "Crear JAC"}

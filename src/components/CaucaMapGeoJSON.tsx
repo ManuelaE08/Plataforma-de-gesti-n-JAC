@@ -15,10 +15,10 @@ interface CaucaMapGeoJSONProps {
 function getDensityColor(count: number, maxCount: number) {
   if (count === 0) return "#CBD5E1"; // Slate 300
   const ratio = count / Math.max(maxCount, 1);
-  if (ratio <= 0.25) return "#86EFAC"; // Light Green
-  if (ratio <= 0.5) return "#4ADE80";
-  if (ratio <= 0.75) return "#22C55E";
-  return "#166534"; // Dark Green
+  if (ratio <= 0.25) return "#FEF08A"; // Yellow 200
+  if (ratio <= 0.5) return "#FDE047"; // Yellow 300
+  if (ratio <= 0.75) return "#E4B400"; // Primary Yellow
+  return "#A16207"; // Dark Yellow
 }
 
 // Función auxiliar para normalizar nombres y hacer match con el GeoJSON
@@ -76,7 +76,7 @@ function CaucaMapGeoJSON({ jacs, selectedMunicipio, onSelect }: CaucaMapGeoJSONP
       fillColor: getDensityColor(count, maxCount),
       weight: isSelected ? 3.5 : isHovered ? 2.5 : 1,
       opacity: 1,
-      color: isSelected ? "#0F766E" : isHovered ? "#334155" : "#64748B",
+      color: isSelected ? "#854D0E" : isHovered ? "#334155" : "#64748B",
       fillOpacity: isSelected || isHovered ? 0.85 : 0.7,
     };
   };
@@ -151,12 +151,12 @@ function CaucaMapGeoJSON({ jacs, selectedMunicipio, onSelect }: CaucaMapGeoJSONP
   };
 
   return (
-    <div className="rounded-[24px] border border-white/40 bg-white/60 backdrop-blur-xl shadow-[0_20px_60px_rgba(0,0,0,0.08)] p-6">
+    <div className="rounded-[24px] border border-slate-200 dark:border-gray-700 bg-white dark:bg-gray-800 shadow-sm p-6">
       <div className="mb-6 flex flex-col gap-4 lg:flex-row lg:items-start lg:justify-between">
         <div>
-          <p className="text-sm font-semibold uppercase tracking-[0.18em] text-slate-500">Mapa interactivo</p>
-          <p className="mt-2 text-2xl font-bold text-slate-900">Municipios del Cauca</p>
-          <p className="mt-1 text-sm text-slate-600">42 municipios con presencia de JAC. Usa la búsqueda o haz clic en el mapa.</p>
+          <p className="text-sm font-semibold uppercase tracking-[0.18em] text-slate-500 dark:text-slate-400">Mapa interactivo</p>
+          <p className="mt-2 text-2xl font-bold text-slate-900 dark:text-white">Municipios del Cauca</p>
+          <p className="mt-1 text-sm text-slate-600 dark:text-gray-400">42 municipios con presencia de JAC. Usa la búsqueda o haz clic en el mapa.</p>
         </div>
         <div className="w-full lg:w-96">
           <div className="relative">
@@ -167,7 +167,7 @@ function CaucaMapGeoJSON({ jacs, selectedMunicipio, onSelect }: CaucaMapGeoJSONP
               value={searchTerm}
               onChange={(event) => setSearchTerm(event.target.value)}
               placeholder="Buscar municipio..."
-              className="w-full rounded-2xl border border-slate-200 bg-white px-4 py-3 text-base text-slate-900 shadow-sm outline-none transition focus:border-indigo-400 focus:ring-2 focus:ring-indigo-200"
+              className="w-full rounded-2xl border border-slate-200 dark:border-gray-700 bg-white dark:bg-gray-700 px-4 py-3 text-base text-slate-900 dark:text-white shadow-sm outline-none transition focus:border-yellow-400 focus:ring-2 focus:ring-yellow-200"
             />
             {searchTerm && (
               <div className="absolute left-0 right-0 z-50 mt-2 rounded-2xl border border-slate-200 bg-white p-3 text-sm text-slate-700 shadow-2xl">
@@ -176,7 +176,7 @@ function CaucaMapGeoJSON({ jacs, selectedMunicipio, onSelect }: CaucaMapGeoJSONP
                   <button
                     type="button"
                     onClick={() => setSearchTerm("")}
-                    className="rounded-full bg-slate-50 px-3 py-1.5 text-xs font-semibold uppercase tracking-[0.16em] text-indigo-700 shadow-sm transition hover:bg-indigo-100"
+                    className="rounded-full bg-slate-50 px-3 py-1.5 text-xs font-semibold uppercase tracking-[0.16em] text-yellow-700 shadow-sm transition hover:bg-yellow-100"
                   >
                     Limpiar
                   </button>
@@ -191,7 +191,7 @@ function CaucaMapGeoJSON({ jacs, selectedMunicipio, onSelect }: CaucaMapGeoJSONP
                           onSelect(name);
                           setSearchTerm("");
                         }}
-                        className="w-full rounded-2xl border border-slate-200 bg-slate-50 px-3 py-3 text-base font-medium text-slate-800 text-left transition hover:border-indigo-300 hover:bg-indigo-50"
+                        className="w-full rounded-2xl border border-slate-200 bg-slate-50 px-3 py-3 text-base font-medium text-slate-800 text-left transition hover:border-yellow-300 hover:bg-yellow-50"
                       >
                         {name}
                       </button>
@@ -203,11 +203,11 @@ function CaucaMapGeoJSON({ jacs, selectedMunicipio, onSelect }: CaucaMapGeoJSONP
               </div>
             )}
           </div>
-          <p className="mt-2 text-sm text-slate-500">Filtra municipios por nombre y selecciona uno para ver sus JAC.</p>
+          <p className="mt-2 text-sm text-slate-500 dark:text-gray-400">Filtra municipios por nombre y selecciona uno para ver sus JAC.</p>
         </div>
       </div>
 
-      <div className="overflow-hidden rounded-3xl border border-slate-200/80 bg-slate-50 min-h-[500px] h-[550px] relative z-[10]">
+      <div className="overflow-hidden rounded-3xl border border-slate-200/80 dark:border-gray-700 bg-slate-50 dark:bg-gray-900 min-h-[500px] h-[550px] relative z-[10]">
         <MapContainer
           center={[2.5062, -76.6725]}
           zoom={8.2}
@@ -230,7 +230,7 @@ function CaucaMapGeoJSON({ jacs, selectedMunicipio, onSelect }: CaucaMapGeoJSONP
 
       <div className="mt-6 grid gap-2 sm:grid-cols-2 md:grid-cols-5">
         {getLegendItems().map((item) => (
-          <div key={item.label} className="flex items-center gap-2 rounded-2xl border border-slate-200 bg-white/80 px-3 py-2 text-xs font-medium text-slate-700">
+          <div key={item.label} className="flex items-center gap-2 rounded-2xl border border-slate-200 dark:border-gray-700 bg-slate-50 dark:bg-gray-800 px-3 py-2 text-xs font-medium text-slate-700 dark:text-gray-300">
             <span className="inline-flex h-3 w-3 rounded-full" style={{ backgroundColor: item.color }} />
             <span>{item.label}</span>
           </div>

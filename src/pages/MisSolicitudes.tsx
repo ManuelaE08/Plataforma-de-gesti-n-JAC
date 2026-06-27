@@ -8,7 +8,7 @@ import { useSolicitudes, estadoVariant, type CambioCampo, type SolicitudItem } f
 import { useAuth } from "../context/AuthContext";
 
 const card   = "bg-white dark:bg-gray-800 rounded-xl border border-gray-100 dark:border-gray-700 shadow-sm";
-const select = "appearance-none border border-gray-200 dark:border-gray-600 bg-white dark:bg-gray-900 text-sm text-gray-600 dark:text-gray-300 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-[#1B7F4B]/30 focus:border-[#1B7F4B] transition-all cursor-pointer";
+const select = "appearance-none border border-gray-200 dark:border-gray-600 bg-white dark:bg-gray-900 text-sm text-gray-600 dark:text-gray-300 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-[#E4B400]/30 focus:border-[#E4B400] transition-all cursor-pointer";
 
 function TablaCambios({ cambios, tipo }: { cambios: CambioCampo[]; tipo: SolicitudItem["tipo"] }) {
   const esEdicion = tipo.startsWith("Editar");
@@ -26,7 +26,7 @@ function TablaCambios({ cambios, tipo }: { cambios: CambioCampo[]; tipo: Solicit
           <tr key={i} className="bg-white dark:bg-gray-800">
             <td className="px-3 py-2 text-gray-600 dark:text-gray-300 font-medium">{c.campo}</td>
             {esEdicion && <td className="px-3 py-2 text-red-500 dark:text-red-400">{c.valorAnterior ?? "—"}</td>}
-            <td className="px-3 py-2 text-[#1B7F4B] dark:text-emerald-400 font-medium">{c.valorNuevo}</td>
+            <td className="px-3 py-2 text-[#E4B400] dark:text-yellow-400 font-medium">{c.valorNuevo}</td>
           </tr>
         ))}
       </tbody>
@@ -54,7 +54,7 @@ function MisSolicitudes() {
       >
         <button
           onClick={() => setShowModal(true)}
-          className="flex items-center gap-2 bg-[#1B7F4B] hover:bg-[#166340] text-white text-sm font-semibold px-4 py-2.5 rounded-lg transition-colors shrink-0"
+          className="flex items-center gap-2 bg-[#E4B400] hover:bg-[#cfa200] text-white text-sm font-semibold px-4 py-2.5 rounded-lg transition-colors shrink-0"
         >
           <Plus size={16} /> Nueva solicitud
         </button>

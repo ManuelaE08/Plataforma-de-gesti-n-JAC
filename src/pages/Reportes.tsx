@@ -16,10 +16,10 @@ function Reportes() {
   // Clases y constantes del Sistema de Diseño Institucional
   const card = "bg-white dark:bg-gray-800 rounded-xl border border-gray-100 dark:border-gray-700 shadow-sm";
   const labelCls = "text-sm font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wider mb-1";
-  const focusRing = "focus:outline-none focus:ring-2 focus:ring-[#1B7F4B]/30 focus:border-[#1B7F4B]";
+  const focusRing = "focus:outline-none focus:ring-2 focus:ring-[#E4B400]/30 focus:border-[#E4B400]";
   
   // Constante de select institucional con flecha personalizada en SVG e incremento de fuente (text-base)
-  const selectCls = "appearance-none w-full bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-600 text-base text-gray-600 dark:text-gray-300 rounded-lg pl-3 pr-10 py-2 focus:outline-none focus:ring-2 focus:ring-[#1B7F4B]/30 focus:border-[#1B7F4B] transition-all cursor-pointer bg-[url('data:image/svg+xml;charset=utf-8,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20fill%3D%22none%22%20viewBox%3D%220%200%2020%2020%22%3E%3Cpath%20stroke%3D%22%236B7280%22%20stroke-linecap%3D%22round%22%20stroke-linejoin%3D%22round%22%20stroke-width%3D%221.5%22%20d%3D%22m6%208%204%204%204-4%22%2F%3E%3C%2Fsvg%3E')] bg-[position:right_0.5rem_center] bg-[size:1.5em_1.5em] bg-no-repeat";
+  const selectCls = "appearance-none w-full bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-600 text-base text-gray-600 dark:text-gray-300 rounded-lg pl-3 pr-10 py-2 focus:outline-none focus:ring-2 focus:ring-[#E4B400]/30 focus:border-[#E4B400] transition-all cursor-pointer bg-[url('data:image/svg+xml;charset=utf-8,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20fill%3D%22none%22%20viewBox%3D%220%200%2020%2020%22%3E%3Cpath%20stroke%3D%22%236B7280%22%20stroke-linecap%3D%22round%22%20stroke-linejoin%3D%22round%22%20stroke-width%3D%221.5%22%20d%3D%22m6%208%204%204%204-4%22%2F%3E%3C%2Fsvg%3E')] bg-[position:right_0.5rem_center] bg-[size:1.5em_1.5em] bg-no-repeat";
 
   // Renderizador de puntos LED difuminados únicamente aplicados para la columna de Estado Operativo
   const renderStatusDot = (status: string) => {
@@ -51,7 +51,7 @@ function Reportes() {
       >
         <button
           onClick={abrirModal}
-          className={`flex items-center gap-2 bg-[#1B7F4B] hover:bg-[#166340] text-white text-base font-semibold px-4 py-2.5 rounded-lg transition-colors shrink-0 ${focusRing}`}
+          className={`flex items-center gap-2 bg-[#E4B400] hover:bg-[#cfa200] text-white text-base font-semibold px-4 py-2.5 rounded-lg transition-colors shrink-0 ${focusRing}`}
         >
           <Plus size={16} />
           Generar reporte
@@ -82,7 +82,7 @@ function Reportes() {
         </div>
         <div className={card + " p-4"}>
           <p className={labelCls}>Exportaciones</p>
-          <p className="text-3xl font-bold tabular-nums text-[#1B7F4B]">12</p>
+          <p className="text-3xl font-bold tabular-nums text-[#E4B400]">12</p>
           <p className="text-sm text-gray-500 dark:text-gray-400 mt-1">PDF, Excel y CSV</p>
         </div>
       </div>
@@ -184,7 +184,7 @@ function Reportes() {
                         <button className={`p-2 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-700 text-gray-500 hover:text-gray-700 dark:hover:text-gray-200 transition-colors ${focusRing}`} title="Ver">
                           <Eye size={16} />
                         </button>
-                        <button className={`p-2 rounded-lg hover:bg-green-50 dark:hover:bg-green-900/20 text-gray-500 hover:text-[#1B7F4B] transition-colors ${focusRing}`} title="Descargar">
+                        <button className={`p-2 rounded-lg hover:bg-yellow-50 dark:hover:bg-green-900/20 text-gray-500 hover:text-[#E4B400] transition-colors ${focusRing}`} title="Descargar">
                           <Download size={16} />
                         </button>
                       </div>

@@ -1,0 +1,8 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(ls components.json)",
+      "Bash(node -e \"const p=require\\('./package.json'\\); const all={...p.dependencies,...p.devDependencies}; ['recharts','class-variance-authority','clsx','tailwind-merge','tailwindcss-animate','lucide-react','@radix-ui/react-slot'].forEach\\(d=>console.log\\(d, all[d]||'NO'\\)\\)\")"
+    ]
+  }
+}

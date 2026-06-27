@@ -59,7 +59,7 @@ function ModalGenerarReporte({ abierto, form, formError, generando, onCerrar, on
               placeholder="Ej. Reporte JAC - Abril 2026"
               value={form.nombre}
               onChange={(e) => onSetField("nombre", e.target.value)}
-              className="w-full bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-600 text-sm text-gray-800 dark:text-gray-100 rounded-lg px-3 py-2.5 focus:outline-none focus:ring-2 focus:ring-[#1B7F4B]/30 focus:border-[#1B7F4B] transition-all placeholder:text-gray-400"
+              className="w-full bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-600 text-sm text-gray-800 dark:text-gray-100 rounded-lg px-3 py-2.5 focus:outline-none focus:ring-2 focus:ring-[#E4B400]/30 focus:border-[#E4B400] transition-all placeholder:text-gray-400"
             />
           </div>
 
@@ -71,7 +71,7 @@ function ModalGenerarReporte({ abierto, form, formError, generando, onCerrar, on
             <select
               value={form.tipo}
               onChange={(e) => onSetField("tipo", e.target.value as NuevoReporteForm["tipo"])}
-              className="appearance-none w-full bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-600 text-sm text-gray-700 dark:text-gray-300 rounded-lg px-3 py-2.5 focus:outline-none focus:ring-2 focus:ring-[#1B7F4B]/30 focus:border-[#1B7F4B] transition-all cursor-pointer"
+              className="appearance-none w-full bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-600 text-sm text-gray-700 dark:text-gray-300 rounded-lg px-3 py-2.5 focus:outline-none focus:ring-2 focus:ring-[#E4B400]/30 focus:border-[#E4B400] transition-all cursor-pointer"
             >
               <option value="">Seleccionar tipo...</option>
               {TIPOS.map((t) => (
@@ -93,7 +93,7 @@ function ModalGenerarReporte({ abierto, form, formError, generando, onCerrar, on
                   onClick={() => onSetField("formato", fmt)}
                   className={`py-2 rounded-lg border text-sm font-medium transition-all ${
                     form.formato === fmt
-                      ? "border-[#1B7F4B] bg-[#1B7F4B]/10 text-[#1B7F4B] dark:text-emerald-400"
+                      ? "border-[#E4B400] bg-[#E4B400]/10 text-[#E4B400] dark:text-yellow-400"
                       : "border-gray-200 dark:border-gray-600 text-gray-600 dark:text-gray-300 hover:border-gray-300 dark:hover:border-gray-500"
                   }`}
                 >
@@ -123,7 +123,7 @@ function ModalGenerarReporte({ abierto, form, formError, generando, onCerrar, on
           <button
             onClick={onGenerar}
             disabled={generando}
-            className="inline-flex items-center gap-2 px-4 py-2 bg-[#1B7F4B] hover:bg-[#166340] disabled:bg-[#1B7F4B]/70 text-white text-sm font-semibold rounded-lg transition-colors"
+            className="inline-flex items-center gap-2 px-4 py-2 bg-[#E4B400] hover:bg-[#cfa200] disabled:bg-[#E4B400]/70 text-white text-sm font-semibold rounded-lg transition-colors"
           >
             {generando
               ? <><Loader2 size={15} className="animate-spin" /> Generando...</>

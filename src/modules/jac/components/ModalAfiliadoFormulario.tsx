@@ -195,7 +195,7 @@ export function ModalAfiliadoFormulario({
           } catch {
             console.warn("No se pudo registrar la acción en auditoría");
           }
-          await Swal.fire({ icon: "success", title: "Afiliado actualizado", text: "La información ha sido guardada correctamente.", confirmButtonColor: "#1B7F4B", timer: 2000, timerProgressBar: true });
+          await Swal.fire({ icon: "success", title: "Afiliado actualizado", text: "La información ha sido guardada correctamente.", confirmButtonColor: "#E4B400", timer: 2000, timerProgressBar: true });
         } else if (isOperador) {
           await SolicitudesService.crear({
             entidadAfectada: "AFILIADO",
@@ -203,7 +203,7 @@ export function ModalAfiliadoFormulario({
             tipoAccion: "EDITAR",
             payloadDeseado: payloadAudit,
           });
-          await Swal.fire({ icon: "success", title: "Propuesta enviada", text: "Su solicitud de edición ha sido enviada para revisión del administrador.", confirmButtonColor: "#1B7F4B" });
+          await Swal.fire({ icon: "success", title: "Propuesta enviada", text: "Su solicitud de edición ha sido enviada para revisión del administrador.", confirmButtonColor: "#E4B400" });
         }
       } else {
         const createDto = {
@@ -237,21 +237,21 @@ export function ModalAfiliadoFormulario({
           } catch {
             console.warn("No se pudo registrar la acción en auditoría");
           }
-          await Swal.fire({ icon: "success", title: "Afiliado registrado", text: "El nuevo afiliado ha sido creado exitosamente.", confirmButtonColor: "#1B7F4B", timer: 2000, timerProgressBar: true });
+          await Swal.fire({ icon: "success", title: "Afiliado registrado", text: "El nuevo afiliado ha sido creado exitosamente.", confirmButtonColor: "#E4B400", timer: 2000, timerProgressBar: true });
         } else if (isOperador) {
           await SolicitudesService.crear({
             entidadAfectada: "AFILIADO",
             tipoAccion: "CREAR",
             payloadDeseado: payloadAudit,
           });
-          await Swal.fire({ icon: "success", title: "Propuesta enviada", text: "Su solicitud de creación ha sido enviada para revisión del administrador.", confirmButtonColor: "#1B7F4B" });
+          await Swal.fire({ icon: "success", title: "Propuesta enviada", text: "Su solicitud de creación ha sido enviada para revisión del administrador.", confirmButtonColor: "#E4B400" });
         }
       }
 
       onSuccess();
       onClose();
     } catch (err) {
-      await Swal.fire({ icon: "error", title: "Error", text: err instanceof Error ? err.message : "No se pudo procesar la solicitud.", confirmButtonColor: "#1B7F4B" });
+      await Swal.fire({ icon: "error", title: "Error", text: err instanceof Error ? err.message : "No se pudo procesar la solicitud.", confirmButtonColor: "#E4B400" });
       setError(err instanceof Error ? err.message : "Error desconocido");
     } finally {
       setIsLoading(false);

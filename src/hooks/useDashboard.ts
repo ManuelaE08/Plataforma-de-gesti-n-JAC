@@ -26,8 +26,8 @@ export function useDashboard() {
       label: "JAC registradas",
       value: "128",
       sub: "+12 este mes",
-      iconBg: "bg-[#1B7F4B]/10",
-      iconColor: "text-[#1B7F4B]",
+      iconBg: "bg-[#E4B400]/10",
+      iconColor: "text-[#E4B400]",
     },
     {
       label: "Asocomunales",

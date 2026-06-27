@@ -24,10 +24,10 @@ import type { Asocomunal } from "../modules/asocomunales/types";
 // Clases del Sistema de Diseño Institucional
 const card = "bg-white dark:bg-gray-800 rounded-xl border border-gray-100 dark:border-gray-700 shadow-sm";
 const label = "text-sm font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wider mb-1";
-const focusRing = "focus:outline-none focus:ring-2 focus:ring-[#1B7F4B]/30 focus:border-[#1B7F4B]";
+const focusRing = "focus:outline-none focus:ring-2 focus:ring-[#E4B400]/30 focus:border-[#E4B400]";
 const inputBase = "bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-600 text-base text-gray-600 dark:text-gray-300 rounded-lg px-3 py-2 transition-all";
 
-const selectCls = "appearance-none w-full bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-600 text-base text-gray-600 dark:text-gray-300 rounded-lg pl-3 pr-10 py-2 focus:outline-none focus:ring-2 focus:ring-[#1B7F4B]/30 focus:border-[#1B7F4B] transition-all cursor-pointer bg-[url('data:image/svg+xml;charset=utf-8,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20fill%3D%22none%22%20viewBox%3D%220%200%2020%2020%22%3E%3Cpath%20stroke%3D%22%236B7280%22%20stroke-linecap%3D%22round%22%20stroke-linejoin%3D%22round%22%20stroke-width%3D%221.5%22%20d%3D%22m6%208%204%204%204-4%22%2F%3E%3C%2Fsvg%3E')] bg-[position:right_0.5rem_center] bg-[size:1.5em_1.5em] bg-no-repeat";
+const selectCls = "appearance-none w-full bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-600 text-base text-gray-600 dark:text-gray-300 rounded-lg pl-3 pr-10 py-2 focus:outline-none focus:ring-2 focus:ring-[#E4B400]/30 focus:border-[#E4B400] transition-all cursor-pointer bg-[url('data:image/svg+xml;charset=utf-8,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20fill%3D%22none%22%20viewBox%3D%220%200%2020%2020%22%3E%3Cpath%20stroke%3D%22%236B7280%22%20stroke-linecap%3D%22round%22%20stroke-linejoin%3D%22round%22%20stroke-width%3D%221.5%22%20d%3D%22m6%208%204%204%204-4%22%2F%3E%3C%2Fsvg%3E')] bg-[position:right_0.5rem_center] bg-[size:1.5em_1.5em] bg-no-repeat";
 
 function JacDetalle() {
   const { id } = useParams();
@@ -227,7 +227,7 @@ function JacDetalle() {
           title: "Propuesta enviada",
           text: "Su solicitud de eliminación ha sido enviada para revisión del administrador.",
           icon: "success",
-          confirmButtonColor: "#1B7F4B",
+          confirmButtonColor: "#E4B400",
         });
         return;
       }
@@ -251,7 +251,7 @@ function JacDetalle() {
         title: "Eliminado",
         text: "El afiliado ha sido eliminado correctamente.",
         icon: "success",
-        confirmButtonColor: "#1B7F4B",
+        confirmButtonColor: "#E4B400",
         timer: 2000,
         timerProgressBar: true
       });
@@ -260,7 +260,7 @@ function JacDetalle() {
         title: "Error",
         text: err instanceof Error ? err.message : "Hubo un problema al procesar la solicitud.",
         icon: "error",
-        confirmButtonColor: "#1B7F4B"
+        confirmButtonColor: "#E4B400"
       });
     }
   };
@@ -368,7 +368,7 @@ function JacDetalle() {
           {canViewAfiliados && (
             <button
               onClick={() => setEditingJac(jac)}
-              className="flex items-center gap-2 bg-[#1B7F4B] hover:bg-[#166340] text-white text-sm font-semibold px-4 py-2.5 rounded-lg transition-colors"
+              className="flex items-center gap-2 bg-[#E4B400] hover:bg-[#cfa200] text-white text-sm font-semibold px-4 py-2.5 rounded-lg transition-colors"
             >
               <Edit size={16} /> Editar JAC
             </button>
@@ -381,7 +381,7 @@ function JacDetalle() {
 
       {/* Alerta de éxito */}
       {successMessage && (
-        <div className="animate-in fade-in slide-in-from-top-2 rounded-lg px-4 py-3 mb-4 border bg-green-50 text-green-800 border-green-200 dark:bg-green-900/20 dark:text-green-300 dark:border-green-800">
+        <div className="animate-in fade-in slide-in-from-top-2 rounded-lg px-4 py-3 mb-4 border bg-yellow-50 text-green-800 border-green-200 dark:bg-green-900/20 dark:text-green-300 dark:border-green-800">
           <div className="flex items-center gap-3">
             <CheckCircle2 size={18} className="shrink-0" />
             <p className="text-base font-medium">{successMessage}</p>
@@ -513,13 +513,13 @@ function JacDetalle() {
                   <RotateCcw size={14} /> Limpiar
                 </button>
               )}
-              <button onClick={handleAgregarAfiliado} className={`inline-flex items-center gap-1.5 bg-[#1B7F4B] hover:bg-[#166340] text-white text-base px-3 py-2 rounded-lg transition-colors shrink-0 ${focusRing}`}>
+              <button onClick={handleAgregarAfiliado} className={`inline-flex items-center gap-1.5 bg-[#E4B400] hover:bg-[#cfa200] text-white text-base px-3 py-2 rounded-lg transition-colors shrink-0 ${focusRing}`}>
                 <Plus size={14} /> Agregar
               </button>
               {esAdmin && (
                 <button
                   onClick={() => navigate(`/migracion?jacId=${jac.id}`)}
-                  className="inline-flex items-center gap-1.5 bg-[#1B7F4B] hover:bg-[#166040] text-white text-sm px-3 py-2 rounded-lg transition-colors shrink-0 font-semibold"
+                  className="inline-flex items-center gap-1.5 bg-[#E4B400] hover:bg-[#cfa200] text-white text-sm px-3 py-2 rounded-lg transition-colors shrink-0 font-semibold"
                   title="Importar afiliados desde Excel"
                 >
                   <Upload size={14} /> Importar Excel
@@ -556,7 +556,7 @@ function JacDetalle() {
                       <td className="px-4 py-3"><Badge label={miembro.rol} variant={rolVariant[miembro.rol]} /></td>
                       <td className="px-4 py-3">
                         <div className="flex items-center gap-2">
-                          <button onClick={() => handleVerDetalleAfiliado(miembro.id)} className="p-1.5 rounded-lg hover:bg-[#1B7F4B]/10 dark:hover:bg-[#1B7F4B]/20 text-gray-500 dark:text-gray-400 hover:text-[#1B7F4B] dark:hover:text-emerald-400 transition-colors" title="Ver detalles">
+                          <button onClick={() => handleVerDetalleAfiliado(miembro.id)} className="p-1.5 rounded-lg hover:bg-[#E4B400]/10 dark:hover:bg-[#E4B400]/20 text-gray-500 dark:text-gray-400 hover:text-[#E4B400] dark:hover:text-yellow-400 transition-colors" title="Ver detalles">
                             <Ellipsis size={20} />
                           </button>
                           <button onClick={() => handleEditarAfiliado(miembro.id)} className="p-1.5 rounded-lg hover:bg-blue-50 dark:hover:bg-blue-900/20 text-gray-400 dark:text-gray-500 hover:text-blue-500 dark:hover:text-blue-400 transition-colors" title="Editar">

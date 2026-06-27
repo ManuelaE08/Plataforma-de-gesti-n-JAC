@@ -55,7 +55,7 @@ function SegmentedDonut({ title, subtitle, segments, badge }: SegmentedDonutProp
           )}
         </div>
         {badge && (
-          <span className="shrink-0 inline-flex items-center rounded-full bg-[#1B7F4B]/10 dark:bg-emerald-400/10 px-3 py-1 text-xs font-bold text-[#1B7F4B] dark:text-emerald-400">
+          <span className="shrink-0 inline-flex items-center rounded-full bg-[#E4B400]/10 dark:bg-yellow-500/10 px-3 py-1 text-xs font-bold text-[#E4B400] dark:text-yellow-500">
             {badge}
           </span>
         )}

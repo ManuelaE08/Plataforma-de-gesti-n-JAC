@@ -144,7 +144,7 @@ function Migracion() {
           {/* Paso 1: Selección de JAC de destino */}
           <section className="bg-white dark:bg-gray-800 rounded-xl border border-gray-100 dark:border-gray-700 shadow-sm p-5">
             <h2 className="text-sm font-semibold text-gray-800 dark:text-gray-100 mb-1 flex items-center gap-2">
-              <span className="flex items-center justify-center w-5 h-5 rounded-full bg-[#1B7F4B]/10 text-[#1B7F4B] text-[11px] font-bold">1</span>
+              <span className="flex items-center justify-center w-5 h-5 rounded-full bg-[#E4B400]/10 text-[#E4B400] text-[11px] font-bold">1</span>
               JAC a la que se asociarán los afiliados
             </h2>
             <p className="text-xs text-gray-500 dark:text-gray-400 mb-4 pl-7">
@@ -152,9 +152,9 @@ function Migracion() {
             </p>
 
             {jacSeleccionada ? (
-              <div className="flex items-start sm:items-center justify-between gap-3 p-4 rounded-xl border border-[#1B7F4B]/30 bg-[#1B7F4B]/5">
+              <div className="flex items-start sm:items-center justify-between gap-3 p-4 rounded-xl border border-[#E4B400]/30 bg-[#E4B400]/5">
                 <div className="flex items-start gap-3 min-w-0">
-                  <div className="w-10 h-10 rounded-lg bg-[#1B7F4B] text-white flex items-center justify-center shrink-0">
+                  <div className="w-10 h-10 rounded-lg bg-[#E4B400] text-white flex items-center justify-center shrink-0">
                     <Building2 size={18} />
                   </div>
                   <div className="min-w-0">
@@ -179,7 +179,7 @@ function Migracion() {
               <div ref={buscadorJacRef} className="relative">
                 <div className={`flex items-center gap-2 px-3 py-2.5 rounded-lg border bg-white dark:bg-gray-900 transition-colors ${
                   resultadosAbiertos
-                    ? "border-[#1B7F4B] ring-1 ring-[#1B7F4B]/20"
+                    ? "border-[#E4B400] ring-1 ring-[#E4B400]/20"
                     : "border-gray-200 dark:border-gray-700"
                 }`}>
                   <Search size={16} className="text-gray-400 shrink-0" />
@@ -194,7 +194,7 @@ function Migracion() {
                     placeholder="Escriba el nombre de la JAC..."
                     className="flex-1 bg-transparent text-sm text-gray-800 dark:text-gray-100 placeholder-gray-400 focus:outline-none"
                   />
-                  {jacBuscando && <Loader2 size={16} className="text-[#1B7F4B] animate-spin shrink-0" />}
+                  {jacBuscando && <Loader2 size={16} className="text-[#E4B400] animate-spin shrink-0" />}
                   {!jacBuscando && jacQuery && (
                     <button
                       type="button"
@@ -232,7 +232,7 @@ function Migracion() {
                               onClick={() => { seleccionarJAC(jac); setResultadosAbiertos(false); }}
                               className="w-full text-left px-3 py-2.5 hover:bg-gray-50 dark:hover:bg-gray-800 transition-colors flex items-start gap-3"
                             >
-                              <div className="w-8 h-8 rounded-md bg-[#1B7F4B]/10 text-[#1B7F4B] flex items-center justify-center shrink-0">
+                              <div className="w-8 h-8 rounded-md bg-[#E4B400]/10 text-[#E4B400] flex items-center justify-center shrink-0">
                                 <Building2 size={14} />
                               </div>
                               <div className="min-w-0 flex-1">
@@ -258,7 +258,7 @@ function Migracion() {
           {/* Paso 2: Zona de Carga */}
           <section className={`bg-white dark:bg-gray-800 rounded-xl border border-gray-100 dark:border-gray-700 shadow-sm p-5 ${cargaBloqueada ? "opacity-60" : ""}`}>
             <h2 className="text-sm font-semibold text-gray-800 dark:text-gray-100 mb-1 flex items-center gap-2">
-              <span className="flex items-center justify-center w-5 h-5 rounded-full bg-[#1B7F4B]/10 text-[#1B7F4B] text-[11px] font-bold">2</span>
+              <span className="flex items-center justify-center w-5 h-5 rounded-full bg-[#E4B400]/10 text-[#E4B400] text-[11px] font-bold">2</span>
               Gestión del Archivo Excel
             </h2>
             <p className="text-xs text-gray-500 dark:text-gray-400 mb-4 pl-7">Asegúrese de que el archivo cumpla con el formato oficial de Afiliados.</p>
@@ -273,8 +273,8 @@ function Migracion() {
                   cargaBloqueada
                     ? "border-gray-300 dark:border-gray-700 bg-gray-100 dark:bg-gray-800/60 cursor-not-allowed"
                     : arrastrando
-                      ? "border-[#1B7F4B] bg-[#1B7F4B]/5 dark:bg-[#1B7F4B]/10 cursor-pointer"
-                      : "border-gray-300 dark:border-gray-600 bg-gray-50 dark:bg-gray-800/40 hover:border-[#1B7F4B]/50 cursor-pointer"
+                      ? "border-[#E4B400] bg-[#E4B400]/5 dark:bg-[#E4B400]/10 cursor-pointer"
+                      : "border-gray-300 dark:border-gray-600 bg-gray-50 dark:bg-gray-800/40 hover:border-[#E4B400]/50 cursor-pointer"
                 }`}
               >
                 <input ref={inputRef} type="file" accept=".xlsx" className="hidden" onChange={onFileChange} disabled={cargaBloqueada} />
@@ -282,7 +282,7 @@ function Migracion() {
                 <div className={`w-16 h-16 rounded-full flex items-center justify-center mb-4 transition-colors ${
                   cargaBloqueada
                     ? "bg-gray-200 dark:bg-gray-700 text-gray-400"
-                    : "bg-indigo-50 dark:bg-indigo-900/40 text-indigo-500"
+                    : "bg-yellow-50 dark:bg-yellow-900/40 text-yellow-500"
                 }`}>
                   <Upload size={28} />
                 </div>
@@ -308,8 +308,8 @@ function Migracion() {
             ) : (
               <div className="rounded-xl border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800 p-5 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 shadow-sm animate-in fade-in zoom-in-95 duration-200">
                 <div className="flex items-center gap-4 min-w-0">
-                  <div className="w-12 h-12 rounded-xl bg-indigo-50 dark:bg-indigo-900/30 flex items-center justify-center shrink-0 border border-indigo-100 dark:border-indigo-800">
-                    <FileSpreadsheet size={24} className="text-indigo-600 dark:text-indigo-400" />
+                  <div className="w-12 h-12 rounded-xl bg-yellow-50 dark:bg-yellow-900/30 flex items-center justify-center shrink-0 border border-yellow-100 dark:border-yellow-800">
+                    <FileSpreadsheet size={24} className="text-yellow-600 dark:text-yellow-400" />
                   </div>
                   <div className="min-w-0">
                     <p className="text-sm font-bold text-gray-800 dark:text-gray-100 truncate">{archivo.name}</p>
@@ -321,7 +321,7 @@ function Migracion() {
                   <button
                     onClick={importarArchivo}
                     disabled={estado === 'importando' || estado === 'importado' || error !== ""}
-                    className="flex-1 sm:flex-none inline-flex justify-center items-center gap-2 px-5 py-2.5 rounded-lg bg-[#1B7F4B] hover:bg-[#166040] text-white text-[13px] font-bold transition-all shadow-sm disabled:bg-gray-400 disabled:shadow-none disabled:cursor-not-allowed"
+                    className="flex-1 sm:flex-none inline-flex justify-center items-center gap-2 px-5 py-2.5 rounded-lg bg-[#E4B400] hover:bg-[#cfa200] text-white text-[13px] font-bold transition-all shadow-sm disabled:bg-gray-400 disabled:shadow-none disabled:cursor-not-allowed"
                   >
                      {estado === "importando" ? <RefreshCw size={16} className="animate-spin" /> : <Database size={16} />}
                      <span>{estado === "importado" ? "Completado" : "Importar Ahora"}</span>
@@ -338,10 +338,10 @@ function Migracion() {
               <div className="mt-5 bg-gray-50 dark:bg-gray-800/50 p-4 rounded-xl border border-gray-100 dark:border-gray-700">
                 <div className="flex items-center justify-between mb-2 text-xs">
                   <span className="font-medium text-gray-600 dark:text-gray-300">Sincronizando afiliados con la base de datos...</span>
-                  <span className="text-[#1B7F4B] font-bold">{progreso}%</span>
+                  <span className="text-[#E4B400] font-bold">{progreso}%</span>
                 </div>
                 <div className="w-full h-2.5 rounded-full bg-gray-200 dark:bg-gray-700 overflow-hidden">
-                  <div className="h-full bg-[#1B7F4B] transition-all duration-300 relative" style={{ width: `${progreso}%` }}>
+                  <div className="h-full bg-[#E4B400] transition-all duration-300 relative" style={{ width: `${progreso}%` }}>
                     <div className="absolute inset-0 bg-white/20 animate-pulse"></div>
                   </div>
                 </div>
@@ -394,11 +394,11 @@ function Migracion() {
               <div className="mt-5 space-y-3">
                 <div className={`p-4 rounded-xl border flex items-start gap-3 ${
                   resultado.errores === 0
-                    ? 'bg-green-50 border-green-200 dark:bg-green-900/20 dark:border-green-800'
+                    ? 'bg-yellow-50 border-green-200 dark:bg-green-900/20 dark:border-green-800'
                     : 'bg-amber-50 border-amber-200 dark:bg-amber-900/20 dark:border-amber-800'
                 }`}>
                   {resultado.errores === 0
-                    ? <CheckCircle2 className="shrink-0 text-green-600" size={20} />
+                    ? <CheckCircle2 className="shrink-0 text-yellow-600" size={20} />
                     : <AlertCircle className="shrink-0 text-amber-600" size={20} />
                   }
                   <div className="w-full">
@@ -430,7 +430,7 @@ function Migracion() {
                             </p>
                             <div className="flex flex-wrap gap-1.5">
                               {resultado.afiliados.cargosCreados.map((cargo) => (
-                                <span key={cargo} className="inline-flex items-center text-[11px] font-semibold px-2 py-0.5 rounded bg-[#1B7F4B]/10 text-[#1B7F4B] border border-[#1B7F4B]/20">
+                                <span key={cargo} className="inline-flex items-center text-[11px] font-semibold px-2 py-0.5 rounded bg-[#E4B400]/10 text-[#E4B400] border border-[#E4B400]/20">
                                   {cargo}
                                 </span>
                               ))}
@@ -462,13 +462,13 @@ function Migracion() {
         <div className="space-y-4 h-full">
           <section className="bg-white dark:bg-gray-800 rounded-xl border border-gray-100 dark:border-gray-700 shadow-sm p-6 h-full flex flex-col">
             <h3 className="text-sm font-bold text-gray-800 dark:text-gray-100 mb-6 flex items-center gap-2">
-              <FileWarning size={18} className="text-[#1B7F4B]" />
+              <FileWarning size={18} className="text-[#E4B400]" />
               Instrucciones Previas
             </h3>
 
             <div className="space-y-6 flex-1">
               <div className="flex items-start gap-3">
-                <div className="w-6 h-6 rounded-full bg-indigo-50 text-indigo-500 dark:bg-indigo-900/30 flex items-center justify-center shrink-0 text-xs font-bold mt-0.5">1</div>
+                <div className="w-6 h-6 rounded-full bg-yellow-50 text-yellow-500 dark:bg-yellow-900/30 flex items-center justify-center shrink-0 text-xs font-bold mt-0.5">1</div>
                 <div>
                   <p className="text-sm font-semibold text-gray-800 dark:text-gray-200">Seleccione la JAC</p>
                   <p className="text-xs text-gray-500 dark:text-gray-400 mt-1.5 leading-relaxed">Busque y elija la Junta de Acción Comunal a la que pertenecerán los afiliados y dignatarios del archivo.</p>
@@ -476,7 +476,7 @@ function Migracion() {
               </div>
 
               <div className="flex items-start gap-3">
-                <div className="w-6 h-6 rounded-full bg-emerald-50 text-emerald-500 dark:bg-emerald-900/30 flex items-center justify-center shrink-0 text-xs font-bold mt-0.5">2</div>
+                <div className="w-6 h-6 rounded-full bg-yellow-50 text-yellow-500 dark:bg-yellow-900/30 flex items-center justify-center shrink-0 text-xs font-bold mt-0.5">2</div>
                 <div className="flex-1 min-w-0">
                   <p className="text-sm font-semibold text-gray-800 dark:text-gray-200">Descargue la plantilla de Excel</p>
                   <p className="text-xs text-gray-500 dark:text-gray-400 mt-1.5 leading-relaxed">
@@ -487,7 +487,7 @@ function Migracion() {
                     type="button"
                     onClick={descargarPlantilla}
                     disabled={!plantillaAfiliados.url}
-                    className="mt-3 inline-flex items-center gap-2 px-3.5 py-2 rounded-lg bg-[#1B7F4B] hover:bg-[#166040] text-white text-xs font-bold transition-all shadow-sm disabled:bg-gray-300 disabled:text-gray-500 disabled:cursor-not-allowed disabled:shadow-none"
+                    className="mt-3 inline-flex items-center gap-2 px-3.5 py-2 rounded-lg bg-[#E4B400] hover:bg-[#cfa200] text-white text-xs font-bold transition-all shadow-sm disabled:bg-gray-300 disabled:text-gray-500 disabled:cursor-not-allowed disabled:shadow-none"
                     title={plantillaAfiliados.url ? `Descargar ${plantillaAfiliados.fileName}` : "Plantilla aún no disponible"}
                   >
                     <Download size={14} />

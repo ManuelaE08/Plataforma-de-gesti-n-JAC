@@ -27,7 +27,7 @@ function AsocomunalSection({ asocomunales }: AsocomunalSectionProps) {
                 className="flex w-full items-center justify-between gap-4 px-5 py-4 text-left"
               >
                 <div className="flex items-center gap-4">
-                  <span className="flex h-11 w-11 items-center justify-center rounded-2xl bg-[#D1FAE5] dark:bg-emerald-950 text-[#166534] dark:text-emerald-400 shrink-0"><Building2 size={20} /></span>
+                  <span className="flex h-11 w-11 items-center justify-center rounded-2xl bg-[#D1FAE5] dark:bg-yellow-950 text-[#166534] dark:text-yellow-400 shrink-0"><Building2 size={20} /></span>
                   <div>
                     <p className="text-lg font-bold text-slate-900 dark:text-white">{item.nombre}</p>
                     <p className="text-base text-slate-500 dark:text-slate-400">{item.municipio}</p>
@@ -35,7 +35,7 @@ function AsocomunalSection({ asocomunales }: AsocomunalSectionProps) {
                 </div>
                 <div className="flex items-center gap-3">
                   <span className="inline-flex items-center gap-1.5 rounded-lg border border-slate-200 dark:border-gray-650 bg-white dark:bg-gray-700 px-2.5 py-1 text-sm font-bold text-slate-700 dark:text-slate-300 shadow-sm">
-                    <span className="h-1.5 w-1.5 rounded-full bg-emerald-500" />
+                    <span className="h-1.5 w-1.5 rounded-full bg-yellow-500" />
                     {item.jacsAfiliadas.length} JACs afiliadas
                   </span>
                   {isExpanded ? <ChevronUp size={18} className="text-slate-600 dark:text-slate-400" /> : <ChevronDown size={18} className="text-slate-600 dark:text-slate-400" />}

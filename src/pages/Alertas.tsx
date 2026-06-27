@@ -9,7 +9,7 @@ import EmptyState from "../components/ui/EmptyState";
 import { useAlertas, type AlertaSeveridad, type CategoriaMeta } from "../hooks/useAlertas";
 
 const card = "bg-white dark:bg-gray-800 rounded-xl border border-gray-100 dark:border-gray-700 shadow-sm";
-const focusRing = "focus:outline-none focus:ring-2 focus:ring-[#1B7F4B]/30 focus:border-[#1B7F4B]";
+const focusRing = "focus:outline-none focus:ring-2 focus:ring-[#E4B400]/30 focus:border-[#E4B400]";
 
 /** Paleta por severidad: borde/acento de la tarjeta, color del número y del punto. */
 const severidadStyles: Record<AlertaSeveridad, {
@@ -103,7 +103,7 @@ function Alertas() {
               key={meta.categoria}
               onClick={() => (activa ? cerrarCategoria() : abrirCategoria(meta.categoria))}
               className={`${card} text-left p-4 transition-all ${s.ring} ${
-                activa ? "ring-2 ring-[#1B7F4B]/40 border-[#1B7F4B]/40" : ""
+                activa ? "ring-2 ring-[#E4B400]/40 border-[#E4B400]/40" : ""
               } ${focusRing}`}
             >
               <div className="flex items-start justify-between gap-3">
@@ -135,7 +135,7 @@ function Alertas() {
 
               <p className="text-xs text-gray-500 dark:text-gray-400 mt-1.5 leading-relaxed">{meta.descripcion}</p>
 
-              <p className="text-[11px] font-semibold text-[#1B7F4B] mt-2">
+              <p className="text-[11px] font-semibold text-[#E4B400] mt-2">
                 {activa ? "Ocultar detalle ▲" : "Ver JAC afectadas ▼"}
               </p>
             </button>
@@ -230,7 +230,7 @@ function Alertas() {
                           </td>
                           <td className="px-4 py-3">
                             <span className={`inline-flex items-center gap-2 text-sm font-semibold ${
-                              jac.estado === "Activa" ? "text-green-600 dark:text-green-400"
+                              jac.estado === "Activa" ? "text-yellow-600 dark:text-green-400"
                                 : jac.estado === "Inactiva" ? "text-orange-600 dark:text-orange-400"
                                 : "text-gray-500 dark:text-gray-400"
                             }`}>
@@ -254,7 +254,7 @@ function Alertas() {
                           <td className="px-4 py-3">
                             <button
                               onClick={() => navigate(`/jac/${jac.id}`)}
-                              className={`p-2 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-700 text-gray-500 hover:text-[#1B7F4B] dark:hover:text-emerald-400 transition-colors ${focusRing}`}
+                              className={`p-2 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-700 text-gray-500 hover:text-[#E4B400] dark:hover:text-yellow-400 transition-colors ${focusRing}`}
                               title="Ver detalle de la JAC"
                             >
                               <Eye size={16} />

@@ -9,7 +9,7 @@ interface SearchBarProps {
 
 function SearchBar({ placeholder, value, onChange }: SearchBarProps) {
   return (
-    <div className="flex items-center gap-2.5 border border-gray-200 dark:border-gray-600 rounded-lg px-3 py-2 bg-white dark:bg-gray-800 focus-within:ring-2 focus-within:ring-[#1B7F4B]/30 focus-within:border-[#1B7F4B] transition-all w-full">
+    <div className="flex items-center gap-2.5 border border-gray-200 dark:border-gray-600 rounded-lg px-3 py-2 bg-white dark:bg-gray-800 focus-within:ring-2 focus-within:ring-[#E4B400]/30 focus-within:border-[#E4B400] transition-all w-full">
       {/* Icono aumentado a 18 para equilibrar el texto base */}
       <Search size={18} className="text-gray-400 dark:text-gray-500 shrink-0" />
       <input

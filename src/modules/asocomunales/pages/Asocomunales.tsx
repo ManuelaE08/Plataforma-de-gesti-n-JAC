@@ -20,7 +20,7 @@ import type { Asocomunal, CreateAsocomunalDto, UpdateAsocomunalDto } from "../ty
 const card = "bg-white dark:bg-gray-800 rounded-xl border border-gray-100 dark:border-gray-700 shadow-sm";
 
 // Select optimizado a text-base con flecha nativa integrada vía SVG
-const selectCls = "appearance-none w-full bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-600 text-base text-gray-600 dark:text-gray-300 rounded-lg pl-3 pr-10 py-2 focus:outline-none focus:ring-2 focus:ring-[#1B7F4B]/30 focus:border-[#1B7F4B] transition-all cursor-pointer disabled:opacity-50 bg-[url('data:image/svg+xml;charset=utf-8,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20fill%3D%22none%22%20viewBox%3D%220%200%2024%2024%22%20stroke%3D%22%239ca3af%22%20stroke-width%3D%222%22%3E%3Cpath%20stroke-linecap%3D%22round%22%20stroke-linejoin%3D%22round%22%20d%3D%22M19%209l-7%207-7-7%22%2F%3E%3C%2Fsvg%3E')] bg-[length:1.25rem_1.25rem] bg-[right_0.75rem_center] bg-no-repeat";
+const selectCls = "appearance-none w-full bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-600 text-base text-gray-600 dark:text-gray-300 rounded-lg pl-3 pr-10 py-2 focus:outline-none focus:ring-2 focus:ring-[#E4B400]/30 focus:border-[#E4B400] transition-all cursor-pointer disabled:opacity-50 bg-[url('data:image/svg+xml;charset=utf-8,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20fill%3D%22none%22%20viewBox%3D%220%200%2024%2024%22%20stroke%3D%22%239ca3af%22%20stroke-width%3D%222%22%3E%3Cpath%20stroke-linecap%3D%22round%22%20stroke-linejoin%3D%22round%22%20d%3D%22M19%209l-7%207-7-7%22%2F%3E%3C%2Fsvg%3E')] bg-[length:1.25rem_1.25rem] bg-[right_0.75rem_center] bg-no-repeat";
 
 /**
  * Componente principal para la gestión de Asocomunales.
@@ -72,16 +72,16 @@ function Asocomunales() {
           payloadAnterior: payloadAnteriorAudit,
           payloadDeseado: payloadAudit,
         }).catch(err => console.warn("[Auditoría] No se pudo registrar el log:", err));
-        await Swal.fire({ icon: "success", title: "Asocomunal actualizada", text: "La actualización se guardó correctamente.", confirmButtonColor: "#1B7F4B", timer: 2500, timerProgressBar: true });
+        await Swal.fire({ icon: "success", title: "Asocomunal actualizada", text: "La actualización se guardó correctamente.", confirmButtonColor: "#E4B400", timer: 2500, timerProgressBar: true });
       } else {
         // Operador propone edición
         await proponerCambio("ASOCOMUNAL", "EDITAR", payloadAudit, payloadAnteriorAudit, String(id));
-        await Swal.fire({ icon: "info", title: "Propuesta enviada", text: "Tu propuesta de edición ha sido enviada para revisión del administrador.", confirmButtonColor: "#1B7F4B" });
+        await Swal.fire({ icon: "info", title: "Propuesta enviada", text: "Tu propuesta de edición ha sido enviada para revisión del administrador.", confirmButtonColor: "#E4B400" });
       }
       setEditingAsocomunal(null);
     } catch (err: unknown) {
       console.error("Error al procesar la asocomunal:", err);
-      await Swal.fire({ icon: "error", title: "Error", text: err instanceof Error ? err.message : "No se pudo procesar la acción.", confirmButtonColor: "#1B7F4B" });
+      await Swal.fire({ icon: "error", title: "Error", text: err instanceof Error ? err.message : "No se pudo procesar la acción.", confirmButtonColor: "#E4B400" });
     }
   };
 
@@ -89,7 +89,7 @@ function Asocomunales() {
     const actionText = currentStatus ? "desactivar" : "activar";
     const result = await Swal.fire({
       title: "¿Estás seguro?", text: `¿Deseas ${actionText} esta asocomunal?`, icon: "warning",
-      showCancelButton: true, confirmButtonColor: currentStatus ? "#d33" : "#1B7F4B",
+      showCancelButton: true, confirmButtonColor: currentStatus ? "#d33" : "#E4B400",
       cancelButtonColor: "#6b7280", confirmButtonText: `Sí, ${actionText}`, cancelButtonText: "Cancelar",
     });
     if (result.isConfirmed) {
@@ -107,7 +107,7 @@ function Asocomunales() {
             title: "¡Éxito!",
             text: `La asocomunal fue ${currentStatus ? "desactivada" : "activada"} correctamente.`,
             icon: "success",
-            confirmButtonColor: "#1B7F4B",
+            confirmButtonColor: "#E4B400",
             timer: 2000,
             timerProgressBar: true
           });
@@ -127,7 +127,7 @@ function Asocomunales() {
             icon: "info",
             title: "Solicitud enviada",
             text: `Tu solicitud para ${actionText} esta asocomunal ha sido enviada para revisión.`,
-            confirmButtonColor: "#1B7F4B"
+            confirmButtonColor: "#E4B400"
           });
         }
       } catch (err: unknown) {
@@ -136,7 +136,7 @@ function Asocomunales() {
           title: "Error",
           text: `Hubo un problema al intentar ${actionText} la asocomunal.`,
           icon: "error",
-          confirmButtonColor: "#1B7F4B"
+          confirmButtonColor: "#E4B400"
         });
       }
     }
@@ -157,7 +157,7 @@ function Asocomunales() {
       >
         {canCreate && (
           /* Botón ajustado con fuente text-base e icono size={18} */
-          <button onClick={() => setShowModal(true)} className="flex items-center gap-2 bg-[#1B7F4B] hover:bg-[#166340] text-white text-base font-semibold px-4 py-2.5 rounded-lg transition-colors shrink-0 shadow-sm">
+          <button onClick={() => setShowModal(true)} className="flex items-center gap-2 bg-[#E4B400] hover:bg-[#cfa200] text-white text-base font-semibold px-4 py-2.5 rounded-lg transition-colors shrink-0 shadow-sm">
             <Plus size={18} /> Crear nueva Asocomunal
           </button>
         )}
@@ -185,14 +185,14 @@ function Asocomunales() {
                   tipoAccion: "CREAR",
                   payloadDeseado: payloadAudit,
                 }).catch(err => console.warn("[Auditoría] No se pudo registrar el log:", err));
-                await Swal.fire({ icon: "success", title: "Asocomunal creada", text: "La nueva asocomunal ha sido registrada correctamente.", confirmButtonColor: "#1B7F4B", timer: 2500, timerProgressBar: true });
+                await Swal.fire({ icon: "success", title: "Asocomunal creada", text: "La nueva asocomunal ha sido registrada correctamente.", confirmButtonColor: "#E4B400", timer: 2500, timerProgressBar: true });
               } else {
                 await proponerCambio("ASOCOMUNAL", "CREAR", payloadAudit);
-                await Swal.fire({ icon: "info", title: "Propuesta enviada", text: "Tu solicitud de creación ha sido enviada al administrador.", confirmButtonColor: "#1B7F4B" });
+                await Swal.fire({ icon: "info", title: "Propuesta enviada", text: "Tu solicitud de creación ha sido enviada al administrador.", confirmButtonColor: "#E4B400" });
               }
               setShowModal(false);
             } catch (error: unknown) {
-              await Swal.fire({ icon: "error", title: "Error", text: error instanceof Error ? error.message : "No se pudo procesar la solicitud.", confirmButtonColor: "#1B7F4B" });
+              await Swal.fire({ icon: "error", title: "Error", text: error instanceof Error ? error.message : "No se pudo procesar la solicitud.", confirmButtonColor: "#E4B400" });
             } finally {
               setCreatingLoading(false);
             }
@@ -258,7 +258,7 @@ function Asocomunales() {
           {/* Botón limpiar filtros con texto base, icono size={18} y anillo de enfoque institucional */}
           <button 
             onClick={handleClear} 
-            className="inline-flex items-center gap-2 bg-white dark:bg-gray-800 hover:bg-gray-50 dark:hover:bg-gray-700 text-gray-600 dark:text-gray-300 text-base font-medium px-4 py-2.5 rounded-lg border border-gray-200 dark:border-gray-600 transition-colors shadow-sm focus:outline-none focus:ring-2 focus:ring-[#1B7F4B]/30 focus:border-[#1B7F4B]"
+            className="inline-flex items-center gap-2 bg-white dark:bg-gray-800 hover:bg-gray-50 dark:hover:bg-gray-700 text-gray-600 dark:text-gray-300 text-base font-medium px-4 py-2.5 rounded-lg border border-gray-200 dark:border-gray-600 transition-colors shadow-sm focus:outline-none focus:ring-2 focus:ring-[#E4B400]/30 focus:border-[#E4B400]"
           >
             <RotateCcw size={18} /> Limpiar filtros
           </button>
@@ -310,7 +310,7 @@ function Asocomunales() {
                       {canViewConfidential ? (
                         <button
                           onClick={() => navigate(`/asocomunales/${item.id}`)}
-                          className="text-left hover:text-[#1B7F4B] dark:hover:text-emerald-400 transition-colors focus:outline-none focus:ring-2 focus:ring-[#1B7F4B]/30 rounded"
+                          className="text-left hover:text-[#E4B400] dark:hover:text-yellow-400 transition-colors focus:outline-none focus:ring-2 focus:ring-[#E4B400]/30 rounded"
                         >
                           {item.nombre}
                         </button>
@@ -327,7 +327,7 @@ function Asocomunales() {
                           {item.telefono ? (
                             <div className="flex flex-col">
                               {item.telefono.split(/[,;]+/).map((tel, idx) => (
-                                <span key={idx} className="text-[#1B7F4B] dark:text-emerald-400 font-medium">
+                                <span key={idx} className="text-[#E4B400] dark:text-yellow-400 font-medium">
                                   {tel.trim()}
                                 </span>
                               ))}
@@ -349,7 +349,7 @@ function Asocomunales() {
                         <div className="flex items-center gap-2">
                           <button
                             onClick={() => navigate(`/asocomunales/${item.id}`)}
-                            className="p-1.5 rounded-lg hover:bg-[#1B7F4B]/10 dark:hover:bg-[#1B7F4B]/20 text-gray-500 dark:text-gray-400 hover:text-[#1B7F4B] dark:hover:text-emerald-400 transition-colors focus:outline-none focus:ring-2 focus:ring-[#1B7F4B]/30"
+                            className="p-1.5 rounded-lg hover:bg-[#E4B400]/10 dark:hover:bg-[#E4B400]/20 text-gray-500 dark:text-gray-400 hover:text-[#E4B400] dark:hover:text-yellow-400 transition-colors focus:outline-none focus:ring-2 focus:ring-[#E4B400]/30"
                             title="Ver detalle"
                           >
                             <Ellipsis size={20} />
@@ -370,7 +370,7 @@ function Asocomunales() {
                             className={`p-1.5 rounded-lg transition-colors focus:outline-none ${
                               item.estado
                                 ? "hover:bg-red-50 dark:hover:bg-red-900/20 text-gray-400 dark:text-gray-500 hover:text-red-500 dark:hover:text-red-400 focus:ring-2 focus:ring-red-500/30"
-                                : "hover:bg-green-50 dark:hover:bg-green-900/20 text-gray-400 dark:text-gray-500 hover:text-green-500 dark:hover:text-green-400 focus:ring-2 focus:ring-[#1B7F4B]/30"
+                                : "hover:bg-green-50 dark:hover:bg-green-900/20 text-gray-400 dark:text-gray-500 hover:text-green-500 dark:hover:text-green-400 focus:ring-2 focus:ring-[#E4B400]/30"
                             }`}
                             title={item.estado ? "Desactivar" : "Activar"}
                           >

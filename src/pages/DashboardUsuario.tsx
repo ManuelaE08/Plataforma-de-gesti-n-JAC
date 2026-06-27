@@ -10,6 +10,8 @@ import RevealText from "../components/transitions/RevealText";
 import HoverSpringGroup from "../components/transitions/HoverSpringGroup";
 import { JACService, type PublicStats, type EstadosJacResumen } from "../modules/jac/services/jacService";
 import type { JacListItem } from "../modules/jac/types";
+import logoGobernacion from "../assets/logo-secretariaGob.png";
+
 
 const EMPTY_STATS: PublicStats = {
   activeJacsCount: 0,
@@ -53,7 +55,7 @@ function KpiCard({ title, value, icon: Icon, hint, replayKey, accentClass }: Kpi
             )}
           </div>
           <div className="flex h-14 w-14 shrink-0 items-center justify-center rounded-2xl bg-slate-50 dark:bg-gray-700 border border-slate-200 dark:border-gray-600 shadow-sm">
-            <Icon size={26} className="text-[#1B7F4B] dark:text-emerald-400" />
+            <Icon size={26} className="text-[#E4B400] dark:text-yellow-500" />
           </div>
         </div>
       </div>
@@ -173,7 +175,7 @@ function DashboardUsuario() {
               setError(null);
               window.location.reload();
             }}
-            className="mt-4 bg-[#1B7F4B] hover:bg-[#166340] text-white text-sm font-semibold px-4 py-2 rounded-lg transition-colors"
+            className="mt-4 bg-[#E4B400] hover:bg-[#cfa200] text-white text-sm font-semibold px-4 py-2 rounded-lg transition-colors"
           >
             Reintentar conexión
           </button>
@@ -195,15 +197,15 @@ function DashboardUsuario() {
     <div className="min-h-screen px-2 py-4 sm:px-3 lg:px-5">
       <div className="mx-auto w-full max-w-[calc(100vw-1.5rem)]">
         {/* Header — visible de inmediato con entrada escalonada (#18) */}
-        <section className="overflow-hidden rounded-2xl border border-slate-200 dark:border-gray-700 bg-gradient-to-br from-[#1B7F4B] to-[#0F5132] p-6 sm:p-8 shadow-sm">
+        <section className="overflow-hidden rounded-2xl border border-slate-200 dark:border-gray-700 bg-gradient-to-br from-[#E4B400] to-[#cfa200] dark:from-gray-800 dark:to-gray-900 p-6 sm:p-8 shadow-sm">
           <RevealText>
-            <span className="t-stagger-line t-stagger-line--1 inline-flex items-center gap-2 rounded-full bg-white/15 px-3 py-1 text-xs font-bold uppercase tracking-[0.18em] text-emerald-50 w-fit">
+            <span className="t-stagger-line t-stagger-line--1 inline-flex items-center gap-2 rounded-full bg-white/15 px-3 py-1 text-xs font-bold uppercase tracking-[0.18em] text-white w-fit">
               Datos abiertos · Cauca
             </span>
             <h1 className="t-stagger-line t-stagger-line--2 mt-4 text-3xl sm:text-4xl font-bold tracking-tight text-white">
               Dashboard Comunal
             </h1>
-            <p className="t-stagger-line t-stagger-line--3 mt-2 max-w-2xl text-base text-emerald-50/90">
+            <p className="t-stagger-line t-stagger-line--3 mt-2 max-w-2xl text-base text-white/90">
               Resumen estadístico y directorio de Juntas de Acción Comunal y Asocomunales del
               departamento del Cauca.
             </p>
@@ -221,7 +223,7 @@ function DashboardUsuario() {
                 icon={Building2}
                 hint={`${data.activeJacsCount} activas en el departamento`}
                 replayKey={revealed}
-                accentClass="bg-[#F0FDF4] dark:bg-emerald-950/20"
+                accentClass="bg-yellow-50 dark:bg-yellow-900/20"
               />
               <KpiCard
                 title="Asocomunales"
@@ -261,8 +263,8 @@ function DashboardUsuario() {
                 subtitle="Origen de las JAC activas"
                 badge={`${data.activeJacsCount} JAC`}
                 segments={[
-                  { label: "Urbanas", value: data.urbanCount, color: "#34D399" },
-                  { label: "Rurales", value: data.ruralCount, color: "#A7F3D0" },
+                  { label: "Urbanas", value: data.urbanCount, color: "#E4B400" },
+                  { label: "Rurales", value: data.ruralCount, color: "#FDE047" },
                 ]}
               />
             </section>
@@ -275,9 +277,9 @@ function DashboardUsuario() {
                 subtitle="Activas, inactivas y canceladas"
                 badge={`${estadoData.total} JAC`}
                 segments={[
-                  { label: "Activas", value: estadoData.activa, color: "#4ADE80" },
+                  { label: "Activas", value: estadoData.activa, color: "#E4B400" },
                   { label: "Inactivas", value: estadoData.inactiva, color: "#FBBF24" },
-                  { label: "Canceladas", value: estadoData.cancelada, color: "#F87171" },
+                  { label: "Canceladas", value: estadoData.cancelada, color: "#4B5563" },
                 ]}
               />
             </section>
@@ -287,7 +289,7 @@ function DashboardUsuario() {
               <div className="rounded-2xl border border-slate-200 dark:border-gray-700 bg-white dark:bg-gray-800 p-6 shadow-sm flex flex-col md:flex-row items-center justify-between gap-6">
                 <div className="flex-1">
                   <div className="flex items-center gap-2 mb-3">
-                    <FileText className="text-[#1B7F4B] dark:text-emerald-400" size={20} />
+                    <FileText className="text-[#E4B400] dark:text-yellow-500" size={20} />
                     <h3 className="text-lg font-bold text-slate-900 dark:text-white">
                       Cobertura RUC (Registro Único Comunal)
                     </h3>
@@ -302,12 +304,12 @@ function DashboardUsuario() {
                   <div className="relative flex items-center justify-center">
                     <svg className="w-20 h-20 transform -rotate-90">
                       <circle cx="40" cy="40" r="34" className="stroke-slate-200 dark:stroke-gray-700 fill-none" strokeWidth="6" />
-                      <circle cx="40" cy="40" r="34" className="stroke-[#1B7F4B] dark:stroke-emerald-400 fill-none transition-all duration-1000" strokeWidth="6" strokeDasharray={`${2 * Math.PI * 34}`} strokeDashoffset={strokeOffset} strokeLinecap="round" />
+                      <circle cx="40" cy="40" r="34" className="stroke-[#E4B400] dark:stroke-yellow-500 fill-none transition-all duration-1000" strokeWidth="6" strokeDasharray={`${2 * Math.PI * 34}`} strokeDashoffset={strokeOffset} strokeLinecap="round" />
                     </svg>
                     <span className="absolute text-base font-extrabold text-slate-800 dark:text-white">{rucPercent}%</span>
                   </div>
                   <div>
-                    <p className="text-3xl font-extrabold text-[#1B7F4B] dark:text-emerald-400 leading-none">
+                    <p className="text-3xl font-extrabold text-[#E4B400] dark:text-yellow-500 leading-none">
                       <PopInNumber value={data.rucCount} replayKey={revealed} /> / {data.activeJacsCount}
                     </p>
                     <p className="text-xs font-bold text-slate-500 dark:text-slate-400 mt-1 uppercase tracking-wider">JACs con RUC Activo</p>
@@ -315,13 +317,6 @@ function DashboardUsuario() {
                 </div>
               </div>
             </section>
-
-            <footer className="mt-8 rounded-2xl border border-slate-200 dark:border-gray-700 bg-white dark:bg-gray-800 p-6 text-sm text-slate-500 dark:text-slate-400 shadow-sm">
-              <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
-                <p>Plataforma JAC y Asocomunales</p>
-                <p className="font-semibold text-[#1B7F4B]">Gobernación del Cauca © 2026</p>
-              </div>
-            </footer>
           </div>
 
           {/* Skeleton overlay mientras carga */}
