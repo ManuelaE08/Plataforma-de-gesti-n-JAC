@@ -10,7 +10,7 @@ import { Permissions } from "../utils/permissions";
 // ── CONSTANTES DE DISEÑO INSTITUCIONAL ───────────────────────────────────────
 const card = "bg-white dark:bg-gray-800 rounded-xl border border-gray-100 dark:border-gray-700 shadow-sm";
 
-const focusRing = "focus:outline-none focus:ring-2 focus:ring-[#1B7F4B]/30 focus:border-[#1B7F4B]";
+const focusRing = "focus:outline-none focus:ring-2 focus:ring-[#E4B400]/30 focus:border-[#E4B400]";
 
 const inputCls = `w-full border border-gray-200 dark:border-gray-600 bg-white dark:bg-gray-900 text-base text-gray-800 dark:text-gray-200 placeholder:text-gray-400 dark:placeholder:text-gray-500 rounded-lg px-3 py-2 ${focusRing} transition`;
 
@@ -189,7 +189,7 @@ function ModalCrearUsuario({
                 type="button"
                 onClick={generarPassword}
                 disabled={loading}
-                className={`text-sm text-[#1B7F4B] hover:text-[#166340] font-semibold hover:underline disabled:opacity-50 transition rounded px-1 ${focusRing}`}
+                className={`text-sm text-[#E4B400] hover:text-[#cfa200] font-semibold hover:underline disabled:opacity-50 transition rounded px-1 ${focusRing}`}
               >
                 Generar
               </button>
@@ -221,14 +221,14 @@ function ModalCrearUsuario({
                   key={regla.label}
                   className={`flex items-center gap-2 text-sm transition-colors ${
                     regla.cumple
-                      ? "text-[#1B7F4B] dark:text-emerald-400"
+                      ? "text-[#E4B400] dark:text-yellow-400"
                       : "text-gray-500 dark:text-gray-400"
                   }`}
                 >
                   <span
                     className={`flex items-center justify-center w-4 h-4 rounded-full shrink-0 border transition-colors ${
                       regla.cumple
-                        ? "bg-[#1B7F4B] border-[#1B7F4B] text-white"
+                        ? "bg-[#E4B400] border-[#E4B400] text-white"
                         : "border-gray-300 dark:border-gray-600 text-transparent"
                     }`}
                   >
@@ -258,7 +258,7 @@ function ModalCrearUsuario({
             <button
               type="submit"
               disabled={loading || !passwordValida}
-              className={`flex items-center gap-2 px-4 py-2 text-base font-semibold text-white bg-[#1B7F4B] hover:bg-[#166340] rounded-lg transition disabled:opacity-60 disabled:cursor-not-allowed ${focusRing}`}
+              className={`flex items-center gap-2 px-4 py-2 text-base font-semibold text-white bg-[#E4B400] hover:bg-[#cfa200] rounded-lg transition disabled:opacity-60 disabled:cursor-not-allowed ${focusRing}`}
             >
               {loading && <Loader2 size={16} className="animate-spin" />}
               {loading ? "Creando…" : "Crear usuario"}
@@ -328,7 +328,7 @@ function ModalEditarUsuario({
           <button
             onClick={() => { void handleGuardar(); }}
             disabled={loading}
-            className={`flex items-center gap-2 px-4 py-2 text-base font-semibold text-white bg-[#1B7F4B] hover:bg-[#166340] rounded-lg transition disabled:opacity-60 ${focusRing}`}
+            className={`flex items-center gap-2 px-4 py-2 text-base font-semibold text-white bg-[#E4B400] hover:bg-[#cfa200] rounded-lg transition disabled:opacity-60 ${focusRing}`}
           >
             {loading && <Loader2 size={16} className="animate-spin" />}
             {loading ? "Guardando…" : "Guardar"}
@@ -373,7 +373,7 @@ function Usuarios() {
       showCancelButton: true,
       confirmButtonText: desactivando ? "Desactivar" : "Activar",
       cancelButtonText: "Cancelar",
-      confirmButtonColor: desactivando ? "#ef4444" : "#1B7F4B",
+      confirmButtonColor: desactivando ? "#ef4444" : "#E4B400",
       cancelButtonColor: "#6b7280",
     });
 
@@ -384,7 +384,7 @@ function Usuarios() {
       void Swal.fire({
         title: desactivando ? "Usuario desactivado" : "Usuario activado",
         icon: "success",
-        confirmButtonColor: "#1B7F4B",
+        confirmButtonColor: "#E4B400",
         timer: 1800,
         timerProgressBar: true,
       });
@@ -393,7 +393,7 @@ function Usuarios() {
         title: "Error",
         text: err instanceof Error ? err.message : `No se pudo ${accion} el usuario`,
         icon: "error",
-        confirmButtonColor: "#1B7F4B",
+        confirmButtonColor: "#E4B400",
       });
     }
   };
@@ -419,7 +419,7 @@ function Usuarios() {
         title: "Error",
         text: err instanceof Error ? err.message : "No se pudo eliminar el usuario",
         icon: "error",
-        confirmButtonColor: "#1B7F4B",
+        confirmButtonColor: "#E4B400",
       });
     }
   };
@@ -436,7 +436,7 @@ function Usuarios() {
       <PageHeader title="Administración de Usuarios" subtitle="Gestione los usuarios del sistema">
         <button
           onClick={() => setShowCrear(true)}
-          className={`flex items-center gap-2 bg-[#1B7F4B] hover:bg-[#166340] text-white text-base font-semibold px-4 py-2.5 rounded-lg transition shrink-0 ${focusRing}`}
+          className={`flex items-center gap-2 bg-[#E4B400] hover:bg-[#cfa200] text-white text-base font-semibold px-4 py-2.5 rounded-lg transition shrink-0 ${focusRing}`}
         >
           <Plus size={16} /> {esSuperadmin ? "Crear usuario" : "Crear operador"}
         </button>
@@ -505,7 +505,7 @@ function Usuarios() {
             <p className="text-base text-red-500 dark:text-red-400">{error}</p>
             <button
               onClick={() => { void recargar(); }}
-              className={`flex items-center gap-2 text-base text-[#1B7F4B] hover:text-[#166340] hover:underline font-semibold rounded px-1 ${focusRing}`}
+              className={`flex items-center gap-2 text-base text-[#E4B400] hover:text-[#cfa200] hover:underline font-semibold rounded px-1 ${focusRing}`}
             >
               <RefreshCw size={16} /> Reintentar
             </button>
@@ -559,7 +559,7 @@ function Usuarios() {
                               title={motivoBloqueo ?? "Editar"}
                               className={!gestionable || opLoading
                                 ? btnDisabled
-                                : `${btnInteractiveCls} hover:bg-[#1B7F4B]/10 dark:hover:bg-[#1B7F4B]/20 text-gray-400 hover:text-[#1B7F4B]`
+                                : `${btnInteractiveCls} hover:bg-[#E4B400]/10 dark:hover:bg-[#E4B400]/20 text-gray-400 hover:text-[#E4B400]`
                               }
                             >
                               <Pencil size={16} />
@@ -574,7 +574,7 @@ function Usuarios() {
                                 ? btnDisabled
                                 : `${btnInteractiveCls} ${u.estado === "Activo"
                                   ? "hover:bg-red-50 dark:hover:bg-red-900/20 text-gray-400 hover:text-red-500 dark:hover:text-red-400"
-                                  : "hover:bg-green-50 dark:hover:bg-green-900/20 text-gray-400 hover:text-green-600 dark:hover:text-green-400"
+                                  : "hover:bg-yellow-50 dark:hover:bg-green-900/20 text-gray-400 hover:text-yellow-600 dark:hover:text-green-400"
                                 }`
                               }
                             >
@@ -619,10 +619,10 @@ function Usuarios() {
               return (
                 <div key={key} className={`rounded-lg border px-4 py-3 ${
                   destacado
-                    ? "border-[#1B7F4B]/20 dark:border-[#1B7F4B]/30 bg-[#1B7F4B]/5 dark:bg-[#1B7F4B]/10"
+                    ? "border-[#E4B400]/20 dark:border-[#E4B400]/30 bg-[#E4B400]/5 dark:bg-[#E4B400]/10"
                     : "border-gray-200 dark:border-gray-700 bg-gray-50 dark:bg-gray-900/50"
                 }`}>
-                  <p className={`text-base font-bold ${destacado ? "text-[#1B7F4B]" : "text-gray-700 dark:text-gray-200"}`}>
+                  <p className={`text-base font-bold ${destacado ? "text-[#E4B400]" : "text-gray-700 dark:text-gray-200"}`}>
                     {r.label}
                   </p>
                   <p className="text-base text-gray-500 dark:text-gray-400 mt-0.5">{r.descripcion.split(".")[0]}</p>

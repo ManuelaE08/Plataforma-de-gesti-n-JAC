@@ -33,7 +33,7 @@ function JACDirectory({
             value={searchTerm}
             onChange={(event) => onSearchTermChange(event.target.value)}
             placeholder="Buscar por nombre de JAC..."
-            className="w-full rounded-2xl border border-slate-200 dark:border-gray-700 bg-white dark:bg-gray-900 py-3 pl-11 pr-4 text-sm text-slate-700 dark:text-gray-200 outline-none transition focus:border-[#1B7F4B] focus:ring-2 focus:ring-[#1B7F4B]/20 placeholder:text-slate-400 dark:placeholder:text-gray-500"
+            className="w-full rounded-2xl border border-slate-200 dark:border-gray-700 bg-white dark:bg-gray-900 py-3 pl-11 pr-4 text-sm text-slate-700 dark:text-gray-200 outline-none transition focus:border-[#E4B400] focus:ring-2 focus:ring-[#E4B400]/20 placeholder:text-slate-400 dark:placeholder:text-gray-500"
             aria-label="Buscar por nombre de JAC"
           />
         </div>
@@ -48,7 +48,7 @@ function JACDirectory({
               type="button"
               onClick={() => onZonaChange(zona)}
               className={`rounded-full px-4 py-2 text-sm font-semibold transition ${
-                active ? "bg-[#1B7F4B] text-white shadow-md" : "bg-white dark:bg-gray-700 text-slate-700 dark:text-slate-300 border border-slate-200 dark:border-gray-600 hover:bg-slate-50 dark:hover:bg-gray-600"
+                active ? "bg-[#E4B400] text-white shadow-md" : "bg-white dark:bg-gray-700 text-slate-700 dark:text-slate-300 border border-slate-200 dark:border-gray-600 hover:bg-slate-50 dark:hover:bg-gray-600"
               }`}
             >
               {zona}
@@ -58,16 +58,16 @@ function JACDirectory({
       </div>
 
       {selectedMunicipio && (
-        <div className="mb-5 flex flex-wrap items-center gap-3 rounded-2xl border border-[#D1FAE5] dark:border-emerald-900/50 bg-[#ECFDF5] dark:bg-emerald-950/20 px-4 py-3 text-sm text-slate-700 dark:text-slate-300">
-          <span className="inline-flex h-8 w-8 items-center justify-center rounded-full bg-[#D1FAE5] dark:bg-emerald-800 text-[#166534] dark:text-emerald-100">F</span>
+        <div className="mb-5 flex flex-wrap items-center gap-3 rounded-2xl border border-[#D1FAE5] dark:border-yellow-900/50 bg-[#ECFDF5] dark:bg-yellow-950/20 px-4 py-3 text-sm text-slate-700 dark:text-slate-300">
+          <span className="inline-flex h-8 w-8 items-center justify-center rounded-full bg-[#D1FAE5] dark:bg-yellow-800 text-[#166534] dark:text-yellow-100">F</span>
           <div>
-            <p className="text-sm font-semibold text-[#166534] dark:text-emerald-400">Filtrando por:</p>
+            <p className="text-sm font-semibold text-[#166534] dark:text-yellow-400">Filtrando por:</p>
             <p className="text-sm font-medium">{selectedMunicipio}</p>
           </div>
           <button
             type="button"
             onClick={onClearMunicipio}
-            className="rounded-full bg-[#DCFCE7] dark:bg-emerald-900/50 px-3 py-1 text-xs font-semibold text-[#166534] dark:text-emerald-300 hover:opacity-90"
+            className="rounded-full bg-[#DCFCE7] dark:bg-yellow-900/50 px-3 py-1 text-xs font-semibold text-[#166534] dark:text-yellow-300 hover:opacity-90"
           >
             Quitar filtro
           </button>
@@ -86,31 +86,31 @@ function JACDirectory({
             </div>
           ) : (
             jacs.map((jac) => (
-              <div key={jac.id} className="rounded-2xl border border-slate-200 dark:border-gray-700 bg-white dark:bg-gray-800/40 p-4 shadow-sm transition hover:border-[#1B7F4B] dark:hover:border-emerald-500 hover:shadow-md flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+              <div key={jac.id} className="rounded-2xl border border-slate-200 dark:border-gray-700 bg-white dark:bg-gray-800/40 p-4 shadow-sm transition hover:border-[#E4B400] dark:hover:border-yellow-500 hover:shadow-md flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
                 <h3 className="text-base sm:text-lg font-bold text-slate-900 dark:text-white leading-tight">
                   {jac.nombre}
                 </h3>
                 <div className="flex flex-wrap items-center gap-2 sm:gap-2.5 shrink-0">
-                  <span className="inline-flex items-center gap-1.5 rounded-lg border border-[#1B7F4B]/30 dark:border-emerald-800/50 bg-[#ECFDF5] dark:bg-emerald-950/20 px-3 py-1.5 text-xs sm:text-sm font-bold text-[#1B7F4B] dark:text-emerald-400 shadow-sm uppercase tracking-wider">
-                    <MapPin size={13} className="text-[#1B7F4B] dark:text-emerald-400 shrink-0" />
+                  <span className="inline-flex items-center gap-1.5 rounded-lg border border-[#E4B400]/30 dark:border-yellow-800/50 bg-[#ECFDF5] dark:bg-yellow-950/20 px-3 py-1.5 text-xs sm:text-sm font-bold text-[#E4B400] dark:text-yellow-400 shadow-sm uppercase tracking-wider">
+                    <MapPin size={13} className="text-[#E4B400] dark:text-yellow-400 shrink-0" />
                     {jac.municipio}
                   </span>
                   
                   <span className={`inline-flex items-center gap-1.5 rounded-lg border px-3 py-1.5 text-xs sm:text-sm font-bold uppercase tracking-wider shadow-sm ${
                     jac.tipoZona === "Urbana"
-                      ? "border-emerald-200 dark:border-emerald-900/50 bg-emerald-50/50 dark:bg-emerald-950/20 text-[#166534] dark:text-emerald-400"
+                      ? "border-yellow-200 dark:border-yellow-900/50 bg-yellow-50/50 dark:bg-yellow-950/20 text-[#166534] dark:text-yellow-400"
                       : "border-purple-200 dark:border-purple-900/50 bg-purple-50/50 dark:bg-purple-950/20 text-[#5B21B6] dark:text-purple-400"
                   }`}>
-                    <span className={`h-1.5 w-1.5 rounded-full ${jac.tipoZona === "Urbana" ? "bg-emerald-500" : "bg-purple-500"}`} />
+                    <span className={`h-1.5 w-1.5 rounded-full ${jac.tipoZona === "Urbana" ? "bg-yellow-500" : "bg-purple-500"}`} />
                     {jac.tipoZona}
                   </span>
 
                   <span className={`inline-flex items-center gap-1.5 rounded-lg border px-3 py-1.5 text-xs sm:text-sm font-bold uppercase tracking-wider shadow-sm ${
                     jac.estado === "Activa"
-                      ? "border-emerald-200 dark:border-emerald-900/50 bg-emerald-50/50 dark:bg-emerald-950/20 text-[#166534] dark:text-emerald-400"
+                      ? "border-yellow-200 dark:border-yellow-900/50 bg-yellow-50/50 dark:bg-yellow-950/20 text-[#166534] dark:text-yellow-400"
                       : "border-slate-200 dark:border-gray-700 bg-slate-50/50 dark:bg-gray-900/20 text-slate-500 dark:text-slate-400"
                   }`}>
-                    <span className={`h-1.5 w-1.5 rounded-full ${jac.estado === "Activa" ? "bg-emerald-500 animate-pulse" : "bg-slate-400"}`} />
+                    <span className={`h-1.5 w-1.5 rounded-full ${jac.estado === "Activa" ? "bg-yellow-500 animate-pulse" : "bg-slate-400"}`} />
                     {jac.estado}
                   </span>
                 </div>

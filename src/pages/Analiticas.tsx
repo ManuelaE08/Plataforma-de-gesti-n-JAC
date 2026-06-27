@@ -274,11 +274,11 @@ export default function Analiticas() {
       genero: [
         { label: "Femenino", porcentaje: obtenerPct(generoCount.Femenino), count: generoCount.Femenino, color: "bg-pink-500" },
         { label: "Masculino", porcentaje: obtenerPct(generoCount.Masculino), count: generoCount.Masculino, color: "bg-blue-500" },
-        { label: "LGTBIQ+", porcentaje: obtenerPct(generoCount["LGTBIQ+"]), count: generoCount["LGTBIQ+"], color: "bg-indigo-500" },
+        { label: "LGTBIQ+", porcentaje: obtenerPct(generoCount["LGTBIQ+"]), count: generoCount["LGTBIQ+"], color: "bg-[#E4B400]" },
       ],
       etnia: [
         { label: "Afro", porcentaje: obtenerPct(etniaCount.Afro), count: etniaCount.Afro, color: "bg-amber-700" },
-        { label: "Indígena", porcentaje: obtenerPct(etniaCount.Indigena), count: etniaCount.Indigena, color: "bg-emerald-600" },
+        { label: "Indígena", porcentaje: obtenerPct(etniaCount.Indigena), count: etniaCount.Indigena, color: "bg-yellow-600" },
         { label: "Mestizo", porcentaje: obtenerPct(etniaCount.Mestizo), count: etniaCount.Mestizo, color: "bg-slate-500" },
         { label: "Campesino", porcentaje: obtenerPct(etniaCount.Campesino), count: etniaCount.Campesino, color: "bg-orange-500" },
       ],
@@ -327,7 +327,7 @@ export default function Analiticas() {
       ],
       discapacidad: [
         { label: "Población con Discapacidad", porcentaje: obtenerPct(discapacitadosCount), count: discapacitadosCount, color: "bg-rose-500" },
-        { label: "Población sin Discapacidad", porcentaje: obtenerPct(noDiscapacitadosCount), count: noDiscapacitadosCount, color: "bg-emerald-500" },
+        { label: "Población sin Discapacidad", porcentaje: obtenerPct(noDiscapacitadosCount), count: noDiscapacitadosCount, color: "bg-yellow-500" },
         { label: "Sin condición reportada", porcentaje: obtenerPct(sinReportarCount), count: sinReportarCount, color: "bg-slate-400" },
       ],
     };
@@ -348,7 +348,7 @@ export default function Analiticas() {
             <button
               onClick={handleGenerarReporte}
               disabled={loading || isGeneratingPdf}
-              className="flex items-center justify-center gap-2 rounded-xl bg-indigo-600 px-6 py-3 text-sm font-semibold text-white shadow-sm hover:bg-indigo-500 transition disabled:opacity-50 disabled:cursor-not-allowed w-full md:w-auto"
+              className="flex items-center justify-center gap-2 rounded-xl bg-[#E4B400] px-6 py-3 text-sm font-semibold text-white shadow-sm hover:bg-[#cfa200] transition disabled:opacity-50 disabled:cursor-not-allowed w-full md:w-auto"
             >
               <FileDown size={20} />
               {isGeneratingPdf ? "Generando..." : "Generar Informe PDF"}
@@ -376,8 +376,8 @@ export default function Analiticas() {
                 value={formatNumber(summary.totalJacs)}
                 sub="Total de juntas activas e inactivas"
                 icon={Building2}
-                iconBg="bg-[#1B7F4B]/10 dark:bg-[#1B7F4B]/20"
-                iconColor="text-[#1B7F4B] dark:text-emerald-400"
+                iconBg="bg-[#E4B400]/10 dark:bg-[#E4B400]/20"
+                iconColor="text-[#E4B400] dark:text-yellow-400"
               />
               <KpiCard
                 label="Asocomunales"
@@ -408,7 +408,7 @@ export default function Analiticas() {
             {/* Fila 2: Mapa de Cobertura Territorial */}
             <section className="mt-6 rounded-3xl border border-slate-200 dark:border-gray-700 bg-white dark:bg-gray-800 p-6 shadow-sm">
               <div className="flex items-center gap-3 mb-6">
-                <div className="rounded-2xl bg-[#1B7F4B]/10 p-3 text-[#1B7F4B] dark:bg-[#1B7F4B]/20 dark:text-emerald-300">
+                <div className="rounded-2xl bg-[#E4B400]/10 p-3 text-[#E4B400] dark:bg-[#E4B400]/20 dark:text-yellow-300">
                   <MapPin size={20} />
                 </div>
                 <div>
@@ -447,8 +447,8 @@ export default function Analiticas() {
                           </div>
                           <div className="grid gap-3 sm:grid-cols-2">
                             <div className="rounded-2xl bg-white p-4 dark:bg-gray-950 shadow-sm border border-slate-100 dark:border-gray-800">
-                              <p className="text-xs font-medium text-emerald-600">Activas</p>
-                              <p className="mt-1 text-2xl font-bold text-emerald-600">{selectedStats.active}</p>
+                              <p className="text-xs font-medium text-yellow-600">Activas</p>
+                              <p className="mt-1 text-2xl font-bold text-yellow-600">{selectedStats.active}</p>
                             </div>
                             <div className="rounded-2xl bg-white p-4 dark:bg-gray-950 shadow-sm border border-slate-100 dark:border-gray-800">
                               <p className="text-xs font-medium text-amber-600">Inactivas</p>
@@ -496,7 +496,7 @@ export default function Analiticas() {
             <section className="mt-6 rounded-3xl border border-slate-200 dark:border-gray-700 bg-white dark:bg-gray-800 p-6 shadow-sm">
               <div className="flex flex-col gap-4 lg:flex-row lg:items-center lg:justify-between mb-6 border-b border-slate-100 dark:border-gray-700 pb-4">
                 <div className="flex items-center gap-3">
-                  <div className="rounded-2xl bg-indigo-500/10 p-3 text-indigo-600 dark:bg-indigo-500/20 dark:text-indigo-400">
+                  <div className="rounded-2xl bg-yellow-500/10 p-3 text-yellow-600 dark:bg-yellow-500/20 dark:text-yellow-400">
                     <Users size={24} />
                   </div>
                   <div>
@@ -513,7 +513,7 @@ export default function Analiticas() {
                       value={demografiaSearchTerm}
                       onChange={(event) => setDemografiaSearchTerm(event.target.value)}
                       placeholder="Municipio para analítica..."
-                      className="mt-2 w-full rounded-2xl border border-slate-200 bg-white px-4 py-3 text-sm text-slate-900 shadow-sm outline-none transition focus:border-indigo-400 focus:ring-2 focus:ring-indigo-200 dark:border-gray-700 dark:bg-gray-900 dark:text-slate-100"
+                      className="mt-2 w-full rounded-2xl border border-slate-200 bg-white px-4 py-3 text-sm text-slate-900 shadow-sm outline-none transition focus:border-yellow-400 focus:ring-2 focus:ring-yellow-200 dark:border-gray-700 dark:bg-gray-900 dark:text-slate-100"
                     />
                     {demografiaSearchTerm && (
                       <div className="absolute inset-x-0 top-full z-50 mt-3 rounded-3xl border border-slate-200 bg-white shadow-2xl dark:border-gray-700 dark:bg-gray-900">
@@ -532,7 +532,7 @@ export default function Analiticas() {
                                     setDemografiaMunicipio(name);
                                     setDemografiaSearchTerm("");
                                   }}
-                                  className="w-full rounded-2xl border border-slate-200 bg-slate-50 px-4 py-3 text-left text-sm font-medium text-slate-900 transition hover:border-indigo-300 hover:bg-indigo-100 dark:border-gray-700 dark:bg-gray-950 dark:text-slate-100"
+                                  className="w-full rounded-2xl border border-slate-200 bg-slate-50 px-4 py-3 text-left text-sm font-medium text-slate-900 transition hover:border-yellow-300 hover:bg-yellow-100 dark:border-gray-700 dark:bg-gray-950 dark:text-slate-100"
                                 >
                                   {name}
                                 </button>
@@ -547,12 +547,12 @@ export default function Analiticas() {
                   </div>
                   <div className="flex flex-col gap-3 sm:items-end">
                     {demografiaMunicipio && (
-                      <div className="inline-flex items-center gap-3 rounded-full border border-indigo-200 bg-indigo-50 px-4 py-2 text-sm font-semibold text-indigo-700 dark:border-indigo-900/50 dark:bg-indigo-950/40 dark:text-indigo-300">
+                      <div className="inline-flex items-center gap-3 rounded-full border border-yellow-200 bg-yellow-50 px-4 py-2 text-sm font-semibold text-yellow-700 dark:border-yellow-900/50 dark:bg-yellow-950/40 dark:text-yellow-300">
                         <span>Filtrando: {demografiaMunicipio}</span>
                         <button
                           type="button"
                           onClick={() => setDemografiaMunicipio(null)}
-                          className="inline-flex h-9 w-9 items-center justify-center rounded-full border border-indigo-200 bg-indigo-100 text-indigo-700 transition hover:bg-indigo-200 hover:text-indigo-800 dark:border-indigo-900/50 dark:bg-indigo-950/40 dark:text-indigo-300 dark:hover:bg-indigo-900/70"
+                          className="inline-flex h-9 w-9 items-center justify-center rounded-full border border-yellow-200 bg-yellow-100 text-yellow-700 transition hover:bg-yellow-200 hover:text-yellow-800 dark:border-yellow-900/50 dark:bg-yellow-950/40 dark:text-yellow-300 dark:hover:bg-yellow-900/70"
                           aria-label="Quitar filtro"
                         >
                           <XCircle size={16} />
@@ -570,7 +570,7 @@ export default function Analiticas() {
                 <div className="rounded-3xl border border-slate-100 dark:border-gray-700 bg-slate-50/40 dark:bg-gray-900/30 p-6 flex flex-col justify-between">
                   <div>
                     <div className="flex items-center gap-3 font-bold text-slate-800 dark:text-slate-200 mb-5">
-                      <Layers size={18} className="text-indigo-500" />
+                      <Layers size={18} className="text-yellow-500" />
                       <span className="text-xl">GENERO</span>
                     </div>
 
@@ -594,7 +594,7 @@ export default function Analiticas() {
                     {/* Subgrup: Grupo Étnico */}
                     <div>
                       <div className="flex items-center gap-3 font-bold text-slate-800 dark:text-slate-200 mb-5">
-                        <Layers size={16} className="text-indigo-500" />
+                        <Layers size={16} className="text-yellow-500" />
                         <span className="text-xl">GRUPO ETNICO</span>
                       </div>
                       <div className="space-y-4">
@@ -618,7 +618,7 @@ export default function Analiticas() {
                 <div className="rounded-3xl border border-slate-100 dark:border-gray-700 bg-slate-50/40 dark:bg-gray-900/30 p-6 flex flex-col justify-between">
                   <div>
                     <div className="flex items-center gap-3 font-bold text-slate-800 dark:text-slate-200 mb-5">
-                      <CalendarDays size={18} className="text-indigo-500" />
+                      <CalendarDays size={18} className="text-yellow-500" />
                       <span className="text-xl">DISTRIBUCION POR EDADES</span>
                     </div>
 
@@ -642,7 +642,7 @@ export default function Analiticas() {
                     {/* Subgrup: Discapacidad */}
                     <div>
                       <div className="flex items-center gap-3 font-bold text-slate-800 dark:text-slate-200 mb-5">
-                        <ShieldCheck size={16} className="text-indigo-500" />
+                        <ShieldCheck size={16} className="text-yellow-500" />
                         <span className="text-xl">INCLUSION Y DISCAPACIDAD</span>
                       </div>
                       <div className="space-y-4 mt-2">
@@ -672,7 +672,7 @@ export default function Analiticas() {
                 <div className="rounded-3xl border border-slate-100 dark:border-gray-700 bg-slate-50/40 dark:bg-gray-900/30 p-6 flex flex-col justify-between md:col-span-2 xl:col-span-1">
                   <div>
                     <div className="flex items-center gap-3 font-bold text-slate-800 dark:text-slate-200 mb-5">
-                      <GraduationCap size={18} className="text-indigo-500" />
+                      <GraduationCap size={18} className="text-yellow-500" />
                       <span className="text-xl">ESTUDIOS Y OCUPACION</span>
                     </div>
 
@@ -722,7 +722,7 @@ export default function Analiticas() {
                       </div>
                       <div className="mt-2 h-3 overflow-hidden rounded-full bg-slate-200 dark:bg-gray-700">
                         <div
-                          className="h-full rounded-full bg-[#1B7F4B]"
+                          className="h-full rounded-full bg-[#E4B400]"
                           style={{ width: `${summary.totalJacs ? (summary.activeJacs / summary.totalJacs) * 100 : 0}%` }}
                         />
                       </div>
@@ -754,7 +754,7 @@ export default function Analiticas() {
                     <select
                       value={periodo}
                       onChange={(event) => setPeriodo(event.target.value as Periodo)}
-                      className="appearance-none rounded-2xl border border-slate-200 bg-white px-4 py-2 text-sm text-slate-700 shadow-sm focus:border-[#1B7F4B] focus:outline-none focus:ring-2 focus:ring-[#1B7F4B]/20 dark:border-gray-700 dark:bg-gray-900 dark:text-slate-200"
+                      className="appearance-none rounded-2xl border border-slate-200 bg-white px-4 py-2 text-sm text-slate-700 shadow-sm focus:border-[#E4B400] focus:outline-none focus:ring-2 focus:ring-[#E4B400]/20 dark:border-gray-700 dark:bg-gray-900 dark:text-slate-200"
                     >
                       {PERIOD_OPTIONS.map((option) => (
                         <option key={option} value={option}>{option}</option>
@@ -770,7 +770,7 @@ export default function Analiticas() {
                     <div className="grid gap-3 sm:grid-cols-2">
                       <div className="rounded-3xl bg-slate-50 p-4 dark:bg-gray-900">
                         <p className="text-sm text-slate-500 dark:text-slate-400">Aprobadas este mes</p>
-                        <p className="mt-2 text-2xl font-bold text-emerald-600 dark:text-emerald-300">{formatNumber(summary.approvedThisMonth)}</p>
+                        <p className="mt-2 text-2xl font-bold text-yellow-600 dark:text-yellow-300">{formatNumber(summary.approvedThisMonth)}</p>
                       </div>
                       <div className="rounded-3xl bg-slate-50 p-4 dark:bg-gray-900">
                         <p className="text-sm text-slate-500 dark:text-slate-400">Rechazadas este mes</p>

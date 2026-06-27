@@ -3,7 +3,7 @@ import autoTable from "jspdf-autotable";
 import { IReporteAnalitico, ITerritorioItem, IDemografiaItem } from "../dtos/ReporteAnalitico.dto";
 import type { JacListItem } from "../../jac/types";
 import type { AfiliadoResponse } from "../../jac/services/afiliadosService";
-import logoGobernacion from "../../../assets/logo-gobernacion.png";
+import logoGobernacion from "../../../assets/logo-secretariaGob.png";
 
 export class ReporteAnaliticoService {
   /**
@@ -74,7 +74,7 @@ export class ReporteAnaliticoService {
     // --- PORTADA Y CABECERA ---
     try {
       // Dibujar logo de la gobernacion en la cabecera
-      doc.addImage(logoGobernacion, "PNG", 480, 35, 90, 45);
+      doc.addImage(logoGobernacion, "PNG", 480, 35, 120, 45);
     } catch (e) {
       console.error("Error al cargar o dibujar el logo de la gobernacion:", e);
     }

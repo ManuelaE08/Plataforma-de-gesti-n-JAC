@@ -23,7 +23,7 @@ function PageHeader({
             {title}
           </h1>
           {role && (
-            <span className="bg-[#1B7F4B]/10 text-[#1B7F4B] text-sm font-medium px-2.5 py-1 rounded-full">
+            <span className="bg-[#E4B400]/10 text-[#E4B400] text-sm font-medium px-2.5 py-1 rounded-full">
               Rol: {role}
             </span>
           )}

@@ -34,7 +34,7 @@ function BarChart({ items }: BarChartProps) {
               </div>
               <div className="mt-3 h-3 overflow-hidden rounded-full bg-slate-200 dark:bg-gray-700">
                 <div
-                  className="h-full rounded-full bg-[#1B7F4B] transition-all duration-500"
+                  className="h-full rounded-full bg-[#E4B400] dark:bg-yellow-500 transition-all duration-500"
                   style={{ width: `${progress}%` }}
                 />
               </div>

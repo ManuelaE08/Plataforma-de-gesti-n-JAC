@@ -158,7 +158,7 @@ export function ModalCrearSolicitud({ onClose, onSave }: ModalCrearSolicitudProp
             <select
               value={tipo}
               onChange={(e) => handleTipoChange(e.target.value as TipoAccion)}
-              className="appearance-none w-full border border-gray-200 dark:border-gray-600 text-sm text-gray-700 dark:text-gray-200 rounded-lg px-3 py-2 bg-gray-50 dark:bg-gray-900 focus:bg-white dark:focus:bg-gray-800 focus:outline-none focus:ring-2 focus:ring-[#1B7F4B]/30 focus:border-[#1B7F4B] transition-all cursor-pointer"
+              className="appearance-none w-full border border-gray-200 dark:border-gray-600 text-sm text-gray-700 dark:text-gray-200 rounded-lg px-3 py-2 bg-gray-50 dark:bg-gray-900 focus:bg-white dark:focus:bg-gray-800 focus:outline-none focus:ring-2 focus:ring-[#E4B400]/30 focus:border-[#E4B400] transition-all cursor-pointer"
             >
               {tiposAccion.map((t) => <option key={t} value={t}>{t}</option>)}
             </select>
@@ -175,7 +175,7 @@ export function ModalCrearSolicitud({ onClose, onSave }: ModalCrearSolicitudProp
                 <button
                   type="button"
                   onClick={agregarFila}
-                  className="inline-flex items-center gap-1 text-xs text-[#1B7F4B] dark:text-emerald-400 hover:underline font-medium"
+                  className="inline-flex items-center gap-1 text-xs text-[#E4B400] dark:text-yellow-400 hover:underline font-medium"
                 >
                   <Plus size={13} /> Agregar campo
                 </button>
@@ -210,7 +210,7 @@ export function ModalCrearSolicitud({ onClose, onSave }: ModalCrearSolicitudProp
                           value={c.campo}
                           onChange={(e) => updateCampo(i, "campo", e.target.value)}
                           placeholder="Ej: Nombre"
-                          className="w-full text-xs rounded border border-gray-200 dark:border-gray-600 px-2 py-1.5 text-gray-700 dark:text-gray-200 placeholder:text-gray-300 dark:placeholder:text-gray-600 focus:outline-none focus:ring-1 focus:ring-[#1B7F4B]/40 focus:border-[#1B7F4B] transition bg-transparent"
+                          className="w-full text-xs rounded border border-gray-200 dark:border-gray-600 px-2 py-1.5 text-gray-700 dark:text-gray-200 placeholder:text-gray-300 dark:placeholder:text-gray-600 focus:outline-none focus:ring-1 focus:ring-[#E4B400]/40 focus:border-[#E4B400] transition bg-transparent"
                         />
                       </td>
                       {esEdicion && (
@@ -230,7 +230,7 @@ export function ModalCrearSolicitud({ onClose, onSave }: ModalCrearSolicitudProp
                           value={c.valorNuevo}
                           onChange={(e) => updateCampo(i, "valorNuevo", e.target.value)}
                           placeholder="Valor propuesto"
-                          className="w-full text-xs rounded border border-gray-200 dark:border-gray-600 px-2 py-1.5 text-[#1B7F4B] dark:text-emerald-400 placeholder:text-gray-300 dark:placeholder:text-gray-600 focus:outline-none focus:ring-1 focus:ring-[#1B7F4B]/40 focus:border-[#1B7F4B] transition bg-transparent"
+                          className="w-full text-xs rounded border border-gray-200 dark:border-gray-600 px-2 py-1.5 text-[#E4B400] dark:text-yellow-400 placeholder:text-gray-300 dark:placeholder:text-gray-600 focus:outline-none focus:ring-1 focus:ring-[#E4B400]/40 focus:border-[#E4B400] transition bg-transparent"
                         />
                       </td>
                       {esEdicion && (
@@ -274,7 +274,7 @@ export function ModalCrearSolicitud({ onClose, onSave }: ModalCrearSolicitudProp
             type="submit"
             form=""
             onClick={handleSubmit}
-            className="px-4 py-2 text-sm font-semibold text-white bg-[#1B7F4B] hover:bg-[#166340] rounded-lg transition-colors"
+            className="px-4 py-2 text-sm font-semibold text-white bg-[#E4B400] hover:bg-[#cfa200] rounded-lg transition-colors"
           >
             Enviar solicitud
           </button>

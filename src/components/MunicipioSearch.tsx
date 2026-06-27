@@ -87,7 +87,7 @@ function MunicipioSearch({ municipios, onSelect, placeholder }: MunicipioSearchP
           onFocus={() => setOpen(true)}
           onKeyDown={handleKeyDown}
           placeholder={placeholder ?? "Buscar municipio…"}
-          className="w-full rounded-xl border border-slate-200 dark:border-gray-700 bg-white dark:bg-gray-900 py-3 pl-10 pr-10 text-base text-slate-700 dark:text-slate-200 placeholder:text-slate-400 dark:placeholder:text-slate-500 shadow-sm focus:outline-none focus:ring-2 focus:ring-[#1B7F4B]/30 focus:border-[#1B7F4B] transition-all"
+          className="w-full rounded-xl border border-slate-200 dark:border-gray-700 bg-white dark:bg-gray-900 py-3 pl-10 pr-10 text-base text-slate-700 dark:text-slate-200 placeholder:text-slate-400 dark:placeholder:text-slate-500 shadow-sm focus:outline-none focus:ring-2 focus:ring-[#E4B400]/30 focus:border-[#E4B400] transition-all"
           role="combobox"
           aria-expanded={open}
           aria-controls="municipio-listbox"
@@ -116,7 +116,7 @@ function MunicipioSearch({ municipios, onSelect, placeholder }: MunicipioSearchP
               }}
               className={`cursor-pointer px-4 py-2.5 text-base transition-colors ${
                 i === highlight
-                  ? "bg-[#1B7F4B]/10 text-[#1B7F4B] dark:bg-emerald-400/10 dark:text-emerald-300"
+                  ? "bg-[#E4B400]/10 text-[#E4B400] dark:bg-yellow-400/10 dark:text-yellow-300"
                   : "text-slate-700 dark:text-slate-200"
               }`}
             >

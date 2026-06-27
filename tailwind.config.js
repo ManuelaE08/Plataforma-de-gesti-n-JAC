@@ -9,6 +9,15 @@ export default {
         secondary: "#2563EB",
         tertiary: "#F59E0B",
         neutral: "#F5F7FA",
+        cauca: {
+          yellow: "#F2B600",
+          orange: "#E59A00",
+          light: "#FFFBEB",
+        }
+      },
+      fontFamily: {
+        geomanist: ["Geomanist", "sans-serif"],
+        marine: ["Marine", "sans-serif"],
       },
     },
   },

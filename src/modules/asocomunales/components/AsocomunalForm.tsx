@@ -34,7 +34,7 @@ export function AsocomunalForm({ municipios, onSubmit, loading = false, initialD
             value={form[key] || ""}
             onChange={(e) => handleChange(key, Number(e.target.value))}
             onBlur={() => handleBlur(key)}
-            className="border border-gray-200 dark:border-gray-600 px-3 py-2.5 rounded-lg text-sm bg-gray-50 dark:bg-gray-900 text-gray-800 dark:text-gray-100 focus:bg-white dark:focus:bg-gray-800 focus:outline-none focus:ring-2 focus:ring-[#1B7F4B]/30 focus:border-[#1B7F4B] transition-all"
+            className="border border-gray-200 dark:border-gray-600 px-3 py-2.5 rounded-lg text-sm bg-gray-50 dark:bg-gray-900 text-gray-800 dark:text-gray-100 focus:bg-white dark:focus:bg-gray-800 focus:outline-none focus:ring-2 focus:ring-[#E4B400]/30 focus:border-[#E4B400] transition-all"
           >
             <option value="">Selecciona un municipio</option>
             {municipios.map((mun) => (
@@ -50,7 +50,7 @@ export function AsocomunalForm({ municipios, onSubmit, loading = false, initialD
             value={String(form[key] || "")}
             onChange={(e) => handleChange(key, e.target.value)}
             onBlur={() => handleBlur(key)}
-            className="border border-gray-200 dark:border-gray-600 px-3 py-2.5 rounded-lg text-sm bg-gray-50 dark:bg-gray-900 text-gray-800 dark:text-gray-100 placeholder:text-gray-400 dark:placeholder:text-gray-500 focus:bg-white dark:focus:bg-gray-800 focus:outline-none focus:ring-2 focus:ring-[#1B7F4B]/30 focus:border-[#1B7F4B] transition-all"
+            className="border border-gray-200 dark:border-gray-600 px-3 py-2.5 rounded-lg text-sm bg-gray-50 dark:bg-gray-900 text-gray-800 dark:text-gray-100 placeholder:text-gray-400 dark:placeholder:text-gray-500 focus:bg-white dark:focus:bg-gray-800 focus:outline-none focus:ring-2 focus:ring-[#E4B400]/30 focus:border-[#E4B400] transition-all"
           />
         )}
         {showError && <span className="text-xs text-red-500 dark:text-red-400">{errors[key]}</span>}
@@ -78,7 +78,7 @@ export function AsocomunalForm({ municipios, onSubmit, loading = false, initialD
           id="estado"
           checked={form.estado || false}
           onChange={(e) => handleChange("estado", e.target.checked)}
-          className="rounded border-gray-300 dark:border-gray-600 text-[#1B7F4B] focus:ring-[#1B7F4B] dark:bg-gray-800"
+          className="rounded border-gray-300 dark:border-gray-600 text-[#E4B400] focus:ring-[#E4B400] dark:bg-gray-800"
         />
         <label htmlFor="estado" className="text-sm text-gray-600 dark:text-gray-300">
           Activo
@@ -90,7 +90,7 @@ export function AsocomunalForm({ municipios, onSubmit, loading = false, initialD
         <button
           type="submit"
           disabled={loading || formLoading}
-          className="flex-1 px-4 py-2.5 text-sm font-medium text-white bg-[#1B7F4B] rounded-lg hover:bg-[#1B7F4B]/90 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+          className="flex-1 px-4 py-2.5 text-sm font-medium text-white bg-[#E4B400] rounded-lg hover:bg-[#E4B400]/90 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
         >
           {formLoading ? "Guardando..." : "Guardar"}
         </button>

@@ -19,8 +19,8 @@ function Toggle({
       aria-checked={enabled}
       disabled={disabled}
       onClick={() => onChange(!enabled)}
-      className={`relative inline-flex h-6 w-11 shrink-0 items-center rounded-full transition-colors duration-200 focus:outline-none focus:ring-2 focus:ring-[#1B7F4B]/30 focus:border-[#1B7F4B] ${
-        enabled ? "bg-[#1B7F4B]" : "bg-gray-200 dark:bg-gray-600"
+      className={`relative inline-flex h-6 w-11 shrink-0 items-center rounded-full transition-colors duration-200 focus:outline-none focus:ring-2 focus:ring-[#E4B400]/30 focus:border-[#E4B400] ${
+        enabled ? "bg-[#E4B400]" : "bg-gray-200 dark:bg-gray-600"
       } ${disabled ? "opacity-50 cursor-not-allowed" : ""}`}
     >
       <span
@@ -88,7 +88,7 @@ function Configuracion() {
   // No-op: las notificaciones están deshabilitadas.
   const setNotif = (_key: keyof typeof notifs) => (_v: boolean) => {};
 
-  const inputCls = "w-full rounded-lg border border-gray-200 dark:border-gray-600 bg-white dark:bg-gray-900 px-3 py-2 text-base text-gray-800 dark:text-gray-100 focus:outline-none focus:ring-2 focus:ring-[#1B7F4B]/30 focus:border-[#1B7F4B] transition-all";
+  const inputCls = "w-full rounded-lg border border-gray-200 dark:border-gray-600 bg-white dark:bg-gray-900 px-3 py-2 text-base text-gray-800 dark:text-gray-100 focus:outline-none focus:ring-2 focus:ring-[#E4B400]/30 focus:border-[#E4B400] transition-all";
   const disabledContainerCls = "w-full rounded-lg border border-gray-200 dark:border-gray-600 px-3 py-2 text-base text-gray-600 dark:text-gray-300 bg-white dark:bg-gray-900 opacity-90";
 
   return (

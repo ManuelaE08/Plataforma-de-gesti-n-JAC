@@ -7,7 +7,7 @@ import { ModalRechazar } from "../../../components/ui/ModalRechazar";
 import { useSolicitudes, estadoVariant, type TipoAccion, type EstadoSolicitud, type CambioCampo, type SolicitudItem } from "../hooks/useSolicitudes";
 
 const card = "bg-white dark:bg-gray-800 rounded-xl border border-gray-100 dark:border-gray-700 shadow-sm";
-const input = "w-full border border-gray-200 dark:border-gray-600 bg-white dark:bg-gray-900 text-sm text-gray-600 dark:text-gray-300 placeholder:text-gray-400 dark:placeholder:text-gray-500 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-[#1B7F4B]/30 focus:border-[#1B7F4B] transition-all";
+const input = "w-full border border-gray-200 dark:border-gray-600 bg-white dark:bg-gray-900 text-sm text-gray-600 dark:text-gray-300 placeholder:text-gray-400 dark:placeholder:text-gray-500 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-[#E4B400]/30 focus:border-[#E4B400] transition-all";
 const selectCls = `appearance-none ${input} cursor-pointer`;
 
 // ─── Tabla de cambios ────────────────────────────────────────────────────────
@@ -27,7 +27,7 @@ function TablaCambios({ cambios, tipo }: { cambios: CambioCampo[]; tipo: Solicit
           <tr key={i} className="bg-white dark:bg-gray-800">
             <td className="px-3 py-2 text-gray-600 dark:text-gray-300 font-medium">{c.campo}</td>
             {esEdicion && <td className="px-3 py-2 text-red-500 dark:text-red-400">{c.valorAnterior ?? "—"}</td>}
-            <td className="px-3 py-2 text-[#1B7F4B] dark:text-emerald-400 font-medium">{c.valorNuevo}</td>
+            <td className="px-3 py-2 text-[#E4B400] dark:text-yellow-400 font-medium">{c.valorNuevo}</td>
           </tr>
         ))}
       </tbody>
@@ -76,7 +76,7 @@ function TarjetaSolicitud({
             {/* Badge origen: Acción Admin vs Propuesta Operador (solo en historial) */}
             {!esPendienteTab && (
               <span className={`inline-flex items-center px-2 py-0.5 rounded-full text-[10px] font-semibold ${s.esAccionAdmin
-                ? "bg-indigo-100 dark:bg-indigo-900/30 text-indigo-700 dark:text-indigo-400"
+                ? "bg-yellow-100 dark:bg-yellow-900/30 text-yellow-700 dark:text-yellow-400"
                 : "bg-amber-100 dark:bg-amber-900/30 text-amber-700 dark:text-amber-400"
                 }`}>
                 {s.esAccionAdmin ? "Acción directa Admin" : "Propuesta Operador"}
@@ -143,7 +143,7 @@ function TarjetaSolicitud({
               </button>
               <button
                 onClick={() => onAprobar(s.id)}
-                className="inline-flex items-center gap-1.5 px-4 py-2 rounded-lg text-sm font-semibold text-white bg-[#1B7F4B] hover:bg-[#166040] transition"
+                className="inline-flex items-center gap-1.5 px-4 py-2 rounded-lg text-sm font-semibold text-white bg-[#E4B400] hover:bg-[#cfa200] transition"
               >
                 <CheckCircle size={14} /> Aprobar
               </button>
@@ -213,7 +213,7 @@ function SolicitudesAdmin() {
               <button onClick={() => setAprobarId(null)} className="px-4 py-2 text-sm font-medium text-gray-600 dark:text-gray-300 bg-white dark:bg-gray-700 border border-gray-200 dark:border-gray-600 rounded-lg hover:bg-gray-50 dark:hover:bg-gray-600 transition-colors">
                 Cancelar
               </button>
-              <button onClick={() => { aprobar(aprobarId); setAprobarId(null); }} className="px-4 py-2 text-sm font-semibold text-white bg-[#1B7F4B] hover:bg-[#166340] rounded-lg transition-colors">
+              <button onClick={() => { aprobar(aprobarId); setAprobarId(null); }} className="px-4 py-2 text-sm font-semibold text-white bg-[#E4B400] hover:bg-[#cfa200] rounded-lg transition-colors">
                 Sí, aprobar
               </button>
             </div>
@@ -226,7 +226,7 @@ function SolicitudesAdmin() {
         <button
           onClick={() => setTab("pendientes")}
           className={`inline-flex items-center gap-2 px-4 py-2.5 text-sm font-medium border-b-2 transition-colors ${tab === "pendientes"
-            ? "border-[#1B7F4B] text-[#1B7F4B] dark:text-emerald-400"
+            ? "border-[#E4B400] text-[#E4B400] dark:text-yellow-400"
             : "border-transparent text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-300"
             }`}
         >
@@ -241,7 +241,7 @@ function SolicitudesAdmin() {
         <button
           onClick={() => setTab("historial")}
           className={`inline-flex items-center gap-2 px-4 py-2.5 text-sm font-medium border-b-2 transition-colors ${tab === "historial"
-            ? "border-[#1B7F4B] text-[#1B7F4B] dark:text-emerald-400"
+            ? "border-[#E4B400] text-[#E4B400] dark:text-yellow-400"
             : "border-transparent text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-300"
             }`}
         >

@@ -1,3 +1,63 @@
+@font-face {
+  font-family: 'Geomanist';
+  src: url('/fonts/geomanist-regular-webfont.woff2') format('woff2'),
+    url('/fonts/geomanist-regular-webfont.woff') format('woff'),
+    url('/fonts/geomanist-regular-webfont.ttf') format('truetype');
+  font-weight: normal;
+  font-style: normal;
+}
+
+@font-face {
+  font-family: 'Geomanist';
+  src: url('/fonts/geomanist-regular-italic-webfont.woff2') format('woff2'),
+    url('/fonts/geomanist-regular-italic-webfont.woff') format('woff'),
+    url('/fonts/geomanist-regular-italic-webfont.ttf') format('truetype');
+  font-weight: normal;
+  font-style: italic;
+}
+
+@font-face {
+  font-family: 'Marine';
+  src: url('/fonts/Marine-Regular.ttf') format('truetype');
+  font-weight: normal;
+  font-style: normal;
+}
+
+@font-face {
+  font-family: 'Marine';
+  src: url('/fonts/Marine-RegularItalic.ttf') format('truetype');
+  font-weight: normal;
+  font-style: italic;
+}
+
+@font-face {
+  font-family: 'Marine';
+  src: url('/fonts/Marine-UPLight.ttf') format('truetype');
+  font-weight: 300;
+  font-style: normal;
+}
+
+@font-face {
+  font-family: 'Marine';
+  src: url('/fonts/Marine-LightItalic.ttf') format('truetype');
+  font-weight: 300;
+  font-style: italic;
+}
+
+@font-face {
+  font-family: 'Marine';
+  src: url('/fonts/Marine-UPBold.ttf') format('truetype');
+  font-weight: bold;
+  font-style: normal;
+}
+
+@font-face {
+  font-family: 'Marine';
+  src: url('/fonts/Marine-UPBlack.ttf') format('truetype');
+  font-weight: 900;
+  font-style: normal;
+}
+
 :root {
   /* color-scheme eliminado de aquí para controlar el scrollbar manualmente */
   --primary: #1B7F4B;
@@ -23,7 +83,7 @@ html {
 body {
   min-height: 100vh;
   background: var(--dashboard-bg);
-  font-family: Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+  font-family: Marine, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
   color: var(--gray-900);
 }
 
@@ -31,7 +91,10 @@ body {
   box-sizing: border-box;
 }
 
-input, button, textarea, select {
+input,
+button,
+textarea,
+select {
   font: inherit;
 }
 
@@ -41,6 +104,7 @@ input, button, textarea, select {
 
 /* --- Personalización de las Barras de Desplazamiento --- */
 @layer base {
+
   /* 1. Motores basados en Webkit (Chrome, Safari, Edge, Opera) */
   ::-webkit-scrollbar {
     width: 8px;
@@ -49,37 +113,44 @@ input, button, textarea, select {
 
   /* Fondo del canal de la barra (Gris muy claro / Transparente) */
   ::-webkit-scrollbar-track {
-    background: rgba(243, 244, 246, 0.6); /* Equivalente a un gray-100 sutil */
+    background: rgba(243, 244, 246, 0.6);
+    /* Equivalente a un gray-100 sutil */
     border-radius: 9999px;
   }
 
   /* El indicador/pastilla (Gris suave para que sea sutil) */
   ::-webkit-scrollbar-thumb {
-    background: #cbd5e1; /* Gris claro estilizado */
+    background: #cbd5e1;
+    /* Gris claro estilizado */
     border-radius: 9999px;
-    border: 2px solid transparent; /* Efecto de padding interno */
+    border: 2px solid transparent;
+    /* Efecto de padding interno */
     background-clip: padding-box;
   }
 
   ::-webkit-scrollbar-thumb:hover {
-    background: #94a3b8; /* Se oscurece ligeramente al pasar el cursor */
+    background: #94a3b8;
+    /* Se oscurece ligeramente al pasar el cursor */
     border: 2px solid transparent;
     background-clip: padding-box;
   }
 
   /* Adaptación para cuando tu app activa el modo oscuro real mediante la clase .dark */
   .dark ::-webkit-scrollbar-track {
-    background: #1f2937; /* bg-gray-800 */
+    background: #1f2937;
+    /* bg-gray-800 */
   }
 
   .dark ::-webkit-scrollbar-thumb {
-    background: #4b5563; /* bg-gray-600 */
+    background: #4b5563;
+    /* bg-gray-600 */
     border: 2px solid transparent;
     background-clip: padding-box;
   }
 
   .dark ::-webkit-scrollbar-thumb:hover {
-    background: #6b7280; /* bg-gray-500 */
+    background: #6b7280;
+    /* bg-gray-500 */
     border: 2px solid transparent;
     background-clip: padding-box;
   }
@@ -134,37 +205,46 @@ input, button, textarea, select {
 
 /* Number pop-in (#02) */
 @keyframes t-digit-pop-in {
-  0%   {
-    transform: translate(
-      calc(var(--digit-distance) * var(--digit-dir-x)),
-      calc(var(--digit-distance) * var(--digit-dir-y))
-    );
+  0% {
+    transform: translate(calc(var(--digit-distance) * var(--digit-dir-x)),
+        calc(var(--digit-distance) * var(--digit-dir-y)));
     opacity: 0;
     filter: blur(var(--digit-blur));
   }
-  100% { transform: translate(0, 0); opacity: 1; filter: blur(0); }
+
+  100% {
+    transform: translate(0, 0);
+    opacity: 1;
+    filter: blur(0);
+  }
 }
 
 .t-digit-group {
   display: inline-flex;
   align-items: baseline;
 }
+
 .t-digit {
   display: inline-block;
   will-change: transform, opacity, filter;
 }
+
 .t-digit-group.is-animating .t-digit {
   animation: t-digit-pop-in var(--digit-dur) var(--digit-ease) both;
 }
+
 .t-digit-group.is-animating .t-digit[data-stagger="1"] {
   animation-delay: var(--digit-stagger);
 }
+
 .t-digit-group.is-animating .t-digit[data-stagger="2"] {
   animation-delay: calc(var(--digit-stagger) * 2);
 }
 
 @media (prefers-reduced-motion: reduce) {
-  .t-digit-group .t-digit { animation: none !important; }
+  .t-digit-group .t-digit {
+    animation: none !important;
+  }
 }
 
 /* Texts reveal (#18) */
@@ -174,19 +254,26 @@ input, button, textarea, select {
   transform: translateY(var(--stagger-distance));
   filter: blur(var(--stagger-blur));
   transition:
-    opacity   var(--stagger-dur) var(--stagger-ease),
+    opacity var(--stagger-dur) var(--stagger-ease),
     transform var(--stagger-dur) var(--stagger-ease),
-    filter    var(--stagger-dur) var(--stagger-ease);
+    filter var(--stagger-dur) var(--stagger-ease);
   will-change: transform, opacity, filter;
 }
-.t-stagger-line--2 { transition-delay: var(--stagger-stagger); }
-.t-stagger-line--3 { transition-delay: calc(var(--stagger-stagger) * 2); }
+
+.t-stagger-line--2 {
+  transition-delay: var(--stagger-stagger);
+}
+
+.t-stagger-line--3 {
+  transition-delay: calc(var(--stagger-stagger) * 2);
+}
 
 .t-stagger.is-shown .t-stagger-line {
   opacity: 1;
   transform: translateY(0);
   filter: blur(0);
 }
+
 .t-stagger.is-hiding .t-stagger-line {
   opacity: 0;
   transform: translateY(0);
@@ -199,14 +286,19 @@ input, button, textarea, select {
 }
 
 @media (prefers-reduced-motion: reduce) {
-  .t-stagger-line { transition: none !important; }
+  .t-stagger-line {
+    transition: none !important;
+  }
 }
 
 /* Skeleton loader and reveal (#14).
    Adaptación de capas: el contenido va en el flujo normal (define la
    altura del dashboard) y el skeleton es el overlay absoluto encima.
    Las duraciones/easing/transiciones se conservan verbatim. */
-.t-skel { position: relative; }
+.t-skel {
+  position: relative;
+}
+
 .t-skel-content {
   position: relative;
   z-index: 1;
@@ -214,8 +306,9 @@ input, button, textarea, select {
   filter: blur(var(--reveal-blur));
   transition:
     opacity var(--reveal-dur) var(--reveal-ease),
-    filter  var(--reveal-dur) var(--reveal-ease);
+    filter var(--reveal-dur) var(--reveal-ease);
 }
+
 .t-skel-skeleton {
   position: absolute;
   inset: 0;
@@ -224,57 +317,86 @@ input, button, textarea, select {
   filter: blur(0);
   transition:
     opacity var(--reveal-dur) var(--reveal-ease),
-    filter  var(--reveal-dur) var(--reveal-ease);
+    filter var(--reveal-dur) var(--reveal-ease);
 }
+
 .t-skel.is-revealed .t-skel-skeleton {
   opacity: 0;
   filter: blur(var(--reveal-blur));
 }
+
 .t-skel.is-revealed .t-skel-content {
   opacity: 1;
   filter: blur(0);
 }
 
-.t-skel-skeleton.is-pulsing > * {
+.t-skel-skeleton.is-pulsing>* {
   animation: t-skel-pulse var(--pulse-dur) ease-in-out var(--pulse-count);
 }
+
 @keyframes t-skel-pulse {
-  0%, 100% { opacity: 1; }
-  50%      { opacity: var(--pulse-min); }
+
+  0%,
+  100% {
+    opacity: 1;
+  }
+
+  50% {
+    opacity: var(--pulse-min);
+  }
 }
 
 @media (prefers-reduced-motion: reduce) {
-  .t-skel-skeleton, .t-skel-content {
+
+  .t-skel-skeleton,
+  .t-skel-content {
     transition: none !important;
   }
-  .t-skel-skeleton.is-pulsing > * { animation: none !important; }
+
+  .t-skel-skeleton.is-pulsing>* {
+    animation: none !important;
+  }
 }
 
 /* Attention pulse — anillo pulsante para destacar la tarjeta del dashboard */
 @keyframes attention-pulse {
-  0%, 100% { box-shadow: 0 0 0 0 rgba(27, 127, 75, 0.45); }
-  50%      { box-shadow: 0 0 0 12px rgba(27, 127, 75, 0); }
+
+  0%,
+  100% {
+    box-shadow: 0 0 0 0 rgba(27, 127, 75, 0.45);
+  }
+
+  50% {
+    box-shadow: 0 0 0 12px rgba(27, 127, 75, 0);
+  }
 }
+
 .attention-pulse {
   animation: attention-pulse 2.2s ease-out infinite;
 }
+
 @media (prefers-reduced-motion: reduce) {
-  .attention-pulse { animation: none !important; }
+  .attention-pulse {
+    animation: none !important;
+  }
 }
 
 /* Avatar group hover (#11) */
 .t-avatar {
   transform-origin: center;
   transform:
-    translateY(var(--shift, 0px))
-    scale(var(--scale-active, 1));
+    translateY(var(--shift, 0px)) scale(var(--scale-active, 1));
   transition: transform var(--avatar-dur) var(--avatar-ease-in);
   will-change: transform;
 }
 
 @media (prefers-reduced-motion: reduce) {
-  .t-avatar { transition: none !important; transform: none !important; }
+  .t-avatar {
+    transition: none !important;
+    transform: none !important;
+  }
 }
+
 .leaflet-container .leaflet-interactive:focus,
 .leaflet-container .leaflet-interactive:focus-visible,
 .leaflet-container svg path:focus,

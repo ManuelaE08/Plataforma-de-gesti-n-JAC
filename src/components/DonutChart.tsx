@@ -34,7 +34,7 @@ function DonutChart({ urban, rural, total }: DonutChartProps) {
             <circle cx="120" cy="120" r={radius} fill="none" stroke="#34D399" strokeWidth="26"
               strokeDasharray={`${(ruralValue / total) * circumference} ${circumference}`}
               strokeDashoffset={0} strokeLinecap="round" transform="rotate(-90 120 120)" />
-            <circle cx="120" cy="120" r={radius} fill="none" stroke="#1B7F4B" strokeWidth="26"
+            <circle cx="120" cy="120" r={radius} fill="none" stroke="#E4B400" strokeWidth="26"
               strokeDasharray={`${(urbanValue / total) * circumference} ${circumference}`}
               strokeDashoffset={-((ruralValue / total) * circumference)}
               strokeLinecap="round" transform="rotate(-90 120 120)" />
@@ -53,13 +53,13 @@ function DonutChart({ urban, rural, total }: DonutChartProps) {
         {/* Urbanas */}
         <div className="rounded-2xl border border-slate-200 dark:border-gray-700 bg-slate-50 dark:bg-gray-800/40 p-4">
           <div className="flex items-center gap-3">
-            <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-[#1B7F4B] text-white">
+            <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-[#E4B400] text-white">
             </div>
             <p className="text-base font-bold text-slate-900 dark:text-white">Urbanas</p>
           </div>
 
           <div className="mt-4 flex items-end gap-2">
-            <span className="text-4xl font-extrabold leading-none text-[#1B7F4B]">
+            <span className="text-4xl font-extrabold leading-none text-[#E4B400]">
               {urbanValue}
             </span>
             <span className="mb-0.5 text-sm font-semibold text-slate-500 dark:text-slate-400">
@@ -68,8 +68,8 @@ function DonutChart({ urban, rural, total }: DonutChartProps) {
           </div>
 
           <div className="mt-4 border-t border-slate-200 dark:border-gray-700 pt-3">
-            <div className="inline-flex items-center rounded-xl bg-[#1B7F4B]/10 px-3 py-1.5">
-              <span className="text-2xl font-extrabold text-[#1B7F4B]">
+            <div className="inline-flex items-center rounded-xl bg-[#E4B400]/10 px-3 py-1.5">
+              <span className="text-2xl font-extrabold text-[#E4B400]">
                 {total > 0 ? Math.round((urbanValue / total) * 100) : 0}%
               </span>
             </div>
